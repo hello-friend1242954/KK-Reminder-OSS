@@ -103,7 +103,7 @@ public class DoneListViewFragment extends Fragment {
 
     order = activity.order;
     if(order == 1) {
-      id = activity.generalSettings.getNonScheduledLists().get(activity.which_menu_open - 1).getId();
+      id = activity.generalSettings.getNonScheduledLists().get(activity.whichMenuOpen - 1).getId();
     }
 
     View view = inflater.inflate(R.layout.listview, container, false);

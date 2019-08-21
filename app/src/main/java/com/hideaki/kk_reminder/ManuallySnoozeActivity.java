@@ -115,6 +115,7 @@ public class ManuallySnoozeActivity extends AppCompatActivity implements View.On
     for(int i = 1; i <= child_id; i++) {
       manager.cancel(parent_id + i);
     }
+    checkNotNull(id_table);
     id_table.remove(Integer.toBinaryString(parent_id));
     stringPreferences
         .edit()

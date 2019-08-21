@@ -31,6 +31,7 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.EditText;
 
 import com.takisoft.fix.support.v7.preference.EditTextPreference;
 import com.takisoft.fix.support.v7.preference.PreferenceCategory;
@@ -244,6 +245,7 @@ public class MainEditFragment extends BasePreferenceFragmentCompat
       detail = (EditTextPreference)findPreference("detail");
       detail.setText(detail_str);
       detail.setTitle(detail_str);
+      detail.setOnPreferenceClickListener(this);
       detail.setOnPreferenceChangeListener(this);
 
       //scheduleセクション
@@ -592,8 +594,8 @@ public class MainEditFragment extends BasePreferenceFragmentCompat
                   }
 
                   if(order != 0) {
-                    activity.setIntGeneralInSharedPreferences(MENU_POSITION, activity.which_menu_open - 1);
-                    activity.menuItem = activity.menu.getItem(activity.which_menu_open);
+                    activity.setIntGeneralInSharedPreferences(MENU_POSITION, activity.whichMenuOpen - 1);
+                    activity.menuItem = activity.menu.getItem(activity.whichMenuOpen);
                   }
                   activity.navigationView.setCheckedItem(activity.menuItem);
 
@@ -677,6 +679,15 @@ public class MainEditFragment extends BasePreferenceFragmentCompat
 
     switch(preference.getKey()) {
 
+      case "detail": {
+
+        EditText editText = detail.getEditText();
+        if(editText != null) {
+          editText.requestFocus();
+          editText.setSelection(editText.getText().length());
+        }
+        return true;
+      }
       case "date_picker": {
 
         DatePickerDialogFragment dialog = new DatePickerDialogFragment();
@@ -859,7 +870,7 @@ public class MainEditFragment extends BasePreferenceFragmentCompat
 
         //リストのIDをitemに登録する
         item.setWhich_list_belongs(
-            activity.generalSettings.getNonScheduledLists().get(activity.which_menu_open - 1).getId()
+            activity.generalSettings.getNonScheduledLists().get(activity.whichMenuOpen - 1).getId()
         );
 
         if(is_edit && !is_cloning_task) {
@@ -931,8 +942,8 @@ public class MainEditFragment extends BasePreferenceFragmentCompat
       }
 
       if(order != 0) {
-        activity.setIntGeneralInSharedPreferences(MENU_POSITION, activity.which_menu_open + 1);
-        activity.menuItem = activity.menu.getItem(activity.which_menu_open);
+        activity.setIntGeneralInSharedPreferences(MENU_POSITION, activity.whichMenuOpen + 1);
+        activity.menuItem = activity.menu.getItem(activity.whichMenuOpen);
       }
       activity.navigationView.setCheckedItem(activity.menuItem);
 

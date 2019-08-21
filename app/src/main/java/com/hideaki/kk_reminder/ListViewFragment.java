@@ -80,8 +80,8 @@ public class ListViewFragment extends Fragment {
   @Override
   public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, Bundle savedInstanceState) {
 
-    if(activity.which_menu_open > 0) {
-      id = activity.generalSettings.getNonScheduledLists().get(activity.which_menu_open - 1).getId();
+    if(activity.whichMenuOpen > 0) {
+      id = activity.generalSettings.getNonScheduledLists().get(activity.whichMenuOpen - 1).getId();
     }
     else id = 0;
 

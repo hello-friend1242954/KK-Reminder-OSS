@@ -36,7 +36,6 @@ import java.util.List;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 import static com.hideaki.kk_reminder.UtilClass.IS_EXPANDABLE_TODO;
-import static com.hideaki.kk_reminder.UtilClass.MENU_POSITION;
 import static com.hideaki.kk_reminder.UtilClass.generateUniqueId;
 import static com.hideaki.kk_reminder.UtilClass.setCursorDrawableColor;
 
@@ -53,7 +52,7 @@ public class ActionBarFragment extends Fragment {
   MenuItem searchItem;
   private MenuItem tagSearchItem;
   MenuItem sortItem;
-  long checked_tag;
+  long checkedTag;
   List<List<Item>> filteredLists;
   List<Item> filteredList;
   List<NonScheduledList> nonScheduledLists;
@@ -143,7 +142,7 @@ public class ActionBarFragment extends Fragment {
     if(order == 0) {
       toggleItem.setVisible(true);
       searchItem.setVisible(true);
-      if(activity.is_expandable_todo) {
+      if(activity.isExpandableTodo) {
         alignTop.setVisible(true);
         addItem.setVisible(true);
       }
@@ -151,7 +150,7 @@ public class ActionBarFragment extends Fragment {
     else if(order == 1) {
       toggleItem.setVisible(true);
       searchItem.setVisible(true);
-      if(activity.generalSettings.getNonScheduledLists().get(activity.which_menu_open - 1).isTodo()) {
+      if(activity.generalSettings.getNonScheduledLists().get(activity.whichMenuOpen - 1).isTodo()) {
         addItem.setVisible(true);
         sortItem.setVisible(true);
       }
@@ -197,18 +196,18 @@ public class ActionBarFragment extends Fragment {
                 @Override
                 public boolean onMenuItemClick(MenuItem item) {
 
-                  if(tag.getId() != checked_tag) {
+                  if(tag.getId() != checkedTag) {
                     int size = menu.size();
                     for(int i = 0; i < size; i++) {
                       MenuItem menuItem = menu.getItem(i);
                       if(menuItem.isChecked()) menuItem.setChecked(false);
                     }
                     item.setChecked(true);
-                    checked_tag = tag.getId();
+                    checkedTag = tag.getId();
 
                     if(order == 0) {
 
-                      if(activity.is_expandable_todo) {
+                      if(activity.isExpandableTodo) {
                         MyExpandableListAdapter.children = activity.getChildren(MyDatabaseHelper.TODO_TABLE);
 
                         filteredLists = new ArrayList<>();
@@ -250,7 +249,7 @@ public class ActionBarFragment extends Fragment {
                     }
                     else if(order == 1) {
 
-                      if(activity.generalSettings.getNonScheduledLists().get(activity.which_menu_open - 1).isTodo()) {
+                      if(activity.generalSettings.getNonScheduledLists().get(activity.whichMenuOpen - 1).isTodo()) {
                         MyListAdapter.itemList = activity.getNonScheduledItem(MyDatabaseHelper.TODO_TABLE);
 
                         filteredList = new ArrayList<>();
@@ -311,7 +310,7 @@ public class ActionBarFragment extends Fragment {
                 }
               });
 
-          if(tag.getId() == checked_tag) {
+          if(tag.getId() == checkedTag) {
             SpannableString spannable = new SpannableString(tag.getName());
             spannable.setSpan(new ForegroundColorSpan(Color.RED), 0, tag.getName().length(),
                 Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
@@ -439,13 +438,13 @@ public class ActionBarFragment extends Fragment {
     doneDrawable = (GradientDrawable)doneDrawable.mutate();
 
     if(order == 0) {
-      if(activity.is_expandable_todo) {
+      if(activity.isExpandableTodo) {
         setTodoPushedColor();
       }
       else setDonePushedColor();
     }
     else if(order == 1) {
-      if(activity.generalSettings.getNonScheduledLists().get(activity.which_menu_open - 1).isTodo()) {
+      if(activity.generalSettings.getNonScheduledLists().get(activity.whichMenuOpen - 1).isTodo()) {
         setTodoPushedColor();
       }
       else setDonePushedColor();
@@ -458,7 +457,7 @@ public class ActionBarFragment extends Fragment {
       public void onClick(View v) {
 
         if(order == 0) {
-          if(!activity.is_expandable_todo) {
+          if(!activity.isExpandableTodo) {
             alignTop.setVisible(true);
             addItem.setVisible(true);
             activity.setBooleanGeneralInSharedPreferences(IS_EXPANDABLE_TODO, true);
@@ -468,10 +467,10 @@ public class ActionBarFragment extends Fragment {
           }
         }
         else if(order == 1) {
-          if(!activity.generalSettings.getNonScheduledLists().get(activity.which_menu_open - 1).isTodo()) {
+          if(!activity.generalSettings.getNonScheduledLists().get(activity.whichMenuOpen - 1).isTodo()) {
             addItem.setVisible(true);
             sortItem.setVisible(true);
-            activity.generalSettings.getNonScheduledLists().get(activity.which_menu_open - 1).setTodo(true);
+            activity.generalSettings.getNonScheduledLists().get(activity.whichMenuOpen - 1).setTodo(true);
             activity.updateSettingsDB();
             activity.showListViewFragment();
 
@@ -486,7 +485,7 @@ public class ActionBarFragment extends Fragment {
       public void onClick(View v) {
 
         if(order == 0) {
-          if(activity.is_expandable_todo) {
+          if(activity.isExpandableTodo) {
             alignTop.setVisible(false);
             addItem.setVisible(false);
             activity.setBooleanGeneralInSharedPreferences(IS_EXPANDABLE_TODO, false);
@@ -496,10 +495,10 @@ public class ActionBarFragment extends Fragment {
           }
         }
         else if(order == 1) {
-          if(activity.generalSettings.getNonScheduledLists().get(activity.which_menu_open - 1).isTodo()) {
+          if(activity.generalSettings.getNonScheduledLists().get(activity.whichMenuOpen - 1).isTodo()) {
             addItem.setVisible(false);
             sortItem.setVisible(false);
-            activity.generalSettings.getNonScheduledLists().get(activity.which_menu_open - 1).setTodo(false);
+            activity.generalSettings.getNonScheduledLists().get(activity.whichMenuOpen - 1).setTodo(false);
             activity.updateSettingsDB();
             activity.showDoneListViewFragment();
 
@@ -611,7 +610,7 @@ public class ActionBarFragment extends Fragment {
         addItem.setVisible(false);
         tagSearchItem.setVisible(true);
 
-        checked_tag = -1;
+        checkedTag = -1;
         searchView.requestFocus();
       }
     });
@@ -623,14 +622,14 @@ public class ActionBarFragment extends Fragment {
         //各アイテムの表示処理
         if(order == 0) {
           toggleItem.setVisible(true);
-          if(activity.is_expandable_todo) {
+          if(activity.isExpandableTodo) {
             alignTop.setVisible(true);
             addItem.setVisible(true);
           }
         }
         else if(order == 1) {
           toggleItem.setVisible(true);
-          if(activity.generalSettings.getNonScheduledLists().get(activity.which_menu_open - 1).isTodo()) {
+          if(activity.generalSettings.getNonScheduledLists().get(activity.whichMenuOpen - 1).isTodo()) {
             addItem.setVisible(true);
             sortItem.setVisible(true);
           }
@@ -641,9 +640,9 @@ public class ActionBarFragment extends Fragment {
         }
         tagSearchItem.setVisible(false);
 
-        if(checked_tag != -1) {
+        if(checkedTag != -1) {
           if(order == 0) {
-            if(activity.is_expandable_todo) {
+            if(activity.isExpandableTodo) {
               MyExpandableListAdapter.children = activity.getChildren(MyDatabaseHelper.TODO_TABLE);
               activity.expandableListAdapter.notifyDataSetChanged();
             }
@@ -653,7 +652,7 @@ public class ActionBarFragment extends Fragment {
             }
           }
           else if(order == 1) {
-            if(activity.generalSettings.getNonScheduledLists().get(activity.which_menu_open - 1).isTodo()) {
+            if(activity.generalSettings.getNonScheduledLists().get(activity.whichMenuOpen - 1).isTodo()) {
               MyListAdapter.itemList = activity.getNonScheduledItem(MyDatabaseHelper.TODO_TABLE);
               activity.listAdapter.notifyDataSetChanged();
             }
@@ -682,17 +681,17 @@ public class ActionBarFragment extends Fragment {
       public boolean onQueryTextChange(String text) {
 
         if(text == null || text.equals("")) {
-          if(order == 0 && activity.is_expandable_todo) {
+          if(order == 0 && activity.isExpandableTodo) {
             activity.expandableListView.clearTextFilter();
             activity.expandableListAdapter.getFilter().filter("");
           }
           else activity.listView.clearTextFilter();
 
-          checked_tag = -1;
+          checkedTag = -1;
           filteredText = null;
         }
         else {
-          if(order == 0 && activity.is_expandable_todo) {
+          if(order == 0 && activity.isExpandableTodo) {
 //            activity.expandableListView.setFilterText(text);
             activity.expandableListAdapter.getFilter().filter(text);
           }

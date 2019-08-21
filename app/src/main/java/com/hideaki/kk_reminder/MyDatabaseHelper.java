@@ -16,8 +16,17 @@ public class MyDatabaseHelper extends SQLiteOpenHelper {
       "CREATE TABLE done(_id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, item_id INTEGER NOT NULL, serial BLOB NOT NULL)";
   private static final String CREATE_SETTINGS_TABLE =
       "CREATE TABLE settings(_id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, item_id INTEGER NOT NULL, serial BLOB NOT NULL)";
+  private static MyDatabaseHelper singleton = null;
 
-  MyDatabaseHelper(Context context) {
+  public static synchronized MyDatabaseHelper getInstance(Context context) {
+
+    if(singleton == null) {
+      singleton = new MyDatabaseHelper(context);
+    }
+    return singleton;
+  }
+
+  private MyDatabaseHelper(Context context) {
 
     super(context, DATABASE, null, 1);
   }

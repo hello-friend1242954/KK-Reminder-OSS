@@ -27,7 +27,8 @@ import static com.google.common.base.Preconditions.checkNotNull;
 import static com.hideaki.kk_reminder.UtilClass.PLAY_SLIDE_ANIMATION;
 
 public class GeneralSettingsFragment extends BasePreferenceFragmentCompat
-    implements Preference.OnPreferenceClickListener, MyCheckBoxPreference.MyCheckBoxPreferenceCheckedChangeListener {
+    implements Preference.OnPreferenceClickListener,
+    MyCheckBoxPreference.MyCheckBoxPreferenceCheckedChangeListener {
 
   static final String TAG = GeneralSettingsFragment.class.getSimpleName();
 
@@ -63,6 +64,7 @@ public class GeneralSettingsFragment extends BasePreferenceFragmentCompat
 
     addPreferencesFromResource(R.xml.general_settings_edit);
 
+    PreferenceScreen defaultControlTime = (PreferenceScreen)findPreference("control_time");
     PreferenceScreen defaultTextSize = (PreferenceScreen)findPreference("text_size");
     PreferenceScreen defaultNewTask = (PreferenceScreen)findPreference("new_task");
     PreferenceScreen manuallySnooze = (PreferenceScreen)findPreference("manually_snooze");
@@ -74,6 +76,7 @@ public class GeneralSettingsFragment extends BasePreferenceFragmentCompat
     PreferenceScreen backup = (PreferenceScreen)findPreference("backup");
     PreferenceScreen about = (PreferenceScreen)findPreference("this_app");
 
+    defaultControlTime.setOnPreferenceClickListener(this);
     defaultTextSize.setOnPreferenceClickListener(this);
     defaultNewTask.setOnPreferenceClickListener(this);
     manuallySnooze.setOnPreferenceClickListener(this);
@@ -84,7 +87,9 @@ public class GeneralSettingsFragment extends BasePreferenceFragmentCompat
     backup.setOnPreferenceClickListener(this);
     about.setOnPreferenceClickListener(this);
 
-    if(activity.is_premium) getPreferenceScreen().removePreference(adsCategory);
+    if(activity.is_premium) {
+      getPreferenceScreen().removePreference(adsCategory);
+    }
   }
 
   @Override
@@ -114,8 +119,12 @@ public class GeneralSettingsFragment extends BasePreferenceFragmentCompat
     actionBar.setTitle(R.string.settings);
 
     //チェック状態の初期化
-    if(activity.play_slide_animation) animation.setChecked(true);
-    else animation.setChecked(false);
+    if(activity.play_slide_animation) {
+      animation.setChecked(true);
+    }
+    else {
+      animation.setChecked(false);
+    }
 
     return view;
   }
@@ -125,47 +134,43 @@ public class GeneralSettingsFragment extends BasePreferenceFragmentCompat
 
     switch(preference.getKey()) {
 
+      case "control_time": {
+        transitionFragment(DefaultControlTimeEditFragment.newInstance());
+        return true;
+      }
       case "text_size": {
-
         transitionFragment(DefaultTextSizeEditFragment.newInstance());
         return true;
       }
       case "new_task": {
-
         activity.showMainEditFragment(activity.generalSettings.getItem());
         return true;
       }
       case "manually_snooze": {
-
         transitionFragment(DefaultManuallySnoozeFragment.newInstance());
         return true;
       }
       case "disable_ads": {
-
         activity.promotionDialog.show();
         return true;
       }
       case "primary_color": {
-
         ColorPickerListAdapter.is_general_settings = true;
         activity.showColorPickerListViewFragment();
         return true;
       }
       case "secondary_color": {
-
         ColorPickerListAdapter.is_general_settings = true;
         activity.generalSettings.getTheme().setColor_primary(false);
         activity.showColorPickerListViewFragment();
         return true;
       }
       case "backup": {
-
         backupAndRestoreFragment = BackupAndRestoreFragment.newInstance();
         transitionFragment(backupAndRestoreFragment);
         return true;
       }
       case "this_app": {
-
         activity.showAboutThisAppFragment();
         return true;
       }

@@ -81,7 +81,7 @@ public class SortableListView extends ListView {
     if(TagEditListAdapter.is_sorting) {
       return eventToPosition(ev) != 0;
     }
-    return MyListAdapter.is_sorting || ManageListAdapter.is_sorting || NotesTodoListAdapter.is_sorting
+    return MyListAdapter.is_sorting || ManageListAdapter.is_sorting || NotesTodoListAdapter.isSorting
         || super.onInterceptTouchEvent(ev);
   }
 
@@ -294,7 +294,7 @@ public class SortableListView extends ListView {
     else if(TagEditListAdapter.is_sorting) {
       layoutParams.y = rawY - 100;
     }
-    else if(NotesTodoListAdapter.is_sorting) {
+    else if(NotesTodoListAdapter.isSorting) {
       layoutParams.y = rawY - 85;
     }
   }

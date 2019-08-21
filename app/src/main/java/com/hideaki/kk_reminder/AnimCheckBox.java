@@ -45,23 +45,29 @@ public class AnimCheckBox extends View implements Checkable {
   private OnCheckedChangeListener mOnCheckedChangeListener;
   private MainActivity activity;
   private ManuallySnoozeActivity manuallySnoozeActivity;
+  private boolean isAnimation;
 
   public AnimCheckBox(Context context) {
 
     this(context, null);
-    if(context instanceof MainActivity) activity = (MainActivity)context;
+    if(context instanceof MainActivity) {
+      activity = (MainActivity)context;
+    }
     else if(context instanceof ManuallySnoozeActivity) {
       manuallySnoozeActivity = (ManuallySnoozeActivity)context;
     }
     else if(context instanceof ContextWrapper) {
       activity = (MainActivity)((ContextWrapper)context).getBaseContext();
     }
+    isAnimation = true;
   }
 
   public AnimCheckBox(Context context, AttributeSet attrs) {
 
     super(context, attrs);
-    if(context instanceof MainActivity) activity = (MainActivity)context;
+    if(context instanceof MainActivity) {
+      activity = (MainActivity)context;
+    }
     else if(context instanceof ManuallySnoozeActivity) {
       manuallySnoozeActivity = (ManuallySnoozeActivity)context;
     }
@@ -69,18 +75,19 @@ public class AnimCheckBox extends View implements Checkable {
       activity = (MainActivity)((ContextWrapper)context).getBaseContext();
     }
     init(attrs);
+    isAnimation = true;
   }
 
   private void init(AttributeSet attrs) {
 
     boolean checked = mChecked;
-    if (attrs != null) {
+    if(attrs != null) {
       TypedArray array = getContext().obtainStyledAttributes(attrs, R.styleable.AnimCheckBox);
-      mStrokeWidth = (int) array.getDimension(R.styleable.AnimCheckBox_stroke_width, dip(mStrokeWidth));
+      mStrokeWidth = (int)array.getDimension(R.styleable.AnimCheckBox_stroke_width, dip(mStrokeWidth));
       if(activity != null) {
         int order = activity.order;
-        if((order == 0 && !activity.is_expandable_todo)
-            || (order == 1 && !activity.generalSettings.getNonScheduledLists().get(activity.which_menu_open - 1).isTodo())) {
+        if((order == 0 && !activity.isExpandableTodo)
+            || (order == 1 && !activity.generalSettings.getNonScheduledLists().get(activity.whichMenuOpen - 1).isTodo())) {
           mStrokeColor = Color.GRAY;
         }
         else {
@@ -94,7 +101,8 @@ public class AnimCheckBox extends View implements Checkable {
       }
       checked = array.getBoolean(R.styleable.AnimCheckBox_checked, false);
       array.recycle();
-    } else {
+    }
+    else {
       mStrokeWidth = dip(mStrokeWidth);
     }
     mPaint.setStyle(Paint.Style.STROKE);
@@ -103,6 +111,7 @@ public class AnimCheckBox extends View implements Checkable {
     super.setOnClickListener(new OnClickListener() {
       @Override
       public void onClick(View v) {
+
         setChecked(!mChecked);
       }
     });
@@ -111,21 +120,24 @@ public class AnimCheckBox extends View implements Checkable {
 
   @Override
   public boolean dispatchTouchEvent(MotionEvent event) {
+
     return super.dispatchTouchEvent(event);
   }
 
   @Override
   public boolean onTouchEvent(MotionEvent event) {
+
     return super.onTouchEvent(event);
   }
 
   @Override
   protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
+
     int width = MeasureSpec.getSize(widthMeasureSpec);
     int height = MeasureSpec.getSize(heightMeasureSpec);
-    if (MeasureSpec.getMode(widthMeasureSpec) == MeasureSpec.AT_MOST &&
+    if(MeasureSpec.getMode(widthMeasureSpec) == MeasureSpec.AT_MOST &&
         MeasureSpec.getMode(heightMeasureSpec) == MeasureSpec.AT_MOST) {
-      ViewGroup.MarginLayoutParams params = (ViewGroup.MarginLayoutParams) getLayoutParams();
+      ViewGroup.MarginLayoutParams params = (ViewGroup.MarginLayoutParams)getLayoutParams();
 
       width = height = Math.min(dip(defaultSize) - params.leftMargin - params.rightMargin,
           dip(defaultSize) - params.bottomMargin - params.topMargin);
@@ -137,14 +149,15 @@ public class AnimCheckBox extends View implements Checkable {
 
   @Override
   protected void onLayout(boolean changed, int left, int top, int right, int bottom) {
+
     super.onLayout(changed, left, top, right, bottom);
     size = getWidth();
     radius = (getWidth() - (2 * mStrokeWidth)) / 2;
     mRectF.set(mStrokeWidth, mStrokeWidth, size - mStrokeWidth, size - mStrokeWidth);
     mInnerRectF.set(mRectF);
     mInnerRectF.inset(mStrokeWidth / 2, mStrokeWidth / 2);
-    mHookStartY = (float) (size / 2 - (radius * mSin27 + (radius - radius * mSin63)));
-    mBaseLeftHookOffset = (float) (radius * (1 - mSin63)) + mStrokeWidth / 2;
+    mHookStartY = (float)(size / 2 - (radius * mSin27 + (radius - radius * mSin63)));
+    mBaseLeftHookOffset = (float)(radius * (1 - mSin63)) + mStrokeWidth / 2;
     mBaseRightHookOffset = 0f;
     mEndLeftHookOffset = mBaseLeftHookOffset + (2 * size / 3 - mHookStartY) * 0.33f;
     mEndRightHookOffset = mBaseRightHookOffset + (size / 3 + mHookStartY) * 0.38f;
@@ -154,12 +167,14 @@ public class AnimCheckBox extends View implements Checkable {
 
   @Override
   protected void onDraw(Canvas canvas) {
+
     super.onDraw(canvas);
     drawCircle(canvas);
     drawHook(canvas);
   }
 
   private void drawCircle(Canvas canvas) {
+
     initDrawStrokeCirclePaint();
     canvas.drawArc(mRectF, 202, mSweepAngle, false, mPaint);
     initDrawAlphaStrokeCirclePaint();
@@ -169,20 +184,24 @@ public class AnimCheckBox extends View implements Checkable {
   }
 
   private void drawHook(Canvas canvas) {
-    if (mHookOffset == 0)
+
+    if(mHookOffset == 0) {
       return;
+    }
     initDrawHookPaint();
     mPath.reset();
     float offset;
-    if (mHookOffset <= (2 * size / 3 - mHookStartY - mBaseLeftHookOffset)) {
+    if(mHookOffset <= (2 * size / 3 - mHookStartY - mBaseLeftHookOffset)) {
       mPath.moveTo(mBaseLeftHookOffset, mBaseLeftHookOffset + mHookStartY);
       mPath.lineTo(mBaseLeftHookOffset + mHookOffset, mBaseLeftHookOffset + mHookStartY + mHookOffset);
-    } else if (mHookOffset <= mHookSize) {
+    }
+    else if(mHookOffset <= mHookSize) {
       mPath.moveTo(mBaseLeftHookOffset, mBaseLeftHookOffset + mHookStartY);
       mPath.lineTo(2 * size / 3 - mHookStartY, 2 * size / 3);
       mPath.lineTo(mHookOffset + mBaseLeftHookOffset,
           2 * size / 3 - (mHookOffset - (2 * size / 3 - mHookStartY - mBaseLeftHookOffset)));
-    } else {
+    }
+    else {
       offset = mHookOffset - mHookSize;
       mPath.moveTo(mBaseLeftHookOffset + offset, mBaseLeftHookOffset + mHookStartY + offset);
       mPath.lineTo(2 * size / 3 - mHookStartY, 2 * size / 3);
@@ -193,6 +212,7 @@ public class AnimCheckBox extends View implements Checkable {
   }
 
   private void initDrawHookPaint() {
+
     mPaint.setAlpha(0xFF);
     mPaint.setStyle(Paint.Style.STROKE);
     mPaint.setStrokeWidth(mStrokeWidth);
@@ -200,6 +220,7 @@ public class AnimCheckBox extends View implements Checkable {
   }
 
   private void initDrawStrokeCirclePaint() {
+
     mPaint.setAlpha(0xFF);
     mPaint.setStyle(Paint.Style.STROKE);
     mPaint.setStrokeWidth(mStrokeWidth);
@@ -207,6 +228,7 @@ public class AnimCheckBox extends View implements Checkable {
   }
 
   private void initDrawAlphaStrokeCirclePaint() {
+
     mPaint.setStrokeWidth(mStrokeWidth);
     mPaint.setStyle(Paint.Style.STROKE);
     mPaint.setColor(mStrokeColor);
@@ -214,12 +236,14 @@ public class AnimCheckBox extends View implements Checkable {
   }
 
   private void initDrawInnerCirclePaint() {
+
     mPaint.setStyle(Paint.Style.FILL);
     mPaint.setColor(mCircleColor);
     mPaint.setAlpha(mInnerCircleAlpha);
   }
 
   private void startCheckedAnim() {
+
     ValueAnimator animator = new ValueAnimator();
     final float hookMaxValue = mHookSize + mEndLeftHookOffset - mBaseLeftHookOffset;
     final float circleMaxFraction = mHookSize / hookMaxValue;
@@ -228,14 +252,16 @@ public class AnimCheckBox extends View implements Checkable {
     animator.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
       @Override
       public void onAnimationUpdate(ValueAnimator animation) {
+
         float fraction = animation.getAnimatedFraction();
         mHookOffset = fraction * hookMaxValue;
-        if (fraction <= circleMaxFraction) {
-          mSweepAngle = (int) ((circleMaxFraction - fraction) * circleMaxValue);
-        } else {
+        if(fraction <= circleMaxFraction) {
+          mSweepAngle = (int)((circleMaxFraction - fraction) * circleMaxValue);
+        }
+        else {
           mSweepAngle = 0;
         }
-        mInnerCircleAlpha = (int) (fraction * 0xFF);
+        mInnerCircleAlpha = (int)(fraction * 0xFF);
         invalidate();
       }
     });
@@ -244,6 +270,7 @@ public class AnimCheckBox extends View implements Checkable {
   }
 
   private void startUnCheckedAnim() {
+
     ValueAnimator animator = new ValueAnimator();
     final float hookMaxValue = mHookSize + mEndLeftHookOffset - mBaseLeftHookOffset;
     final float circleMinFraction = (mEndLeftHookOffset - mBaseLeftHookOffset) / hookMaxValue;
@@ -252,15 +279,17 @@ public class AnimCheckBox extends View implements Checkable {
     animator.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
       @Override
       public void onAnimationUpdate(ValueAnimator animation) {
+
         float circleFraction = animation.getAnimatedFraction();
         float fraction = 1 - circleFraction;
         mHookOffset = fraction * hookMaxValue;
-        if (circleFraction >= circleMinFraction) {
-          mSweepAngle = (int) ((circleFraction - circleMinFraction) * circleMaxValue);
-        } else {
+        if(circleFraction >= circleMinFraction) {
+          mSweepAngle = (int)((circleFraction - circleMinFraction) * circleMaxValue);
+        }
+        else {
           mSweepAngle = 0;
         }
-        mInnerCircleAlpha = (int) (fraction * 0xFF);
+        mInnerCircleAlpha = (int)(fraction * 0xFF);
         invalidate();
       }
     });
@@ -269,16 +298,19 @@ public class AnimCheckBox extends View implements Checkable {
   }
 
   private void startAnim() {
+
     clearAnimation();
-    if (mChecked) {
+    if(mChecked) {
       startCheckedAnim();
-    } else {
+    }
+    else {
       startUnCheckedAnim();
     }
   }
 
 
   private int getAlphaColor(int color, int alpha) {
+
     alpha = alpha < 0 ? 0 : alpha;
     alpha = alpha > 255 ? 255 : alpha;
     return (color & 0x00FFFFFF) | alpha << 24;
@@ -286,6 +318,7 @@ public class AnimCheckBox extends View implements Checkable {
 
   @Override
   public boolean isChecked() {
+
     return mChecked;
   }
 
@@ -296,11 +329,13 @@ public class AnimCheckBox extends View implements Checkable {
    */
   @Override
   public void setChecked(boolean checked) {
+
     setChecked(checked, true);
   }
 
   @Override
   public void toggle() {
+
     setChecked(!isChecked());
   }
 
@@ -309,11 +344,12 @@ public class AnimCheckBox extends View implements Checkable {
    * @param animation true with animation,false without animation
    */
   public void setChecked(boolean checked, boolean animation) {
-    if (checked == this.mChecked) {
+
+    if(checked == this.mChecked) {
       return;
     }
     setCheckedViewInner(checked, animation);
-    if (mOnCheckedChangeListener != null) {
+    if(mOnCheckedChangeListener != null) {
       mOnCheckedChangeListener.onChange(this, mChecked);
     }
   }
@@ -330,7 +366,7 @@ public class AnimCheckBox extends View implements Checkable {
   private void setCheckedViewInner(boolean checked, boolean animation) {
 
     this.mChecked = checked;
-    if(animation) {
+    if(animation && isAnimation) {
       startAnim();
     }
     else {
@@ -349,16 +385,19 @@ public class AnimCheckBox extends View implements Checkable {
   }
 
   private int dip(int dip) {
-    return (int) getContext().getResources().getDisplayMetrics().density * dip;
+
+    return (int)getContext().getResources().getDisplayMetrics().density * dip;
   }
 
   @Override
   public Parcelable onSaveInstanceState() {
+
     return super.onSaveInstanceState();
   }
 
   @Override
   public void onRestoreInstanceState(Parcelable state) {
+
     super.onRestoreInstanceState(state);
   }
 
@@ -368,10 +407,22 @@ public class AnimCheckBox extends View implements Checkable {
    * @param listener the OnCheckedChangeListener listener
    */
   public void setOnCheckedChangeListener(OnCheckedChangeListener listener) {
+
     this.mOnCheckedChangeListener = listener;
   }
 
   public interface OnCheckedChangeListener {
+
     void onChange(AnimCheckBox view, boolean checked);
+  }
+
+  public void setAnimationOff() {
+
+    isAnimation = false;
+  }
+
+  public void setAnimationOn() {
+
+    isAnimation = true;
   }
 }

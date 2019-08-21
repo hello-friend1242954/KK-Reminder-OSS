@@ -17,7 +17,6 @@ import android.view.ViewGroup;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 import static com.hideaki.kk_reminder.UtilClass.DEFAULT_TEXT_SIZE;
-import static com.hideaki.kk_reminder.UtilClass.INT_GENERAL;
 
 public class DefaultTextSizeEditFragment extends BasePreferenceFragmentCompat implements MyCheckBoxPreference.MyCheckBoxPreferenceCheckedChangeListener {
 

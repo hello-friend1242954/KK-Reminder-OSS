@@ -1,6 +1,6 @@
 <resources>
 
-    <string name="version_value">3.4.0.2</string>
+    <string name="version_value">3.5.0.0</string>
     <string name="app_id">******************</string>
     <string name="ad_unit_id">******************</string>
     <string name="app_name">KK Reminder</string>
@@ -18,6 +18,8 @@
     <string name="plus1h">+1h</string>
     <string name="minus1d">-1d</string>
     <string name="plus1d">+1d</string>
+    <string name="control_time_hour">h</string>
+    <string name="control_time_minute">m</string>
     <string name="edit">Edit</string>
     <string name="notes">Notes</string>
     <string name="alarm">Alarm</string>
@@ -116,6 +118,9 @@
     <string name="default_new_task">New task</string>
     <string name="default_new_task_summary">You can set default settings of new task previously</string>
     <string name="default_manually_snooze">Manual snooze time</string>
+    <string name="default_control_time">Time step</string>
+    <string name="default_control_time_summary">This step will be applied to time control section in control panel of card</string>
+    <string name="default_control_time_model_summary">Display example</string>
     <string name="play_slide_animation">Slide animation of cards</string>
     <string name="play_slide_animation_summary">Whether playing sliding animation of cards when scrolling</string>
     <string name="theme">Theme</string>

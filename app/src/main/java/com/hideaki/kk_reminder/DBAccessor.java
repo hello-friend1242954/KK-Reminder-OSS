@@ -18,7 +18,15 @@ class DBAccessor {
 
   DBAccessor(Context context) {
 
-    this.helper = new MyDatabaseHelper(context);
+    this.helper = MyDatabaseHelper.getInstance(context);
+  }
+
+  private void closeDB() {
+
+    if(sdb != null) {
+      sdb.close();
+      sdb = null;
+    }
   }
 
   void executeInsert(long id, byte[] stream, String table) {
@@ -41,7 +49,7 @@ class DBAccessor {
     }
     finally {
       sdb.endTransaction();
-      sdb.close();
+      closeDB();
     }
   }
 
@@ -65,7 +73,7 @@ class DBAccessor {
     }
     finally {
       sdb.endTransaction();
-      sdb.close();
+      closeDB();
     }
   }
 
@@ -88,7 +96,7 @@ class DBAccessor {
     }
     finally {
       sdb.endTransaction();
-      sdb.close();
+      closeDB();
     }
   }
 
@@ -104,7 +112,7 @@ class DBAccessor {
     }
     finally {
       if(cursor != null) cursor.close();
-      sdb.close();
+      closeDB();
     }
   }
 
@@ -115,12 +123,12 @@ class DBAccessor {
     state_str = "SELECT * FROM " + table + " WHERE item_id = ?";
 
     try {
-      cursor = sdb.rawQuery(state_str, new String[] {Long.toString(id)});
+      cursor = sdb.rawQuery(state_str, new String[]{Long.toString(id)});
       return readCursorById(cursor);
     }
     finally {
       if(cursor != null) cursor.close();
-      sdb.close();
+      closeDB();
     }
   }
 
@@ -133,7 +141,9 @@ class DBAccessor {
     if(cursor.moveToNext()) {
       return cursor.getBlob(indexSerial);
     }
-    else return null;
+    else {
+      return null;
+    }
   }
 
   private List<byte[]> readCursorBySerial(Cursor cursor) {

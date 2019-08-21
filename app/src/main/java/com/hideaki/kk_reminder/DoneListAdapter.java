@@ -459,7 +459,7 @@ public class DoneListAdapter extends BaseAdapter implements Filterable {
         }
 
         //検索処理
-        if(activity.actionBarFragment.checked_tag == -1) {
+        if(activity.actionBarFragment.checkedTag == -1) {
           itemList = activity.getDoneItem();
         }
         else {

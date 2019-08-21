@@ -77,6 +77,8 @@ public class MyExpandableListAdapter extends BaseExpandableListAdapter implement
   private int collapse_group;
   private boolean is_manual_expand_or_collapse = true;
   static boolean is_scrolling;
+  static boolean isClosed = false; //完了したタスクのコントロールパネルが閉じられたときに立てるフラグ
+  private Calendar finalDate = Calendar.getInstance();
 
   MyExpandableListAdapter(List<List<Item>> children, MainActivity activity) {
 
@@ -118,6 +120,12 @@ public class MyExpandableListAdapter extends BaseExpandableListAdapter implement
     AnimCheckBox checkBox;
     ImageView tagPallet;
     TableLayout control_panel;
+    TextView minusTime1;
+    TextView minusTime2;
+    TextView minusTime3;
+    TextView plusTime1;
+    TextView plusTime2;
+    TextView plusTime3;
     TextView notes;
   }
 
@@ -138,6 +146,92 @@ public class MyExpandableListAdapter extends BaseExpandableListAdapter implement
       this.child_position = child_position;
       this.item = item;
       this.viewHolder = viewHolder;
+    }
+
+    private void setTimeStep(boolean isMinus, int which) {
+
+      int hour;
+      int minute;
+      switch(which) {
+        case 1: {
+          hour = isMinus ? activity.minusTime1Hour : activity.plusTime1Hour;
+          minute = isMinus ? activity.minusTime1Minute : activity.plusTime1Minute;
+          break;
+        }
+        case 2: {
+          hour = isMinus ? activity.minusTime2Hour : activity.plusTime2Hour;
+          minute = isMinus ? activity.minusTime2Minute : activity.plusTime2Minute;
+          break;
+        }
+        case 3: {
+          hour = isMinus ? activity.minusTime3Hour : activity.plusTime3Hour;
+          minute = isMinus ? activity.minusTime3Minute : activity.plusTime3Minute;
+          break;
+        }
+        default: {
+          throw new IllegalStateException("Such a control num not exists! : " + which);
+        }
+      }
+
+      long timeStepInMillis;
+      if(hour == 0 && minute == 0) {
+        timeStepInMillis = 24 * HOUR;
+      }
+      else {
+        timeStepInMillis = hour * HOUR + minute * MINUTE;
+      }
+
+      if(isMinus) {
+        if(item.getDate().getTimeInMillis() > System.currentTimeMillis() + timeStepInMillis) {
+
+          lock_block_notify_change = true;
+          block_notify_change = true;
+
+          if(item.getTime_altered() == 0) {
+            item.setOrg_date((Calendar)item.getDate().clone());
+          }
+          item.getDate().setTimeInMillis(item.getDate().getTimeInMillis() + -timeStepInMillis);
+
+          item.addTime_altered(-timeStepInMillis);
+          if(item.isAlarm_stopped()) {
+            item.setAlarm_stopped(false);
+          }
+
+          activity.deleteAlarm(item);
+          activity.setAlarm(item);
+          activity.updateDB(item, MyDatabaseHelper.TODO_TABLE);
+
+          sortItemInGroup();
+          displayDate(viewHolder, item);
+        }
+      }
+      else {
+        lock_block_notify_change = true;
+        block_notify_change = true;
+
+        if(item.getTime_altered() == 0) {
+          item.setOrg_date((Calendar)item.getDate().clone());
+        }
+
+        if(item.getDate().getTimeInMillis() < System.currentTimeMillis()) {
+          item.getDate().setTimeInMillis(currentTimeMinutes() + timeStepInMillis);
+        }
+        else {
+          item.getDate().setTimeInMillis(item.getDate().getTimeInMillis() + timeStepInMillis);
+        }
+
+        item.addTime_altered(timeStepInMillis);
+        if(item.isAlarm_stopped()) {
+          item.setAlarm_stopped(false);
+        }
+
+        activity.deleteAlarm(item);
+        activity.setAlarm(item);
+        activity.updateDB(item, MyDatabaseHelper.TODO_TABLE);
+
+        sortItemInGroup();
+        displayDate(viewHolder, item);
+      }
     }
 
     @Override
@@ -219,7 +313,9 @@ public class MyExpandableListAdapter extends BaseExpandableListAdapter implement
           else if(viewHolder.checkBox.isChecked()) {
             viewHolder.checkBox.setChecked(false);
           }
-          else viewHolder.checkBox.setChecked(true);
+          else {
+            viewHolder.checkBox.setChecked(true);
+          }
           break;
         }
         case R.id.clock_image: {
@@ -258,76 +354,21 @@ public class MyExpandableListAdapter extends BaseExpandableListAdapter implement
           else if(viewHolder.checkBox.isChecked()) {
             viewHolder.checkBox.setChecked(false);
           }
-          else viewHolder.checkBox.setChecked(true);
-          break;
-        }
-        case R.id.m5m: {
-          if(item.getDate().getTimeInMillis() > System.currentTimeMillis() + 5 * MINUTE) {
-
-            lock_block_notify_change = true;
-            block_notify_change = true;
-
-            if(item.getTime_altered() == 0) {
-              item.setOrg_date((Calendar)item.getDate().clone());
-            }
-            item.getDate().setTimeInMillis(item.getDate().getTimeInMillis() + -5 * MINUTE);
-
-            item.addTime_altered(-5 * MINUTE);
-            if(item.isAlarm_stopped()) item.setAlarm_stopped(false);
-
-            activity.deleteAlarm(item);
-            activity.setAlarm(item);
-            activity.updateDB(item, MyDatabaseHelper.TODO_TABLE);
-
-            sortItemInGroup();
-            displayDate(viewHolder, item);
+          else {
+            viewHolder.checkBox.setChecked(true);
           }
           break;
         }
-        case R.id.m1h: {
-          if(item.getDate().getTimeInMillis() > System.currentTimeMillis() + HOUR) {
-
-            lock_block_notify_change = true;
-            block_notify_change = true;
-
-            if(item.getTime_altered() == 0) {
-              item.setOrg_date((Calendar)item.getDate().clone());
-            }
-            item.getDate().setTimeInMillis(item.getDate().getTimeInMillis() + -1 * HOUR);
-
-            item.addTime_altered(-1 * HOUR);
-            if(item.isAlarm_stopped()) item.setAlarm_stopped(false);
-
-            activity.deleteAlarm(item);
-            activity.setAlarm(item);
-            activity.updateDB(item, MyDatabaseHelper.TODO_TABLE);
-
-            sortItemInGroup();
-            displayDate(viewHolder, item);
-          }
+        case R.id.minus_time1: {
+          setTimeStep(true, 1);
           break;
         }
-        case R.id.m1d: {
-          if(item.getDate().getTimeInMillis() > System.currentTimeMillis() + 24 * HOUR) {
-
-            lock_block_notify_change = true;
-            block_notify_change = true;
-
-            if(item.getTime_altered() == 0) {
-              item.setOrg_date((Calendar)item.getDate().clone());
-            }
-            item.getDate().setTimeInMillis(item.getDate().getTimeInMillis() + -24 * HOUR);
-
-            item.addTime_altered(-24 * HOUR);
-            if(item.isAlarm_stopped()) item.setAlarm_stopped(false);
-
-            activity.deleteAlarm(item);
-            activity.setAlarm(item);
-            activity.updateDB(item, MyDatabaseHelper.TODO_TABLE);
-
-            sortItemInGroup();
-            displayDate(viewHolder, item);
-          }
+        case R.id.minus_time2: {
+          setTimeStep(true, 2);
+          break;
+        }
+        case R.id.minus_time3: {
+          setTimeStep(true, 3);
           break;
         }
         case R.id.edit: {
@@ -337,85 +378,16 @@ public class MyExpandableListAdapter extends BaseExpandableListAdapter implement
           viewHolder.control_panel.setVisibility(View.GONE);
           break;
         }
-        case R.id.p5m: {
-
-          lock_block_notify_change = true;
-          block_notify_change = true;
-
-          if(item.getTime_altered() == 0) {
-            item.setOrg_date((Calendar)item.getDate().clone());
-          }
-
-          if(item.getDate().getTimeInMillis() < System.currentTimeMillis()) {
-            item.getDate().setTimeInMillis(currentTimeMinutes() + 5 * MINUTE);
-          }
-          else {
-            item.getDate().setTimeInMillis(item.getDate().getTimeInMillis() + 5 * MINUTE);
-          }
-
-          item.addTime_altered(5 * MINUTE);
-          if(item.isAlarm_stopped()) item.setAlarm_stopped(false);
-
-          activity.deleteAlarm(item);
-          activity.setAlarm(item);
-          activity.updateDB(item, MyDatabaseHelper.TODO_TABLE);
-
-          sortItemInGroup();
-          displayDate(viewHolder, item);
+        case R.id.plus_time1: {
+          setTimeStep(false, 1);
           break;
         }
-        case R.id.p1h: {
-
-          lock_block_notify_change = true;
-          block_notify_change = true;
-
-          if(item.getTime_altered() == 0) {
-            item.setOrg_date((Calendar)item.getDate().clone());
-          }
-
-          if(item.getDate().getTimeInMillis() < System.currentTimeMillis()) {
-            item.getDate().setTimeInMillis(currentTimeMinutes() + HOUR);
-          }
-          else {
-            item.getDate().setTimeInMillis(item.getDate().getTimeInMillis() + HOUR);
-          }
-
-          item.addTime_altered(HOUR);
-          if(item.isAlarm_stopped()) item.setAlarm_stopped(false);
-
-          activity.deleteAlarm(item);
-          activity.setAlarm(item);
-          activity.updateDB(item, MyDatabaseHelper.TODO_TABLE);
-
-          sortItemInGroup();
-          displayDate(viewHolder, item);
+        case R.id.plus_time2: {
+          setTimeStep(false, 2);
           break;
         }
-        case R.id.p1d: {
-
-          lock_block_notify_change = true;
-          block_notify_change = true;
-
-          if(item.getTime_altered() == 0) {
-            item.setOrg_date((Calendar)item.getDate().clone());
-          }
-
-          if(item.getDate().getTimeInMillis() < System.currentTimeMillis()) {
-            item.getDate().setTimeInMillis(currentTimeMinutes() + 24 * HOUR);
-          }
-          else {
-            item.getDate().setTimeInMillis(item.getDate().getTimeInMillis() + 24 * HOUR);
-          }
-
-          item.addTime_altered(24 * HOUR);
-          if(item.isAlarm_stopped()) item.setAlarm_stopped(false);
-
-          activity.deleteAlarm(item);
-          activity.setAlarm(item);
-          activity.updateDB(item, MyDatabaseHelper.TODO_TABLE);
-
-          sortItemInGroup();
-          displayDate(viewHolder, item);
+        case R.id.plus_time3: {
+          setTimeStep(false, 3);
           break;
         }
         case R.id.notes: {
@@ -439,6 +411,13 @@ public class MyExpandableListAdapter extends BaseExpandableListAdapter implement
         checkNotNull(manager);
         manager.cancelAll();
 
+        if(has_panel == item.getId()) {
+          isClosed = true;
+          has_panel = 0;
+        }
+        else {
+          isClosed = false;
+        }
         panel_lock_id = item.getId();
         if(viewHolder.control_panel.getVisibility() == View.VISIBLE) {
           ((View)viewHolder.control_panel.getParent().getParent())
@@ -460,7 +439,9 @@ public class MyExpandableListAdapter extends BaseExpandableListAdapter implement
         if(item.getTime_altered() == 0) {
           item.setOrg_date((Calendar)item.getDate().clone());
         }
-        else item.setDate((Calendar)item.getOrg_date().clone());
+        else {
+          item.setDate((Calendar)item.getOrg_date().clone());
+        }
 
         if((item.getMinuteRepeat().getWhich_setted() & 1) != 0
             && item.getMinuteRepeat().getCount() == 0) {
@@ -568,7 +549,9 @@ public class MyExpandableListAdapter extends BaseExpandableListAdapter implement
             tmp.set(Calendar.SECOND, 0);
             tmp.set(Calendar.MILLISECOND, 0);
 
-            if(tmp.before(now)) tmp.add(Calendar.DAY_OF_MONTH, item.getDayRepeat().getInterval());
+            if(tmp.before(now)) {
+              tmp.add(Calendar.DAY_OF_MONTH, item.getDayRepeat().getInterval());
+            }
           }
         }
         else if((item.getDayRepeat().getSetted() & (1 << 1)) != 0) {
@@ -832,7 +815,9 @@ public class MyExpandableListAdapter extends BaseExpandableListAdapter implement
                     tmp.add(Calendar.DAY_OF_MONTH, 7);
                   }
 
-                  if(tmp.after(item.getDate())) break;
+                  if(tmp.after(item.getDate())) {
+                    break;
+                  }
                   else {
                     tmp.set(Calendar.DAY_OF_MONTH, 1);
                     tmp.add(Calendar.MONTH, item.getDayRepeat().getInterval());
@@ -960,7 +945,9 @@ public class MyExpandableListAdapter extends BaseExpandableListAdapter implement
                       tmp.add(Calendar.DAY_OF_MONTH, 7);
                     }
 
-                    if(tmp.after(item.getDate())) break;
+                    if(tmp.after(item.getDate())) {
+                      break;
+                    }
                     else {
                       tmp.set(Calendar.DAY_OF_MONTH, 1);
                       tmp.add(Calendar.MONTH, item.getDayRepeat().getInterval());
@@ -1017,7 +1004,9 @@ public class MyExpandableListAdapter extends BaseExpandableListAdapter implement
                     tmp.add(Calendar.DAY_OF_MONTH, 7);
                   }
 
-                  if(tmp.after(now)) break;
+                  if(tmp.after(now)) {
+                    break;
+                  }
                   else {
                     tmp.set(Calendar.DAY_OF_MONTH, 1);
                     tmp.add(Calendar.MONTH, item.getDayRepeat().getInterval());
@@ -1158,7 +1147,9 @@ public class MyExpandableListAdapter extends BaseExpandableListAdapter implement
                         tmp.add(Calendar.DAY_OF_MONTH, 7);
                       }
 
-                      if(tmp.after(now)) break;
+                      if(tmp.after(now)) {
+                        break;
+                      }
                       else {
                         tmp.set(Calendar.DAY_OF_MONTH, 1);
                         tmp.add(Calendar.MONTH, item.getDayRepeat().getInterval());
@@ -1306,8 +1297,12 @@ public class MyExpandableListAdapter extends BaseExpandableListAdapter implement
           if(!in_minute_repeat) {
             item.setOrg_alarm_stopped(item.isAlarm_stopped());
             item.setOrg_time_altered(item.getTime_altered());
-            if(item.isAlarm_stopped()) item.setAlarm_stopped(false);
-            if(item.getTime_altered() != 0) item.setTime_altered(0);
+            if(item.isAlarm_stopped()) {
+              item.setAlarm_stopped(false);
+            }
+            if(item.getTime_altered() != 0) {
+              item.setTime_altered(0);
+            }
           }
           item.setDate((Calendar)tmp.clone());
           Collections.sort(children.get(group_position), SCHEDULED_ITEM_COMPARATOR);
@@ -1345,7 +1340,9 @@ public class MyExpandableListAdapter extends BaseExpandableListAdapter implement
         notifyDataSetChanged();
         checked_item_num--;
         actionMode.setTitle(Integer.toString(checked_item_num));
-        if(checked_item_num == 0) actionMode.finish();
+        if(checked_item_num == 0) {
+          actionMode.finish();
+        }
       }
     }
 
@@ -1362,7 +1359,9 @@ public class MyExpandableListAdapter extends BaseExpandableListAdapter implement
         if(viewHolder.checkBox.isChecked()) {
           viewHolder.checkBox.setChecked(false);
         }
-        else viewHolder.checkBox.setChecked(true);
+        else {
+          viewHolder.checkBox.setChecked(true);
+        }
 
         return true;
       }
@@ -1394,7 +1393,9 @@ public class MyExpandableListAdapter extends BaseExpandableListAdapter implement
       if(ManageListAdapter.nonScheduledLists.size() > 0) {
         moveTaskItem.setVisible(true);
       }
-      else moveTaskItem.setVisible(false);
+      else {
+        moveTaskItem.setVisible(false);
+      }
       return true;
     }
 
@@ -1438,6 +1439,7 @@ public class MyExpandableListAdapter extends BaseExpandableListAdapter implement
               .setNeutralButton(R.string.cancel, new DialogInterface.OnClickListener() {
                 @Override
                 public void onClick(DialogInterface dialog, int which) {
+
                 }
               })
               .create();
@@ -1479,7 +1481,9 @@ public class MyExpandableListAdapter extends BaseExpandableListAdapter implement
               .setTitle(title)
               .setSingleChoiceItems(adapter, 0, new DialogInterface.OnClickListener() {
                 @Override
-                public void onClick(DialogInterface dialog, int which) {}
+                public void onClick(DialogInterface dialog, int which) {
+
+                }
               })
               .setPositiveButton(R.string.determine, new DialogInterface.OnClickListener() {
                 @Override
@@ -1522,6 +1526,7 @@ public class MyExpandableListAdapter extends BaseExpandableListAdapter implement
               .setNeutralButton(R.string.cancel, new DialogInterface.OnClickListener() {
                 @Override
                 public void onClick(DialogInterface dialog, int which) {
+
                 }
               })
               .create();
@@ -1573,6 +1578,7 @@ public class MyExpandableListAdapter extends BaseExpandableListAdapter implement
               .setNeutralButton(R.string.cancel, new DialogInterface.OnClickListener() {
                 @Override
                 public void onClick(DialogInterface dialog, int which) {
+
                 }
               })
               .create();
@@ -1631,6 +1637,7 @@ public class MyExpandableListAdapter extends BaseExpandableListAdapter implement
               .setNeutralButton(R.string.cancel, new DialogInterface.OnClickListener() {
                 @Override
                 public void onClick(DialogInterface dialog, int which) {
+
                 }
               })
               .create();
@@ -1677,6 +1684,21 @@ public class MyExpandableListAdapter extends BaseExpandableListAdapter implement
     }
   }
 
+  Calendar getFinalDate() {
+
+    return (Calendar)finalDate.clone();
+  }
+
+  private void setFinalDate(Calendar finalDate) {
+
+    this.finalDate = (Calendar)finalDate.clone();
+  }
+
+  private void setFinalDateInMillis(long finalDateInMillis) {
+
+    finalDate.setTimeInMillis(finalDateInMillis);
+  }
+
   @Override
   public Filter getFilter() {
 
@@ -1704,7 +1726,7 @@ public class MyExpandableListAdapter extends BaseExpandableListAdapter implement
         }
 
         //検索処理
-        if(activity.actionBarFragment.checked_tag == -1) {
+        if(activity.actionBarFragment.checkedTag == -1) {
           children = activity.getChildren(MyDatabaseHelper.TODO_TABLE);
         }
         else {
@@ -1719,12 +1741,16 @@ public class MyExpandableListAdapter extends BaseExpandableListAdapter implement
             if(item.getDetail() != null) {
               String detail = item.getDetail();
 
-              if(!is_upper) detail = detail.toLowerCase();
+              if(!is_upper) {
+                detail = detail.toLowerCase();
+              }
 
               Pattern pattern = Pattern.compile(constraint.toString());
               Matcher matcher = pattern.matcher(detail);
 
-              if(matcher.find()) filteredItem.add(item);
+              if(matcher.find()) {
+                filteredItem.add(item);
+              }
             }
           }
 
@@ -1781,7 +1807,9 @@ public class MyExpandableListAdapter extends BaseExpandableListAdapter implement
         //単に return children.get(j).size() とすると、表示するgroupsの1番目だけを返し続けてしまうので、
         //if(count == i) と条件を付けることで、getChildrenCount()の呼び出された回数に応じて表示する
         //groupsの対応するgroupのみ返すようにしている。
-        if(count == i) return children.get(j).size();
+        if(count == i) {
+          return children.get(j).size();
+        }
         count++;
       }
     }
@@ -1797,7 +1825,9 @@ public class MyExpandableListAdapter extends BaseExpandableListAdapter implement
     int size = groups.size();
     for(int j = 0; j < size; j++) {
       if(display_groups[j]) {
-        if(count == i) return groups.get(j);
+        if(count == i) {
+          return groups.get(j);
+        }
         count++;
       }
     }
@@ -1814,7 +1844,9 @@ public class MyExpandableListAdapter extends BaseExpandableListAdapter implement
     int size = groups.size();
     for(int j = 0; j < size; j++) {
       if(display_groups[j]) {
-        if(count == i) return children.get(j).get(i1);
+        if(count == i) {
+          return children.get(j).get(i1);
+        }
         count++;
       }
     }
@@ -1824,16 +1856,19 @@ public class MyExpandableListAdapter extends BaseExpandableListAdapter implement
 
   @Override
   public long getGroupId(int i) {
+
     return i;
   }
 
   @Override
   public long getChildId(int i, int i1) {
+
     return i1;
   }
 
   @Override
   public boolean hasStableIds() {
+
     return true;
   }
 
@@ -1908,7 +1943,9 @@ public class MyExpandableListAdapter extends BaseExpandableListAdapter implement
         if((collapse_group & 1 << j) != 0) {
           ((ExpandableListView)viewGroup).collapseGroup(count);
         }
-        else ((ExpandableListView)viewGroup).expandGroup(count);
+        else {
+          ((ExpandableListView)viewGroup).expandGroup(count);
+        }
         count++;
       }
     }
@@ -1935,12 +1972,20 @@ public class MyExpandableListAdapter extends BaseExpandableListAdapter implement
       viewHolder.checkBox = convertView.findViewById(R.id.checkBox);
       viewHolder.tagPallet = convertView.findViewById(R.id.tag_pallet);
       viewHolder.control_panel = convertView.findViewById(R.id.control_panel);
+      viewHolder.minusTime1 = convertView.findViewById(R.id.minus_time1);
+      viewHolder.minusTime2 = convertView.findViewById(R.id.minus_time2);
+      viewHolder.minusTime3 = convertView.findViewById(R.id.minus_time3);
+      viewHolder.plusTime1 = convertView.findViewById(R.id.plus_time1);
+      viewHolder.plusTime2 = convertView.findViewById(R.id.plus_time2);
+      viewHolder.plusTime3 = convertView.findViewById(R.id.plus_time3);
       viewHolder.notes = convertView.findViewById(R.id.notes);
       defaultColorStateList = viewHolder.notes.getTextColors();
 
       convertView.setTag(viewHolder);
     }
-    else viewHolder = (ChildViewHolder)convertView.getTag();
+    else {
+      viewHolder = (ChildViewHolder)convertView.getTag();
+    }
 
     //現在のビュー位置でのitemの取得とリスナーの初期化
     Item item = (Item)getChild(i, i1);
@@ -1997,11 +2042,19 @@ public class MyExpandableListAdapter extends BaseExpandableListAdapter implement
     if(item.getNotesList().size() == 0) {
       viewHolder.notes.setTextColor(defaultColorStateList);
     }
-    else viewHolder.notes.setTextColor(activity.accent_color);
+    else {
+      viewHolder.notes.setTextColor(activity.accent_color);
+    }
+    viewHolder.minusTime1.setText(activity.getControlTimeText(true, 1));
+    viewHolder.minusTime2.setText(activity.getControlTimeText(true, 2));
+    viewHolder.minusTime3.setText(activity.getControlTimeText(true, 3));
+    viewHolder.plusTime1.setText(activity.getControlTimeText(false, 1));
+    viewHolder.plusTime2.setText(activity.getControlTimeText(false, 2));
+    viewHolder.plusTime3.setText(activity.getControlTimeText(false, 3));
 
     //ある子ビューでコントロールパネルを出したとき、他の子ビューのコントロールパネルを閉じる
-    if(viewHolder.control_panel.getVisibility() == View.VISIBLE
-        && (item.getId() != has_panel || actionMode != null)) {
+    if(viewHolder.control_panel.getVisibility() == View.VISIBLE &&
+        (item.getId() != has_panel || actionMode != null)) {
       ((View)viewHolder.control_panel.getParent().getParent())
           .animate()
           .translationY(-30.0f)
@@ -2057,7 +2110,9 @@ public class MyExpandableListAdapter extends BaseExpandableListAdapter implement
 
   private void sortItemInGroup() {
 
-    if(runnable != null) handler.removeCallbacks(runnable);
+    if(runnable != null) {
+      handler.removeCallbacks(runnable);
+    }
     else {
       runnable = new Runnable() {
         @Override
@@ -2122,7 +2177,9 @@ public class MyExpandableListAdapter extends BaseExpandableListAdapter implement
 
     int how_far_months = 0;
     tmp = (Calendar)now.clone();
-    if(how_far_years != 0) tmp.add(Calendar.YEAR, how_far_years);
+    if(how_far_years != 0) {
+      tmp.add(Calendar.YEAR, how_far_years);
+    }
     if(date_is_minus) {
       tmp.add(Calendar.MONTH, -1);
       while(tmp.after(item.getDate())) {
@@ -2140,8 +2197,12 @@ public class MyExpandableListAdapter extends BaseExpandableListAdapter implement
 
     int how_far_weeks = 0;
     tmp = (Calendar)now.clone();
-    if(how_far_years != 0) tmp.add(Calendar.YEAR, how_far_years);
-    if(how_far_months != 0) tmp.add(Calendar.MONTH, how_far_months);
+    if(how_far_years != 0) {
+      tmp.add(Calendar.YEAR, how_far_years);
+    }
+    if(how_far_months != 0) {
+      tmp.add(Calendar.MONTH, how_far_months);
+    }
     if(date_is_minus) {
       tmp.add(Calendar.DAY_OF_WEEK_IN_MONTH, -1);
       while(tmp.after(item.getDate())) {
@@ -2164,68 +2225,106 @@ public class MyExpandableListAdapter extends BaseExpandableListAdapter implement
 
     Resources res = activity.getResources();
     String display_date = set_time + " (";
-    if(!LOCALE.equals(Locale.JAPAN)) display_date += " ";
+    if(!LOCALE.equals(Locale.JAPAN)) {
+      display_date += " ";
+    }
     if(how_far_years != 0) {
       display_date += res.getQuantityString(R.plurals.year, how_far_years, how_far_years);
-      if(!LOCALE.equals(Locale.JAPAN)) display_date += " ";
+      if(!LOCALE.equals(Locale.JAPAN)) {
+        display_date += " ";
+      }
       if(how_far_months != 0) {
         display_date += res.getQuantityString(R.plurals.month, how_far_months, how_far_months);
-        if(!LOCALE.equals(Locale.JAPAN)) display_date += " ";
+        if(!LOCALE.equals(Locale.JAPAN)) {
+          display_date += " ";
+        }
       }
       if(how_far_weeks != 0) {
         display_date += res.getQuantityString(R.plurals.week, how_far_weeks, how_far_weeks);
-        if(!LOCALE.equals(Locale.JAPAN)) display_date += " ";
+        if(!LOCALE.equals(Locale.JAPAN)) {
+          display_date += " ";
+        }
       }
     }
     else if(how_far_months != 0) {
       display_date += res.getQuantityString(R.plurals.month, how_far_months, how_far_months);
-      if(!LOCALE.equals(Locale.JAPAN)) display_date += " ";
+      if(!LOCALE.equals(Locale.JAPAN)) {
+        display_date += " ";
+      }
       if(how_far_weeks != 0) {
         display_date += res.getQuantityString(R.plurals.week, how_far_weeks, how_far_weeks);
-        if(!LOCALE.equals(Locale.JAPAN)) display_date += " ";
+        if(!LOCALE.equals(Locale.JAPAN)) {
+          display_date += " ";
+        }
       }
     }
     else if(how_far_weeks != 0) {
       display_date += res.getQuantityString(R.plurals.week, how_far_weeks, how_far_weeks);
-      if(!LOCALE.equals(Locale.JAPAN)) display_date += " ";
+      if(!LOCALE.equals(Locale.JAPAN)) {
+        display_date += " ";
+      }
       how_far_days -= 7 * how_far_weeks;
       if(how_far_days != 0) {
         display_date += res.getQuantityString(R.plurals.day, how_far_days, how_far_days);
-        if(!LOCALE.equals(Locale.JAPAN)) display_date += " ";
+        if(!LOCALE.equals(Locale.JAPAN)) {
+          display_date += " ";
+        }
       }
     }
     else if(how_far_days != 0) {
       display_date += res.getQuantityString(R.plurals.day, how_far_days, how_far_days);
-      if(!LOCALE.equals(Locale.JAPAN)) display_date += " ";
+      if(!LOCALE.equals(Locale.JAPAN)) {
+        display_date += " ";
+      }
     }
     else if(how_far_hours != 0) {
       display_date += res.getQuantityString(R.plurals.hour, how_far_hours, how_far_hours);
-      if(!LOCALE.equals(Locale.JAPAN)) display_date += " ";
+      if(!LOCALE.equals(Locale.JAPAN)) {
+        display_date += " ";
+      }
       how_far_minutes -= 60 * how_far_hours;
       if(how_far_minutes != 0) {
         display_date += res.getQuantityString(R.plurals.minute, how_far_minutes, how_far_minutes);
-        if(!LOCALE.equals(Locale.JAPAN)) display_date += " ";
+        if(!LOCALE.equals(Locale.JAPAN)) {
+          display_date += " ";
+        }
       }
     }
     else if(how_far_minutes != 0) {
       display_date += res.getQuantityString(R.plurals.minute, how_far_minutes, how_far_minutes);
-      if(!LOCALE.equals(Locale.JAPAN)) display_date += " ";
+      if(!LOCALE.equals(Locale.JAPAN)) {
+        display_date += " ";
+      }
     }
     else {
       display_date += activity.getString(R.string.within_one_minute);
-      if(!LOCALE.equals(Locale.JAPAN)) display_date += " ";
+      if(!LOCALE.equals(Locale.JAPAN)) {
+        display_date += " ";
+      }
     }
     display_date += ")";
 
     viewHolder.time.setText(display_date);
 
-    if(item.isAlarm_stopped()) viewHolder.time.setTextColor(Color.GRAY);
-    else if(date_is_minus) viewHolder.time.setTextColor(Color.RED);
-    else viewHolder.time.setTextColor(Color.BLACK);
+    if(item.isAlarm_stopped()) {
+      viewHolder.time.setTextColor(Color.GRAY);
+    }
+    else if(date_is_minus) {
+      viewHolder.time.setTextColor(Color.RED);
+    }
+    else {
+      viewHolder.time.setTextColor(Color.BLACK);
+    }
 
-    if(item.isAlarm_stopped()) viewHolder.clock_image.setColorFilter(Color.GRAY);
-    else if(item.getTime_altered() != 0) viewHolder.clock_image.setColorFilter(Color.BLUE);
-    else viewHolder.clock_image.setColorFilter(0xFF09C858);
+    if(item.isAlarm_stopped()) {
+      viewHolder.clock_image.setColorFilter(Color.GRAY);
+    }
+    else if(item.getTime_altered() != 0) {
+      viewHolder.clock_image.setColorFilter(Color.BLUE);
+    }
+    else {
+      viewHolder.clock_image.setColorFilter(0xFF09C858);
+    }
   }
 
   //リピートを表示する処理
@@ -2234,15 +2333,21 @@ public class MyExpandableListAdapter extends BaseExpandableListAdapter implement
     String repeat_str = "";
     String tmp = item.getDayRepeat().getLabel();
     if(tmp != null && !"".equals(tmp) && !activity.getString(R.string.none).equals(tmp)) {
-      if(!LOCALE.equals(Locale.JAPAN)) repeat_str += "Repeat ";
+      if(!LOCALE.equals(Locale.JAPAN)) {
+        repeat_str += "Repeat ";
+      }
       repeat_str += tmp;
       int scale = item.getDayRepeat().getScale();
       int template = item.getDayRepeat().getWhich_template();
       if(LOCALE.equals(Locale.JAPAN)) {
         if(template > 0 && template < 1 << 5) {
-          if(template > 1) repeat_str += "に";
+          if(template > 1) {
+            repeat_str += "に";
+          }
         }
-        else if(scale > 1) repeat_str += "に";
+        else if(scale > 1) {
+          repeat_str += "に";
+        }
       }
     }
 
@@ -2261,12 +2366,17 @@ public class MyExpandableListAdapter extends BaseExpandableListAdapter implement
       repeat_str += "繰り返す";
     }
 
-    if("".equals(repeat_str)) viewHolder.repeat.setText(R.string.non_repeat);
-    else viewHolder.repeat.setText(repeat_str);
+    if("".equals(repeat_str)) {
+      viewHolder.repeat.setText(R.string.non_repeat);
+    }
+    else {
+      viewHolder.repeat.setText(repeat_str);
+    }
   }
 
   @Override
   public boolean isChildSelectable(int i, int i1) {
+
     return true;
   }
 }

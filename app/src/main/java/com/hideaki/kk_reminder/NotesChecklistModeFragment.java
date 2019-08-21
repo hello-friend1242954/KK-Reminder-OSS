@@ -22,7 +22,6 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.LinearLayout;
-import android.widget.ListView;
 import android.widget.TextView;
 
 import java.util.ArrayList;
@@ -41,9 +40,9 @@ public class NotesChecklistModeFragment extends Fragment {
   private MainActivity activity;
   NotesTodoListAdapter notesTodoListAdapter;
   NotesDoneListAdapter notesDoneListAdapter;
-  SortableListView sortableListView;
+  NonScrollSortableListView sortableListView;
   View todoHeader;
-  ListView listView;
+  NonScrollListView listView;
   View doneHeader;
   private MenuItem editModeItem;
   private ActionBar actionBar;
@@ -103,7 +102,7 @@ public class NotesChecklistModeFragment extends Fragment {
 
         if(keyCode == KeyEvent.KEYCODE_BACK && event.getAction() == KeyEvent.ACTION_UP) {
 
-          if(NotesTodoListAdapter.is_sorting) {
+          if(NotesTodoListAdapter.isSorting) {
             new AlertDialog.Builder(activity)
                 .setTitle(R.string.is_sorting_title)
                 .setMessage(R.string.is_sorting_message)
@@ -130,7 +129,7 @@ public class NotesChecklistModeFragment extends Fragment {
     Collections.sort(NotesDoneListAdapter.notesList, NOTES_COMPARATOR);
 
     //NotesTodoListの初期化
-    NotesTodoListAdapter.is_sorting = false;
+    NotesTodoListAdapter.isSorting = false;
     sortableListView = view.findViewById(R.id.notes_todo);
     todoHeader = View.inflate(activity, R.layout.notes_todo_list_header, null);
     todoHeader.setOnClickListener(null);
@@ -138,7 +137,7 @@ public class NotesChecklistModeFragment extends Fragment {
     TextView todoHeaderTitle = todoHeader.findViewById(R.id.todo);
     todoHeaderTitle.setTextColor(activity.secondary_text_color);
     if(NotesTodoListAdapter.notesList.size() != 0 && sortableListView.getHeaderViewsCount() == 0
-        && !NotesTodoListAdapter.is_sorting) {
+        && !NotesTodoListAdapter.isSorting) {
       sortableListView.addHeaderView(todoHeader);
     }
     sortableListView.setDragListener(notesTodoListAdapter.dragListener);
@@ -344,8 +343,8 @@ public class NotesChecklistModeFragment extends Fragment {
       }
       case R.id.sort: {
 
-        NotesTodoListAdapter.is_sorting = !NotesTodoListAdapter.is_sorting;
-        if(NotesTodoListAdapter.is_sorting) {
+        NotesTodoListAdapter.isSorting = !NotesTodoListAdapter.isSorting;
+        if(NotesTodoListAdapter.isSorting) {
           activity.drawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_LOCKED_CLOSED);
           actionBar.setDisplayHomeAsUpEnabled(false);
           editModeItem.setVisible(false);

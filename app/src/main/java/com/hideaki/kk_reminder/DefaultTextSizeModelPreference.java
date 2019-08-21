@@ -2,7 +2,6 @@ package com.hideaki.kk_reminder;
 
 import android.content.Context;
 import android.content.ContextWrapper;
-import android.content.SharedPreferences;
 import android.support.v7.preference.Preference;
 import android.support.v7.preference.PreferenceViewHolder;
 import android.text.format.DateFormat;
@@ -14,9 +13,6 @@ import android.widget.TextView;
 import java.util.Calendar;
 import java.util.Locale;
 
-import static android.content.Context.MODE_PRIVATE;
-import static com.hideaki.kk_reminder.UtilClass.DEFAULT_TEXT_SIZE;
-import static com.hideaki.kk_reminder.UtilClass.INT_GENERAL;
 import static com.hideaki.kk_reminder.UtilClass.LOCALE;
 
 public class DefaultTextSizeModelPreference extends Preference {

@@ -196,7 +196,7 @@ public class ManageListAdapter extends BaseAdapter implements Filterable {
         }
 
         //検索処理
-        if(activity.actionBarFragment.checked_tag == -1) {
+        if(activity.actionBarFragment.checkedTag == -1) {
           nonScheduledLists = new ArrayList<>(activity.generalSettings.getNonScheduledLists());
         }
         else {

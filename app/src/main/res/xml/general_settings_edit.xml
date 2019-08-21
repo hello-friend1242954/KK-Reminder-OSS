@@ -3,6 +3,12 @@
 
     <com.hideaki.kk_reminder.MyPreferenceCategory
         android:title="@string/default_settings">
+
+        <PreferenceScreen
+            android:title="@string/default_control_time"
+            android:key="control_time"
+            android:summary="@string/default_control_time_summary"/>
+
         <PreferenceScreen
             android:title="@string/default_detail_text_size"
             android:key="text_size"

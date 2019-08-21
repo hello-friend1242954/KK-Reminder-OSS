@@ -1,5 +1,6 @@
 package com.hideaki.kk_reminder;
 
+import android.os.Handler;
 import android.support.constraint.ConstraintLayout;
 import android.view.View;
 import android.view.ViewGroup;
@@ -17,11 +18,13 @@ public class NotesDoneListAdapter extends BaseAdapter {
   static List<Notes> notesList;
   private MainActivity activity;
   private NotesChecklistModeFragment fragment;
+  static boolean isFirst;
 
   NotesDoneListAdapter(MainActivity activity, NotesChecklistModeFragment fragment) {
 
     this.activity = activity;
     this.fragment = fragment;
+    isFirst = true;
   }
 
   private static class ViewHolder {
@@ -47,51 +50,64 @@ public class NotesDoneListAdapter extends BaseAdapter {
     @Override
     public void onClick(View v) {
 
-      viewHolder.checkBox.setChecked(false, false);
+      viewHolder.checkBox.setChecked(false);
     }
 
     @Override
     public void onChange(AnimCheckBox view, boolean checked) {
 
       if(!checked) {
-        notes.setChecked(false);
-        NotesTodoListAdapter.notesList.add(notes);
-        Collections.sort(NotesTodoListAdapter.notesList, NOTES_COMPARATOR);
-        notesList.remove(position);
+        isFirst = false;
+        final Handler handler = new Handler();
+        handler.postDelayed(new Runnable() {
+          @Override
+          public void run() {
 
-        //todoListにおけるheaderの管理
-        int todo_list_size = NotesTodoListAdapter.notesList.size();
-        if(todo_list_size != 0 && fragment.sortableListView.getHeaderViewsCount() == 0) {
-          fragment.sortableListView.addHeaderView(fragment.todoHeader);
-          fragment.sortItem.setVisible(true);
-        }
-        else if(todo_list_size == 0 && fragment.sortableListView.getHeaderViewsCount() != 0) {
-          fragment.sortableListView.removeHeaderView(fragment.todoHeader);
-          fragment.sortItem.setVisible(false);
-        }
+            onChangeProcessor();
+          }
+        }, 400);
+      }
+    }
 
-        //doneListにおけるheaderの管理
-        int done_list_size = notesList.size();
-        if(done_list_size != 0 && fragment.listView.getHeaderViewsCount() == 0) {
-          fragment.listView.addHeaderView(fragment.doneHeader);
-          fragment.deleteItem.setVisible(true);
-          fragment.unselectItem.setVisible(true);
-        }
-        else if(done_list_size == 0 && fragment.listView.getHeaderViewsCount() != 0) {
-          fragment.listView.removeHeaderView(fragment.doneHeader);
-          fragment.deleteItem.setVisible(false);
-          fragment.unselectItem.setVisible(false);
-        }
+    private void onChangeProcessor() {
 
-        notifyDataSetChanged();
-        fragment.notesTodoListAdapter.notifyDataSetChanged();
+      notes.setChecked(false);
+      NotesTodoListAdapter.notesList.add(notes);
+      Collections.sort(NotesTodoListAdapter.notesList, NOTES_COMPARATOR);
+      notesList.remove(position);
 
-        if(activity.isItemExists(NotesChecklistModeFragment.item, MyDatabaseHelper.TODO_TABLE)) {
-          activity.updateDB(NotesChecklistModeFragment.item, MyDatabaseHelper.TODO_TABLE);
-        }
-        else {
-          MainEditFragment.item.setNotesList(new ArrayList<>(NotesChecklistModeFragment.item.getNotesList()));
-        }
+      //todoListにおけるheaderの管理
+      int todo_list_size = NotesTodoListAdapter.notesList.size();
+      if(todo_list_size != 0 && fragment.sortableListView.getHeaderViewsCount() == 0) {
+        fragment.sortableListView.addHeaderView(fragment.todoHeader);
+        fragment.sortItem.setVisible(true);
+      }
+      else if(todo_list_size == 0 && fragment.sortableListView.getHeaderViewsCount() != 0) {
+        fragment.sortableListView.removeHeaderView(fragment.todoHeader);
+        fragment.sortItem.setVisible(false);
+      }
+
+      //doneListにおけるheaderの管理
+      int done_list_size = notesList.size();
+      if(done_list_size != 0 && fragment.listView.getHeaderViewsCount() == 0) {
+        fragment.listView.addHeaderView(fragment.doneHeader);
+        fragment.deleteItem.setVisible(true);
+        fragment.unselectItem.setVisible(true);
+      }
+      else if(done_list_size == 0 && fragment.listView.getHeaderViewsCount() != 0) {
+        fragment.listView.removeHeaderView(fragment.doneHeader);
+        fragment.deleteItem.setVisible(false);
+        fragment.unselectItem.setVisible(false);
+      }
+
+      notifyDataSetChanged();
+      fragment.notesTodoListAdapter.notifyDataSetChanged();
+
+      if(activity.isItemExists(NotesChecklistModeFragment.item, MyDatabaseHelper.TODO_TABLE)) {
+        activity.updateDB(NotesChecklistModeFragment.item, MyDatabaseHelper.TODO_TABLE);
+      }
+      else {
+        MainEditFragment.item.setNotesList(new ArrayList<>(NotesChecklistModeFragment.item.getNotesList()));
       }
     }
   }
@@ -139,7 +155,12 @@ public class NotesDoneListAdapter extends BaseAdapter {
     viewHolder.checkBox.setOnCheckedChangeListener(listener);
 
     //チェック状態の初期化
-    viewHolder.checkBox.setChecked(true, false);
+    if(isFirst) {
+      viewHolder.checkBox.setChecked(true, false);
+    }
+    else {
+      viewHolder.checkBox.setChecked(true);
+    }
 
     //各種表示処理
     viewHolder.string.setText(notes.getString());

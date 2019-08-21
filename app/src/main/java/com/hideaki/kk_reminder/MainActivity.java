@@ -70,6 +70,18 @@ import static com.google.common.base.Preconditions.checkNotNull;
 import static com.hideaki.kk_reminder.UtilClass.ACTION_IN_NOTIFICATION;
 import static com.hideaki.kk_reminder.UtilClass.BOOLEAN_GENERAL;
 import static com.hideaki.kk_reminder.UtilClass.BOOT_FROM_NOTIFICATION;
+import static com.hideaki.kk_reminder.UtilClass.DEFAULT_MINUS_TIME_1_HOUR;
+import static com.hideaki.kk_reminder.UtilClass.DEFAULT_MINUS_TIME_1_MINUTE;
+import static com.hideaki.kk_reminder.UtilClass.DEFAULT_MINUS_TIME_2_HOUR;
+import static com.hideaki.kk_reminder.UtilClass.DEFAULT_MINUS_TIME_2_MINUTE;
+import static com.hideaki.kk_reminder.UtilClass.DEFAULT_MINUS_TIME_3_HOUR;
+import static com.hideaki.kk_reminder.UtilClass.DEFAULT_MINUS_TIME_3_MINUTE;
+import static com.hideaki.kk_reminder.UtilClass.DEFAULT_PLUS_TIME_1_HOUR;
+import static com.hideaki.kk_reminder.UtilClass.DEFAULT_PLUS_TIME_1_MINUTE;
+import static com.hideaki.kk_reminder.UtilClass.DEFAULT_PLUS_TIME_2_HOUR;
+import static com.hideaki.kk_reminder.UtilClass.DEFAULT_PLUS_TIME_2_MINUTE;
+import static com.hideaki.kk_reminder.UtilClass.DEFAULT_PLUS_TIME_3_HOUR;
+import static com.hideaki.kk_reminder.UtilClass.DEFAULT_PLUS_TIME_3_MINUTE;
 import static com.hideaki.kk_reminder.UtilClass.DEFAULT_TEXT_SIZE;
 import static com.hideaki.kk_reminder.UtilClass.DEFAULT_URI_SOUND;
 import static com.hideaki.kk_reminder.UtilClass.DONE_ITEM_COMPARATOR;
@@ -100,11 +112,23 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
   private Handler handler = new Handler();
   private Runnable runnable;
   private DBAccessor accessor = null;
+  int minusTime1Hour;
+  int minusTime1Minute;
+  int minusTime2Hour;
+  int minusTime2Minute;
+  int minusTime3Hour;
+  int minusTime3Minute;
+  int plusTime1Hour;
+  int plusTime1Minute;
+  int plusTime2Hour;
+  int plusTime2Minute;
+  int plusTime3Hour;
+  int plusTime3Minute;
   int snooze_default_hour;
   int snooze_default_minute;
-  int which_menu_open;
+  int whichMenuOpen;
   int which_submenu_open;
-  boolean is_expandable_todo;
+  boolean isExpandableTodo;
   boolean is_premium;
   FloatingGroupExpandableListView expandableListView;
   MyExpandableListAdapter expandableListAdapter;
@@ -165,17 +189,29 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
     //SharedPreferencesの内、intを読み出す
     SharedPreferences intPreferences = getSharedPreferences(INT_GENERAL, MODE_PRIVATE);
+    minusTime1Hour = intPreferences.getInt(DEFAULT_MINUS_TIME_1_HOUR, 0);
+    minusTime1Minute = intPreferences.getInt(DEFAULT_MINUS_TIME_1_MINUTE, 5);
+    minusTime2Hour = intPreferences.getInt(DEFAULT_MINUS_TIME_2_HOUR, 1);
+    minusTime2Minute = intPreferences.getInt(DEFAULT_MINUS_TIME_2_MINUTE, 0);
+    minusTime3Hour = intPreferences.getInt(DEFAULT_MINUS_TIME_3_HOUR, 0);
+    minusTime3Minute = intPreferences.getInt(DEFAULT_MINUS_TIME_3_MINUTE, 0);
+    plusTime1Hour = intPreferences.getInt(DEFAULT_PLUS_TIME_1_HOUR, 0);
+    plusTime1Minute = intPreferences.getInt(DEFAULT_PLUS_TIME_1_MINUTE, 5);
+    plusTime2Hour = intPreferences.getInt(DEFAULT_PLUS_TIME_2_HOUR, 1);
+    plusTime2Minute = intPreferences.getInt(DEFAULT_PLUS_TIME_2_MINUTE, 0);
+    plusTime3Hour = intPreferences.getInt(DEFAULT_PLUS_TIME_3_HOUR, 0);
+    plusTime3Minute = intPreferences.getInt(DEFAULT_PLUS_TIME_3_MINUTE, 0);
     which_text_size = intPreferences.getInt(DEFAULT_TEXT_SIZE, 0);
     text_size = 18 + 2 * which_text_size;
     snooze_default_hour = intPreferences.getInt(SNOOZE_DEFAULT_HOUR, 0);
     snooze_default_minute = intPreferences.getInt(SNOOZE_DEFAULT_MINUTE, 15);
-    which_menu_open = intPreferences.getInt(MENU_POSITION, 0);
+    whichMenuOpen = intPreferences.getInt(MENU_POSITION, 0);
     which_submenu_open = intPreferences.getInt(SUBMENU_POSITION, 0);
 
     //SharedPreferencesの内、booleanを読み出す
     SharedPreferences booleanPreferences = getSharedPreferences(BOOLEAN_GENERAL, MODE_PRIVATE);
     play_slide_animation = booleanPreferences.getBoolean(PLAY_SLIDE_ANIMATION, true);
-    is_expandable_todo = booleanPreferences.getBoolean(IS_EXPANDABLE_TODO, true);
+    isExpandableTodo = booleanPreferences.getBoolean(IS_EXPANDABLE_TODO, true);
     is_premium = booleanPreferences.getBoolean(IS_PREMIUM, false);
 
     //広告読み出し機能のセットアップ
@@ -514,7 +550,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
   private void showList() {
 
     //前回開いていたNavigationDrawer上のメニューをリストアする
-    menuItem = menu.getItem(which_menu_open);
+    menuItem = menu.getItem(whichMenuOpen);
     if(menuItem.hasSubMenu()) {
       menuItem = menuItem.getSubMenu().getItem(which_submenu_open);
     }
@@ -526,13 +562,13 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     createAndSetFragmentColor();
 
     if(order == 0) {
-      if(is_expandable_todo) {
+      if(isExpandableTodo) {
         showExpandableListViewFragment();
       }
       else showDoneListViewFragment();
     }
     else if(order == 1) {
-      if(generalSettings.getNonScheduledLists().get(which_menu_open - 1).isTodo()) {
+      if(generalSettings.getNonScheduledLists().get(whichMenuOpen - 1).isTodo()) {
         showListViewFragment();
       }
       else showDoneListViewFragment();
@@ -657,14 +693,14 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         createAndSetFragmentColor();
         switch(order) {
           case 0: {
-            if(is_expandable_todo) {
+            if(isExpandableTodo) {
               showExpandableListViewFragment();
             }
             else showDoneListViewFragment();
             break;
           }
           case 1: {
-            if(generalSettings.getNonScheduledLists().get(which_menu_open - 1).isTodo()) {
+            if(generalSettings.getNonScheduledLists().get(whichMenuOpen - 1).isTodo()) {
               showListViewFragment();
             }
             else showDoneListViewFragment();
@@ -753,8 +789,8 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
               }
 
               if(order != 0) {
-                setIntGeneralInSharedPreferences(MENU_POSITION, which_menu_open + 1);
-                MainActivity.this.menuItem = menu.getItem(which_menu_open);
+                setIntGeneralInSharedPreferences(MENU_POSITION, whichMenuOpen + 1);
+                MainActivity.this.menuItem = menu.getItem(whichMenuOpen);
               }
               navigationView.setCheckedItem(MainActivity.this.menuItem);
 
@@ -922,6 +958,10 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
               MyExpandableListAdapter.lock_block_notify_change = true;
               MyExpandableListAdapter.block_notify_change = true;
 
+              if(MyExpandableListAdapter.isClosed) {
+                MyExpandableListAdapter.has_panel = snackBarItem.getId();
+                MyExpandableListAdapter.isClosed = false;
+              }
               if(snackBarItem.getDayRepeat().getSetted() != 0 || snackBarItem.getMinuteRepeat().getWhich_setted() != 0) {
                 snackBarItem.setAlarm_stopped(snackBarItem.isOrg_alarm_stopped());
                 snackBarItem.setTime_altered(snackBarItem.getOrg_time_altered());
@@ -931,7 +971,14 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 else if((snackBarItem.getMinuteRepeat().getWhich_setted() & (1 << 1)) != 0) {
                   snackBarItem.getMinuteRepeat().setDuration(snackBarItem.getMinuteRepeat().getOrg_duration2());
                 }
-                snackBarItem.getDate().setTimeInMillis(snackBarItem.getOrg_date().getTimeInMillis() + snackBarItem.getTime_altered());
+                Calendar now = Calendar.getInstance();
+                if(snackBarItem.getOrg_date().getTimeInMillis() < now.getTimeInMillis() &&
+                  snackBarItem.getTime_altered() != 0) {
+                  snackBarItem.getDate().setTimeInMillis(now.getTimeInMillis() + snackBarItem.getTime_altered());
+                }
+                else {
+                  snackBarItem.getDate().setTimeInMillis(snackBarItem.getOrg_date().getTimeInMillis() + snackBarItem.getTime_altered());
+                }
                 Collections.sort(MyExpandableListAdapter.children.get(group_position), SCHEDULED_ITEM_COMPARATOR);
                 expandableListAdapter.notifyDataSetChanged();
 
@@ -940,7 +987,14 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 updateDB(snackBarItem, MyDatabaseHelper.TODO_TABLE);
               }
               else {
-                snackBarItem.getDate().setTimeInMillis(snackBarItem.getOrg_date().getTimeInMillis() + snackBarItem.getTime_altered());
+                Calendar now = Calendar.getInstance();
+                if(snackBarItem.getOrg_date().getTimeInMillis() < now.getTimeInMillis() &&
+                  snackBarItem.getTime_altered() != 0) {
+                  snackBarItem.getDate().setTimeInMillis(now.getTimeInMillis() + snackBarItem.getTime_altered());
+                }
+                else {
+                  snackBarItem.getDate().setTimeInMillis(snackBarItem.getOrg_date().getTimeInMillis() + snackBarItem.getTime_altered());
+                }
                 MyExpandableListAdapter.children.get(group_position).add(snackBarItem);
                 for(List<Item> itemList : MyExpandableListAdapter.children) {
                   Collections.sort(itemList, SCHEDULED_ITEM_COMPARATOR);
@@ -1137,8 +1191,8 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
   public List<Item> getNonScheduledItem(String table) {
 
-    if(which_menu_open > 0) {
-      long list_id = generalSettings.getNonScheduledLists().get(which_menu_open - 1).getId();
+    if(whichMenuOpen > 0) {
+      long list_id = generalSettings.getNonScheduledLists().get(whichMenuOpen - 1).getId();
       List<Item> itemList = new ArrayList<>();
       for(Item item : queryAllDB(table)) {
         if(item.getWhich_list_belongs() == list_id) {
@@ -1154,7 +1208,8 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
   public List<Item> getDoneItem() {
 
-    long list_id = which_menu_open == 0 ? 0 : generalSettings.getNonScheduledLists().get(which_menu_open - 1).getId();
+    long list_id = whichMenuOpen == 0 ? 0 : generalSettings.getNonScheduledLists().get(
+        whichMenuOpen - 1).getId();
     List<Item> itemList = new ArrayList<>();
     for(Item item : queryAllDB(MyDatabaseHelper.DONE_TABLE)) {
       if(item.getWhich_list_belongs() == list_id) {
@@ -1272,10 +1327,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     //AlarmSound
     item.setSoundUri(DEFAULT_URI_SOUND.toString());
 
-    //手動スヌーズ時間のデフォルト設定
-    setIntGeneralInSharedPreferences(SNOOZE_DEFAULT_HOUR, 0);
-    setIntGeneralInSharedPreferences(SNOOZE_DEFAULT_MINUTE, 15);
-
     insertSettingsDB();
   }
 
@@ -1330,6 +1381,54 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
   public void setIntGeneralInSharedPreferences(String TAG, int value) {
 
     switch(TAG) {
+      case DEFAULT_MINUS_TIME_1_HOUR: {
+        minusTime1Hour = value;
+        break;
+      }
+      case DEFAULT_MINUS_TIME_1_MINUTE: {
+        minusTime1Minute = value;
+        break;
+      }
+      case DEFAULT_MINUS_TIME_2_HOUR: {
+        minusTime2Hour = value;
+        break;
+      }
+      case DEFAULT_MINUS_TIME_2_MINUTE: {
+        minusTime2Minute = value;
+        break;
+      }
+      case DEFAULT_MINUS_TIME_3_HOUR: {
+        minusTime3Hour = value;
+        break;
+      }
+      case DEFAULT_MINUS_TIME_3_MINUTE: {
+        minusTime3Minute = value;
+        break;
+      }
+      case DEFAULT_PLUS_TIME_1_HOUR: {
+        plusTime1Hour = value;
+        break;
+      }
+      case DEFAULT_PLUS_TIME_1_MINUTE: {
+        plusTime1Minute = value;
+        break;
+      }
+      case DEFAULT_PLUS_TIME_2_HOUR: {
+        plusTime2Hour = value;
+        break;
+      }
+      case DEFAULT_PLUS_TIME_2_MINUTE: {
+        plusTime2Minute = value;
+        break;
+      }
+      case DEFAULT_PLUS_TIME_3_HOUR: {
+        plusTime3Hour = value;
+        break;
+      }
+      case DEFAULT_PLUS_TIME_3_MINUTE: {
+        plusTime3Minute = value;
+        break;
+      }
       case DEFAULT_TEXT_SIZE: {
         which_text_size = value;
         text_size = 18 + 2 * value;
@@ -1344,7 +1443,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         break;
       }
       case MENU_POSITION: {
-        which_menu_open = value;
+        whichMenuOpen = value;
         break;
       }
       case SUBMENU_POSITION: {
@@ -1370,7 +1469,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         break;
       }
       case IS_EXPANDABLE_TODO: {
-        is_expandable_todo = value;
+        isExpandableTodo = value;
         break;
       }
       case IS_PREMIUM: {
@@ -1430,12 +1529,53 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     return sender != null;
   }
 
+  String getControlTimeText(boolean isMinus, int which) {
+
+    String controlTimeText = "";
+    int hour;
+    int minute;
+    switch(which) {
+      case 1: {
+        hour = isMinus ? minusTime1Hour : plusTime1Hour;
+        minute = isMinus ? minusTime1Minute : plusTime1Minute;
+        break;
+      }
+      case 2: {
+        hour = isMinus ? minusTime2Hour : plusTime2Hour;
+        minute = isMinus ? minusTime2Minute : plusTime2Minute;
+        break;
+      }
+      case 3: {
+        hour = isMinus ? minusTime3Hour : plusTime3Hour;
+        minute = isMinus ? minusTime3Minute : plusTime3Minute;
+        break;
+      }
+      default: {
+        throw new IllegalStateException("Such a control num not exists! : " + which);
+      }
+    }
+    if(hour != 0) {
+      controlTimeText += hour + getString(R.string.control_time_hour);
+    }
+    if(minute != 0) {
+      controlTimeText += minute + getString(R.string.control_time_minute);
+    }
+    if(hour == 0 && minute == 0) {
+      controlTimeText = isMinus ? getString(R.string.minus1d) : getString(R.string.plus1d);
+    }
+    else {
+      controlTimeText = isMinus ? "-" + controlTimeText : "+" + controlTimeText;
+    }
+
+    return controlTimeText;
+  }
+
   private void createAndSetFragmentColor() {
 
     //開いているFragmentに応じた色を作成
     order = menuItem.getOrder();
     if(order == 1) {
-      NonScheduledList list = generalSettings.getNonScheduledLists().get(which_menu_open - 1);
+      NonScheduledList list = generalSettings.getNonScheduledLists().get(whichMenuOpen - 1);
       if(list.getColor() == 0) setDefaultColor();
       else {
         menu_item_color = list.getTextColor();

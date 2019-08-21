@@ -54,6 +54,7 @@ public class MyListAdapter extends BaseAdapter implements Filterable {
   private List<Item> filteredItem;
   private ColorStateList defaultColorStateList;
   static boolean is_scrolling;
+  private static boolean isClosed = false; //完了したタスクのコントロールパネルが閉じられたときに立てるフラグ
 
   MyListAdapter(MainActivity activity) {
 
@@ -186,6 +187,10 @@ public class MyListAdapter extends BaseAdapter implements Filterable {
 
       if(checked && actionMode == null && manually_checked) {
 
+        if(has_panel == item.getId()) {
+          isClosed = true;
+          has_panel = 0;
+        }
         panel_lock_id = item.getId();
         if(viewHolder.control_panel.getVisibility() == View.VISIBLE) {
           ((View)viewHolder.control_panel.getParent().getParent())
@@ -236,6 +241,11 @@ public class MyListAdapter extends BaseAdapter implements Filterable {
                 .setAction(R.string.undo, new View.OnClickListener() {
                   @Override
                   public void onClick(View v) {
+
+                    if(isClosed) {
+                      has_panel = item.getId();
+                      isClosed = false;
+                    }
                     itemList.add(item);
                     Collections.sort(itemList, NON_SCHEDULED_ITEM_COMPARATOR);
                     notifyDataSetChanged();
@@ -365,7 +375,7 @@ public class MyListAdapter extends BaseAdapter implements Filterable {
           String[] items = new String[size];
           items[0] = activity.menu.findItem(R.id.scheduled_list).getTitle().toString();
           for(int i = 0; i < size; i++) {
-            if(activity.which_menu_open - 1 != i) {
+            if(activity.whichMenuOpen - 1 != i) {
               items[i + j] = ManageListAdapter.nonScheduledLists.get(i).getTitle();
             }
             else j = 0;
@@ -385,7 +395,7 @@ public class MyListAdapter extends BaseAdapter implements Filterable {
                 public void onClick(DialogInterface dialog, int which) {
 
                   int position = SingleChoiceItemsAdapter.checked_position;
-                  if(position >= activity.which_menu_open) {
+                  if(position >= activity.whichMenuOpen) {
                     which_list = position + 1;
                   }
                   else which_list = position;
@@ -636,7 +646,7 @@ public class MyListAdapter extends BaseAdapter implements Filterable {
         }
 
         //検索処理
-        if(activity.actionBarFragment.checked_tag == -1) {
+        if(activity.actionBarFragment.checkedTag == -1) {
           itemList = activity.getNonScheduledItem(MyDatabaseHelper.TODO_TABLE);
         }
         else {
