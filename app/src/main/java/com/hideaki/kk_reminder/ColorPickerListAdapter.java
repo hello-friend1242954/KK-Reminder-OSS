@@ -282,7 +282,7 @@ public class ColorPickerListAdapter extends BaseAdapter {
 
     final ViewHolder viewHolder;
 
-    if(convertView == null) {
+    if(convertView == null || convertView.getTag() == null) {
       convertView = View.inflate(parent.getContext(), R.layout.color_picker_list_layout, null);
 
       viewHolder = new ViewHolder();

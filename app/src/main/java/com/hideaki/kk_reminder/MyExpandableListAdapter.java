@@ -9,12 +9,14 @@ import android.content.SharedPreferences;
 import android.content.res.ColorStateList;
 import android.content.res.Resources;
 import android.graphics.Color;
+import android.os.Build;
 import android.os.Handler;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.view.ActionMode;
 import android.support.v7.widget.CardView;
 import android.text.format.DateFormat;
+import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -1960,7 +1962,17 @@ public class MyExpandableListAdapter extends BaseExpandableListAdapter implement
 
     final ChildViewHolder viewHolder;
 
-    if(convertView == null) {
+    if(convertView == null || convertView.getTag() == null) {
+
+      // convertView != null && convertView.getTag() == nullのときは描画を最初から行うため、
+      // 描画の完了に時間がかかり、ExpandableListViewFragment内でアイテムのポジションを決定し
+      // た後にgetChildViewの描画が完了する。そのため、アイテムのポジションが最初の設定からず
+      // れてしまうので、ここでアイテムのポジションの決定を行う。
+      if(convertView != null && !ExpandableListViewFragment.isGetTagNull) {
+        ExpandableListViewFragment.isGetTagNull = true;
+        activity.expandableListViewFragment.setPosition();
+      }
+
       convertView = View.inflate(viewGroup.getContext(), R.layout.child_layout, null);
 
       viewHolder = new ChildViewHolder();

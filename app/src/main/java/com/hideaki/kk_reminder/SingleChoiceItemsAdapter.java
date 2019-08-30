@@ -84,7 +84,7 @@ public class SingleChoiceItemsAdapter extends BaseAdapter {
 
     final ViewHolder viewHolder;
 
-    if(convertView == null) {
+    if(convertView == null || convertView.getTag() == null) {
       convertView = View.inflate(parent.getContext(), R.layout.single_choice_items_layout, null);
 
       viewHolder = new ViewHolder();

@@ -260,7 +260,7 @@ public class ManageListAdapter extends BaseAdapter implements Filterable {
 
     final ViewHolder viewHolder;
 
-    if(convertView == null) {
+    if(convertView == null || convertView.getTag() == null) {
       convertView = View.inflate(parent.getContext(), R.layout.non_scheduled_list_layout, null);
 
       viewHolder = new ViewHolder();

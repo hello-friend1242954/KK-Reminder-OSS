@@ -152,7 +152,7 @@ public class ManuallySnoozeListAdapter extends BaseAdapter {
 
     final ViewHolder viewHolder;
 
-    if(convertView == null) {
+    if(convertView == null || convertView.getTag() == null) {
       convertView = View.inflate(parent.getContext(), R.layout.manually_snooze_list_layout, null);
 
       viewHolder = new ViewHolder();

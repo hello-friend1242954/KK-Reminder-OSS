@@ -523,7 +523,7 @@ public class DoneListAdapter extends BaseAdapter implements Filterable {
 
     final ViewHolder viewHolder;
 
-    if(convertView == null) {
+    if(convertView == null || convertView.getTag() == null) {
       if(order == 0) {
         convertView = View.inflate(parent.getContext(), R.layout.child_layout, null);
       }

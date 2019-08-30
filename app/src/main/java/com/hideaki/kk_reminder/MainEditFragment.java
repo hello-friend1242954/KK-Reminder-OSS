@@ -856,7 +856,7 @@ public class MainEditFragment extends BasePreferenceFragmentCompat
           }
           else activity.addChildren(item, MyDatabaseHelper.TODO_TABLE);
 
-          activity.setUpdatedItemPosition(item.getId());
+          ExpandableListViewFragment.updatedItemId = item.getId();
 
           activity.deleteAlarm(item);
           activity.setAlarm(item);

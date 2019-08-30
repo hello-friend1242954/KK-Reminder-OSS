@@ -181,7 +181,7 @@ public class NotesTodoListAdapter extends BaseAdapter {
 
     final ViewHolder viewHolder;
 
-    if(convertView == null) {
+    if(convertView == null || convertView.getTag() == null) {
       convertView = View.inflate(parent.getContext(), R.layout.notes_checklist_todo_item_layout,
           null
       );

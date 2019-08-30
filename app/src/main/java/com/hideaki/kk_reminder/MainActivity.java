@@ -147,6 +147,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
   MenuItem menuItem;
   GeneralSettings generalSettings;
   ActionBarFragment actionBarFragment;
+  ExpandableListViewFragment expandableListViewFragment;
   Toolbar toolbar;
   int menu_item_color;
   int menu_background_color;
@@ -1160,7 +1161,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
   public void setUpdatedItemPosition(long id) {
 
-    List<List<Item>> children = getChildren(MyDatabaseHelper.TODO_TABLE);
+    List<List<Item>> children = MyExpandableListAdapter.children;
     int count = 0;
     int i_size = MyExpandableListAdapter.groups.size();
     for(int i = 0; i < i_size && id != 0; i++) {
@@ -1681,7 +1682,8 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
   public void showExpandableListViewFragment() {
 
     actionBarFragment = ActionBarFragment.newInstance();
-    showFragment(ExpandableListViewFragment.TAG, ExpandableListViewFragment.newInstance(),
+    expandableListViewFragment = ExpandableListViewFragment.newInstance();
+    showFragment(ExpandableListViewFragment.TAG, expandableListViewFragment,
         ActionBarFragment.TAG, actionBarFragment, false);
   }
 

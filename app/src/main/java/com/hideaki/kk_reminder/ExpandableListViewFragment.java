@@ -33,6 +33,8 @@ public class ExpandableListViewFragment extends Fragment {
   static int position;
   static int offset;
   static int group_height;
+  static long updatedItemId = 0;
+  static boolean isGetTagNull = false;
 
   public static ExpandableListViewFragment newInstance() {
 
@@ -83,6 +85,8 @@ public class ExpandableListViewFragment extends Fragment {
   @Override
   public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, Bundle savedInstanceState) {
 
+    isGetTagNull = false;
+
     //すべての通知を既読する
     NotificationManager manager = (NotificationManager)activity.getSystemService(NOTIFICATION_SERVICE);
     checkNotNull(manager);
@@ -125,22 +129,7 @@ public class ExpandableListViewFragment extends Fragment {
     linearLayout.setPadding(0, 0, 0, paddingPx);
     ((ViewGroup)activity.expandableListView.getParent()).addView(linearLayout, 0, layoutParams);
     activity.expandableListView.setEmptyView(linearLayout);
-    activity.expandableListView.post(new Runnable() {
-      @Override
-      public void run() {
-
-        if(activity.is_boot_from_notification) {
-          position = 0;
-          offset = 0;
-          activity.is_boot_from_notification = false;
-        }
-        activity.expandableListView.setSelectionFromTop(position, offset);
-        if(position == 0 && offset == 0 && group_height == 0) {
-          View child = activity.expandableListView.getChildAt(0);
-          if(child != null) group_height = child.getHeight();
-        }
-      }
-    });
+    setPosition();
     activity.expandableListView.setAdapter(activity.wrapperAdapter);
     activity.expandableListView.setTextFilterEnabled(true);
     activity.expandableListView.setOnScrollListener(new AbsListView.OnScrollListener() {
@@ -175,5 +164,29 @@ public class ExpandableListViewFragment extends Fragment {
     }
 
     return view;
+  }
+
+  void setPosition() {
+
+    activity.expandableListView.post(new Runnable() {
+      @Override
+      public void run() {
+
+        if(updatedItemId != 0) {
+          activity.setUpdatedItemPosition(updatedItemId);
+          updatedItemId = 0;
+        }
+        if(activity.is_boot_from_notification) {
+          position = 0;
+          offset = 0;
+          activity.is_boot_from_notification = false;
+        }
+        activity.expandableListView.setSelectionFromTop(position, offset);
+        if(position == 0 && offset == 0 && group_height == 0) {
+          View child = activity.expandableListView.getChildAt(0);
+          if(child != null) group_height = child.getHeight();
+        }
+      }
+    });
   }
 }
