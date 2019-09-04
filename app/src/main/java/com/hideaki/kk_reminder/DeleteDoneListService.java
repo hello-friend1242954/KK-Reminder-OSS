@@ -15,13 +15,13 @@ public class DeleteDoneListService extends IntentService {
   public DeleteDoneListService() {
 
     super(DeleteDoneListService.class.getSimpleName());
-    accessor = new DBAccessor(this);
+    accessor = new DBAccessor(this, false);
   }
 
   public DeleteDoneListService(String name) {
 
     super(name);
-    accessor = new DBAccessor(this);
+    accessor = new DBAccessor(this, false);
   }
 
   @Override

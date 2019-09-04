@@ -100,6 +100,7 @@ import static com.hideaki.kk_reminder.UtilClass.SCHEDULED_ITEM_COMPARATOR;
 import static com.hideaki.kk_reminder.UtilClass.SNOOZE_DEFAULT_HOUR;
 import static com.hideaki.kk_reminder.UtilClass.SNOOZE_DEFAULT_MINUTE;
 import static com.hideaki.kk_reminder.UtilClass.SUBMENU_POSITION;
+import static com.hideaki.kk_reminder.UtilClass.copyDatabase;
 import static com.hideaki.kk_reminder.UtilClass.deserialize;
 import static com.hideaki.kk_reminder.UtilClass.generateUniqueId;
 import static com.hideaki.kk_reminder.UtilClass.getPxFromDp;
@@ -180,7 +181,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
     super.onCreate(savedInstanceState);
 
-    accessor = new DBAccessor(this);
+    accessor = new DBAccessor(this, false);
 
     //共通設定と新しく追加したリストのリストア
     generalSettings = querySettingsDB();
@@ -595,14 +596,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
       setupBillingServices();
     }
 
-    //データベースを端末暗号化ストレージへコピーする
-    if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-      Context direct_boot_context = createDeviceProtectedStorageContext();
-      direct_boot_context.moveDatabaseFrom(this, MyDatabaseHelper.TODO_TABLE);
-      direct_boot_context.moveDatabaseFrom(this, MyDatabaseHelper.DONE_TABLE);
-      direct_boot_context.moveDatabaseFrom(this, MyDatabaseHelper.SETTINGS_TABLE);
-    }
-
     Fragment mainFragment = getSupportFragmentManager().findFragmentByTag(ExpandableListViewFragment.TAG);
     if(mainFragment != null && mainFragment.isVisible()) {
       MyExpandableListAdapter.lock_block_notify_change = true;
@@ -618,12 +611,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     super.onPause();
 
     //データベースを端末暗号化ストレージへコピーする
-    if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-      Context direct_boot_context = createDeviceProtectedStorageContext();
-      direct_boot_context.moveDatabaseFrom(this, MyDatabaseHelper.TODO_TABLE);
-      direct_boot_context.moveDatabaseFrom(this, MyDatabaseHelper.DONE_TABLE);
-      direct_boot_context.moveDatabaseFrom(this, MyDatabaseHelper.SETTINGS_TABLE);
-    }
+    copyDatabase(this, MyDatabaseHelper.DATABASE);
 
     //ExpandableListViewの自動更新を止める
     setUpdateListTimerTask(false);
@@ -1352,7 +1340,8 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
     List<Item> itemList = new ArrayList<>();
 
-    for(byte[] stream : accessor.executeQueryAll(table)) {
+    List<byte[]> streamList = accessor.executeQueryAll(table);
+    for(byte[] stream : streamList) {
       itemList.add((Item)deserialize(stream));
     }
 

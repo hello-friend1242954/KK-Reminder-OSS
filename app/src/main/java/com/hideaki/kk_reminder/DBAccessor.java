@@ -16,9 +16,9 @@ class DBAccessor {
   private String state_str;
   private SQLiteStatement statement;
 
-  DBAccessor(Context context) {
+  DBAccessor(Context context, boolean isDirectBootContext) {
 
-    this.helper = MyDatabaseHelper.getInstance(context);
+    this.helper = MyDatabaseHelper.getInstance(context, isDirectBootContext);
   }
 
   private void closeDB() {

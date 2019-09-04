@@ -43,14 +43,16 @@ public class AlarmReceiver extends BroadcastReceiver {
   @Override
   public void onReceive(Context context, Intent intent) {
 
-    accessor = new DBAccessor(context);
+    accessor = new DBAccessor(context, false);
     Item item = (Item)deserialize(intent.getByteArrayExtra(ITEM));
+    checkNotNull(item);
 
     int time = item.getNotify_interval().getTime();
 
     //Notification IDの生成
     SharedPreferences stringPreferences = context.getSharedPreferences(STRING_GENERAL, MODE_PRIVATE);
     Set<String> id_table = stringPreferences.getStringSet(NOTIFICATION_ID_TABLE, new TreeSet<String>());
+    checkNotNull(id_table);
     int parent_id = intent.getIntExtra(PARENT_NOTIFICATION_ID, 0);
     if(parent_id == 0) {
       int parent_plus_unit = 1 << 10;

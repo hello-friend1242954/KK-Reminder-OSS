@@ -19,9 +19,14 @@ import android.widget.TextView;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
+import java.io.OutputStream;
 import java.lang.reflect.Field;
 import java.util.Calendar;
 import java.util.Locale;
@@ -33,10 +38,12 @@ class UtilClass {
 
   private static final AtomicInteger uniqueId = new AtomicInteger(1);
   static final ScheduledItemComparator SCHEDULED_ITEM_COMPARATOR = new ScheduledItemComparator();
-  static final NonScheduledItemComparator NON_SCHEDULED_ITEM_COMPARATOR = new NonScheduledItemComparator();
+  static final NonScheduledItemComparator NON_SCHEDULED_ITEM_COMPARATOR =
+      new NonScheduledItemComparator();
   static final DoneItemComparator DONE_ITEM_COMPARATOR = new DoneItemComparator();
   static final NotesComparator NOTES_COMPARATOR = new NotesComparator();
-  static final Uri DEFAULT_URI_SOUND = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
+  static final Uri DEFAULT_URI_SOUND =
+      RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
   static final String ACTION_IN_NOTIFICATION = "ACTION_IN_NOTIFICATION";
   static final String BOOT_FROM_NOTIFICATION = "BOOT_FROM_NOTIFICATION";
   static final int REQUEST_CODE_RINGTONE_PICKER = 0;
@@ -91,14 +98,18 @@ class UtilClass {
       Field f = TextView.class.getDeclaredField("mCursorDrawableRes");
       f.setAccessible(true);
       f.set(editText, R.drawable.cursor);
-    } catch (Exception ignored) {}
+    }
+    catch(Exception ignored) {}
   }
 
   @TargetApi(Build.VERSION_CODES.LOLLIPOP)
   private static Bitmap getBitmap(VectorDrawable vectorDrawable) {
 
-    Bitmap bitmap = Bitmap.createBitmap(vectorDrawable.getIntrinsicWidth(),
-        vectorDrawable.getIntrinsicHeight(), Bitmap.Config.ARGB_8888);
+    Bitmap bitmap = Bitmap.createBitmap(
+        vectorDrawable.getIntrinsicWidth(),
+        vectorDrawable.getIntrinsicHeight(),
+        Bitmap.Config.ARGB_8888
+    );
     Canvas canvas = new Canvas(bitmap);
     vectorDrawable.setBounds(0, 0, canvas.getWidth(), canvas.getHeight());
     vectorDrawable.draw(canvas);
@@ -108,8 +119,11 @@ class UtilClass {
 
   private static Bitmap getBitmap(VectorDrawableCompat vectorDrawable) {
 
-    Bitmap bitmap = Bitmap.createBitmap(vectorDrawable.getIntrinsicWidth(),
-        vectorDrawable.getIntrinsicHeight(), Bitmap.Config.ARGB_8888);
+    Bitmap bitmap = Bitmap.createBitmap(
+        vectorDrawable.getIntrinsicWidth(),
+        vectorDrawable.getIntrinsicHeight(),
+        Bitmap.Config.ARGB_8888
+    );
     Canvas canvas = new Canvas(bitmap);
     vectorDrawable.setBounds(0, 0, canvas.getWidth(), canvas.getHeight());
     vectorDrawable.draw(canvas);
@@ -118,7 +132,11 @@ class UtilClass {
   }
 
   @SuppressLint("NewApi")
-  public static Bitmap getBitmap(Context context, @DrawableRes int drawableResId) {
+  public static Bitmap getBitmap(
+      Context context,
+      @DrawableRes
+      int drawableResId
+  ) {
 
     Drawable drawable = ContextCompat.getDrawable(context, drawableResId);
     if(drawable instanceof BitmapDrawable) {
@@ -130,7 +148,9 @@ class UtilClass {
     else if(drawable instanceof VectorDrawable) {
       return getBitmap((VectorDrawable)drawable);
     }
-    else throw new IllegalArgumentException("Unsupported drawable type");
+    else {
+      throw new IllegalArgumentException("Unsupported drawable type");
+    }
   }
 
   static long currentTimeMinutes() {
@@ -157,7 +177,9 @@ class UtilClass {
     for(;;) {
       final int result = uniqueId.get();
       int new_value = result + 1;
-      if(new_value == Integer.MAX_VALUE) new_value = 1;
+      if(new_value == Integer.MAX_VALUE) {
+        new_value = 1;
+      }
       if(uniqueId.compareAndSet(result, new_value)) {
         return result;
       }
@@ -184,7 +206,9 @@ class UtilClass {
   //デシリアライズメソッド
   static Object deserialize(byte[] stream) {
 
-    if(stream == null) return null;
+    if(stream == null) {
+      return null;
+    }
     else {
       ByteArrayInputStream bais = new ByteArrayInputStream(stream);
       Object data = null;
@@ -192,13 +216,63 @@ class UtilClass {
         ObjectInputStream ois = new ObjectInputStream(bais);
         data = ois.readObject();
         ois.close();
-      } catch(IOException e) {
-        e.printStackTrace();
-      } catch(ClassNotFoundException e) {
+      }
+      catch(IOException | ClassNotFoundException e) {
         e.printStackTrace();
       }
 
       return data;
+    }
+  }
+
+  // データベースの複製を作り、それを端末暗号化ストレージへ移動する
+  static void copyDatabase(Context context, String ORG_DATABASE) {
+
+    if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+      // データベースの複製を作る
+      String databasePath = context.getDatabasePath(ORG_DATABASE).getAbsolutePath();
+      File file = new File(databasePath);
+      OutputStream os = null;
+      InputStream is = null;
+
+      if(file.exists()) {
+        try {
+          os = new FileOutputStream(
+              file.getParent() +
+                  "/" +
+                  MyDatabaseHelper.DATABASE_COPY
+          );
+          is = new FileInputStream(databasePath);
+
+          byte[] buffer = new byte[1024];
+          int length;
+          while((length = is.read(buffer)) > 0) {
+            os.write(buffer, 0, length);
+          }
+
+          os.flush();
+        }
+        catch(Exception e) {
+        }
+        finally {
+          try {
+            if(os != null) {
+              os.close();
+              os = null;
+            }
+            if(is != null) {
+              is.close();
+              is = null;
+            }
+          }
+          catch(Exception e) {
+          }
+        }
+      }
+
+      //複製したデータベースを端末暗号化ストレージへ移動する
+      Context direct_boot_context = context.createDeviceProtectedStorageContext();
+      direct_boot_context.moveDatabaseFrom(context, MyDatabaseHelper.DATABASE_COPY);
     }
   }
 }

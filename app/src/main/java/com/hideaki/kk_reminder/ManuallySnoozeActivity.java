@@ -39,6 +39,7 @@ import static com.hideaki.kk_reminder.UtilClass.PARENT_NOTIFICATION_ID;
 import static com.hideaki.kk_reminder.UtilClass.SNOOZE_DEFAULT_HOUR;
 import static com.hideaki.kk_reminder.UtilClass.SNOOZE_DEFAULT_MINUTE;
 import static com.hideaki.kk_reminder.UtilClass.STRING_GENERAL;
+import static com.hideaki.kk_reminder.UtilClass.copyDatabase;
 import static com.hideaki.kk_reminder.UtilClass.currentTimeMinutes;
 import static com.hideaki.kk_reminder.UtilClass.deserialize;
 import static com.hideaki.kk_reminder.UtilClass.serialize;
@@ -93,7 +94,7 @@ public class ManuallySnoozeActivity extends AppCompatActivity implements View.On
 
     super.onCreate(savedInstanceState);
     setContentView(R.layout.manually_snooze_layout);
-    accessor = new DBAccessor(this);
+    accessor = new DBAccessor(this, false);
 
     //AlarmReceiverからItemとNotificationIDを受け取る
     Intent intent = getIntent();
@@ -241,6 +242,9 @@ public class ManuallySnoozeActivity extends AppCompatActivity implements View.On
         deleteAlarm(item);
         setAlarm(item);
         updateDB(item, MyDatabaseHelper.TODO_TABLE);
+
+        //データベースを端末暗号化ストレージへコピーする
+        copyDatabase(this, MyDatabaseHelper.DATABASE);
 
         SharedPreferences preferences = getSharedPreferences(INT_GENERAL, MODE_PRIVATE);
         int created = preferences.getInt(CREATED, -1);

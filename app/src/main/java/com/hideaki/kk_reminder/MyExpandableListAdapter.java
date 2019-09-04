@@ -9,14 +9,12 @@ import android.content.SharedPreferences;
 import android.content.res.ColorStateList;
 import android.content.res.Resources;
 import android.graphics.Color;
-import android.os.Build;
 import android.os.Handler;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.view.ActionMode;
 import android.support.v7.widget.CardView;
 import android.text.format.DateFormat;
-import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -80,7 +78,6 @@ public class MyExpandableListAdapter extends BaseExpandableListAdapter implement
   private boolean is_manual_expand_or_collapse = true;
   static boolean is_scrolling;
   static boolean isClosed = false; //完了したタスクのコントロールパネルが閉じられたときに立てるフラグ
-  private Calendar finalDate = Calendar.getInstance();
 
   MyExpandableListAdapter(List<List<Item>> children, MainActivity activity) {
 
@@ -548,10 +545,8 @@ public class MyExpandableListAdapter extends BaseExpandableListAdapter implement
             tmp = (Calendar)now.clone();
             tmp.set(Calendar.HOUR_OF_DAY, item.getDate().get(Calendar.HOUR_OF_DAY));
             tmp.set(Calendar.MINUTE, item.getDate().get(Calendar.MINUTE));
-            tmp.set(Calendar.SECOND, 0);
-            tmp.set(Calendar.MILLISECOND, 0);
 
-            if(tmp.before(now)) {
+            if(tmp.compareTo(now) <= 0) {
               tmp.add(Calendar.DAY_OF_MONTH, item.getDayRepeat().getInterval());
             }
           }
@@ -1684,21 +1679,6 @@ public class MyExpandableListAdapter extends BaseExpandableListAdapter implement
       checked_item_num = 0;
       notifyDataSetChanged();
     }
-  }
-
-  Calendar getFinalDate() {
-
-    return (Calendar)finalDate.clone();
-  }
-
-  private void setFinalDate(Calendar finalDate) {
-
-    this.finalDate = (Calendar)finalDate.clone();
-  }
-
-  private void setFinalDateInMillis(long finalDateInMillis) {
-
-    finalDate.setTimeInMillis(finalDateInMillis);
   }
 
   @Override

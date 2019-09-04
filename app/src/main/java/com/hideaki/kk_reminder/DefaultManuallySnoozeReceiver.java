@@ -28,6 +28,7 @@ import static com.hideaki.kk_reminder.UtilClass.PARENT_NOTIFICATION_ID;
 import static com.hideaki.kk_reminder.UtilClass.SNOOZE_DEFAULT_HOUR;
 import static com.hideaki.kk_reminder.UtilClass.SNOOZE_DEFAULT_MINUTE;
 import static com.hideaki.kk_reminder.UtilClass.STRING_GENERAL;
+import static com.hideaki.kk_reminder.UtilClass.copyDatabase;
 import static com.hideaki.kk_reminder.UtilClass.currentTimeMinutes;
 import static com.hideaki.kk_reminder.UtilClass.deserialize;
 import static com.hideaki.kk_reminder.UtilClass.serialize;
@@ -41,12 +42,14 @@ public class DefaultManuallySnoozeReceiver extends BroadcastReceiver {
   public void onReceive(Context context, Intent intent) {
 
     this.context = context;
-    accessor = new DBAccessor(context);
+    accessor = new DBAccessor(context, false);
     Item item = (Item)deserialize(intent.getByteArrayExtra(ITEM));
+    checkNotNull(item);
 
     //通知を既読する
     SharedPreferences stringPreferences = context.getSharedPreferences(STRING_GENERAL, MODE_PRIVATE);
     Set<String> id_table = stringPreferences.getStringSet(NOTIFICATION_ID_TABLE, new TreeSet<String>());
+    checkNotNull(id_table);
     int parent_id = intent.getIntExtra(PARENT_NOTIFICATION_ID, 0);
     int child_id = intent.getIntExtra(CHILD_NOTIFICATION_ID, 0);
     NotificationManager manager = (NotificationManager)context.getSystemService(NOTIFICATION_SERVICE);
@@ -76,6 +79,9 @@ public class DefaultManuallySnoozeReceiver extends BroadcastReceiver {
     deleteAlarm(item);
     setAlarm(item);
     updateDB(item, MyDatabaseHelper.TODO_TABLE);
+
+    //データベースを端末暗号化ストレージへコピーする
+    copyDatabase(context, MyDatabaseHelper.DATABASE);
 
     int created = intPreferences.getInt(CREATED, -1);
     int destroyed = intPreferences.getInt(DESTROYED, -1);

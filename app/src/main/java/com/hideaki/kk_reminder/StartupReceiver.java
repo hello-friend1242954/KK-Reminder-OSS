@@ -7,10 +7,12 @@ import android.content.Context;
 import android.content.Intent;
 import android.os.Build;
 
+import java.util.List;
+
+import static com.google.common.base.Preconditions.checkNotNull;
 import static com.hideaki.kk_reminder.UtilClass.ITEM;
 import static com.hideaki.kk_reminder.UtilClass.deserialize;
 import static com.hideaki.kk_reminder.UtilClass.serialize;
-import static com.google.common.base.Preconditions.checkNotNull;
 
 public class StartupReceiver extends BroadcastReceiver {
 
@@ -20,19 +22,15 @@ public class StartupReceiver extends BroadcastReceiver {
   public void onReceive(Context context, Intent intent) {
 
     if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-      if(intent.getAction() != null && intent.getAction().equals(Intent.ACTION_LOCKED_BOOT_COMPLETED)) {
+      if(Intent.ACTION_LOCKED_BOOT_COMPLETED.equals(intent.getAction())) {
         Context direct_boot_context = context.createDeviceProtectedStorageContext();
-        accessor = new DBAccessor(direct_boot_context);
-        resetAlarm(context);
-      }
-      else if(intent.getAction() != null && intent.getAction().equals(Intent.ACTION_BOOT_COMPLETED)) {
-        accessor = new DBAccessor(context);
+        accessor = new DBAccessor(direct_boot_context, true);
         resetAlarm(context);
       }
     }
     else {
-      if(intent.getAction() != null && intent.getAction().equals(Intent.ACTION_BOOT_COMPLETED)) {
-        accessor = new DBAccessor(context);
+      if(Intent.ACTION_BOOT_COMPLETED.equals(intent.getAction())) {
+        accessor = new DBAccessor(context, false);
         resetAlarm(context);
       }
     }
@@ -40,9 +38,11 @@ public class StartupReceiver extends BroadcastReceiver {
 
   private void resetAlarm(Context context) {
 
-    for(byte[] stream : accessor.executeQueryAll(MyDatabaseHelper.TODO_TABLE)) {
+    List<byte[]> streamList = accessor.executeQueryAll(MyDatabaseHelper.TODO_TABLE);
+    for(byte[] stream : streamList) {
 
       Item item = (Item)deserialize(stream);
+      checkNotNull(item);
 
       if(item.getDate().getTimeInMillis() > System.currentTimeMillis() && item.getWhich_list_belongs() == 0) {
         Intent set_alarm = new Intent(context, AlarmReceiver.class);

@@ -24,6 +24,7 @@ import static com.hideaki.kk_reminder.UtilClass.ITEM;
 import static com.hideaki.kk_reminder.UtilClass.NOTIFICATION_ID_TABLE;
 import static com.hideaki.kk_reminder.UtilClass.PARENT_NOTIFICATION_ID;
 import static com.hideaki.kk_reminder.UtilClass.STRING_GENERAL;
+import static com.hideaki.kk_reminder.UtilClass.copyDatabase;
 import static com.hideaki.kk_reminder.UtilClass.deserialize;
 import static com.hideaki.kk_reminder.UtilClass.serialize;
 
@@ -37,12 +38,14 @@ public class DoneReceiver extends BroadcastReceiver {
   public void onReceive(Context context, Intent intent) {
 
     this.context = context;
-    accessor = new DBAccessor(context);
+    accessor = new DBAccessor(context, false);
     Item item = (Item)deserialize(intent.getByteArrayExtra(ITEM));
+    checkNotNull(item);
 
     //通知を既読する
     SharedPreferences stringPreferences = context.getSharedPreferences(STRING_GENERAL, MODE_PRIVATE);
     Set<String> id_table = stringPreferences.getStringSet(NOTIFICATION_ID_TABLE, new TreeSet<String>());
+    checkNotNull(id_table);
     int parent_id = intent.getIntExtra(PARENT_NOTIFICATION_ID, 0);
     int child_id = intent.getIntExtra(CHILD_NOTIFICATION_ID, 0);
     NotificationManager manager = (NotificationManager)context.getSystemService(NOTIFICATION_SERVICE);
@@ -168,10 +171,10 @@ public class DoneReceiver extends BroadcastReceiver {
         tmp = (Calendar)now.clone();
         tmp.set(Calendar.HOUR_OF_DAY, item.getDate().get(Calendar.HOUR_OF_DAY));
         tmp.set(Calendar.MINUTE, item.getDate().get(Calendar.MINUTE));
-        tmp.set(Calendar.SECOND, 0);
-        tmp.set(Calendar.MILLISECOND, 0);
 
-        if(tmp.before(now)) tmp.add(Calendar.DAY_OF_MONTH, item.getDayRepeat().getInterval());
+        if(tmp.compareTo(now) <= 0) {
+          tmp.add(Calendar.DAY_OF_MONTH, item.getDayRepeat().getInterval());
+        }
       }
     }
     else if((item.getDayRepeat().getSetted() & (1 << 1)) != 0) {
@@ -925,6 +928,9 @@ public class DoneReceiver extends BroadcastReceiver {
       deleteDB(item, MyDatabaseHelper.TODO_TABLE);
       insertDB(item, MyDatabaseHelper.DONE_TABLE);
     }
+
+    //データベースを端末暗号化ストレージへコピーする
+    copyDatabase(context, MyDatabaseHelper.DATABASE);
 
     SharedPreferences intPreferences = context.getSharedPreferences(INT_GENERAL, MODE_PRIVATE);
     int created = intPreferences.getInt(CREATED, -1);
