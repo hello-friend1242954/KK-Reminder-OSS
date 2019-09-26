@@ -4,9 +4,11 @@ import android.app.Dialog;
 import android.app.TimePickerDialog;
 import android.content.res.Resources;
 import android.os.Bundle;
-import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
-import android.support.v4.app.DialogFragment;
+
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.fragment.app.DialogFragment;
+
 import android.widget.TimePicker;
 
 import java.util.Locale;
@@ -14,7 +16,17 @@ import java.util.Locale;
 import static com.google.common.base.Preconditions.checkNotNull;
 import static com.hideaki.kk_reminder.UtilClass.LOCALE;
 
-public class NotifyIntervalDurationPickerDialogFragment extends DialogFragment implements TimePickerDialog.OnTimeSetListener {
+public class NotifyIntervalDurationPickerDialogFragment extends DialogFragment
+    implements TimePickerDialog.OnTimeSetListener {
+
+  private NotifyIntervalEditFragment notifyIntervalEditFragment;
+
+  NotifyIntervalDurationPickerDialogFragment(
+      NotifyIntervalEditFragment notifyIntervalEditFragment
+  ) {
+
+    this.notifyIntervalEditFragment = notifyIntervalEditFragment;
+  }
 
   @NonNull
   @Override
@@ -35,7 +47,9 @@ public class NotifyIntervalDurationPickerDialogFragment extends DialogFragment i
     if(hourOfDay == 0 && minute == 0) {
       MainEditFragment.notifyInterval.setHour(24);
     }
-    else MainEditFragment.notifyInterval.setHour(hourOfDay);
+    else {
+      MainEditFragment.notifyInterval.setHour(hourOfDay);
+    }
     MainEditFragment.notifyInterval.setMinute(minute);
 
     NotifyInterval interval = MainEditFragment.notifyInterval;
@@ -50,7 +64,8 @@ public class NotifyIntervalDurationPickerDialogFragment extends DialogFragment i
         title += tmp;
       }
       if(interval.getMinute() != 0) {
-        String tmp = res.getQuantityString(R.plurals.minute, interval.getMinute(), interval.getMinute());
+        String tmp =
+            res.getQuantityString(R.plurals.minute, interval.getMinute(), interval.getMinute());
         summary += tmp;
         title += tmp;
       }
@@ -60,37 +75,42 @@ public class NotifyIntervalDurationPickerDialogFragment extends DialogFragment i
       }
       else {
         summary += res.getQuantityString(R.plurals.times_notify, interval.getOrg_time(),
-            interval.getOrg_time());
+            interval.getOrg_time()
+        );
       }
     }
     else {
       summary = "Notify every ";
       if(interval.getHour() != 0) {
-        String tmp = res.getQuantityString(R.plurals.hour, interval.getHour(), interval.getHour()) + " ";
+        String tmp =
+            res.getQuantityString(R.plurals.hour, interval.getHour(), interval.getHour()) + " ";
         summary += tmp;
         title += tmp;
       }
       if(interval.getMinute() != 0) {
-        String tmp = res.getQuantityString(R.plurals.minute, interval.getMinute(), interval.getMinute()) + " ";
+        String tmp =
+            res.getQuantityString(R.plurals.minute, interval.getMinute(), interval.getMinute()) +
+                " ";
         summary += tmp;
         title += tmp;
       }
       if(interval.getOrg_time() != -1) {
         summary += res.getQuantityString(R.plurals.times_notify, interval.getOrg_time(),
-            interval.getOrg_time()) + " ";
+            interval.getOrg_time()
+        ) + " ";
       }
       summary += getString(R.string.unless_complete_task);
     }
 
-    NotifyIntervalEditFragment.duration.setTitle(title);
+    notifyIntervalEditFragment.duration.setTitle(title);
 
     if(interval.getOrg_time() == 0) {
-      NotifyIntervalEditFragment.label.setSummary(getString(R.string.non_notify));
+      notifyIntervalEditFragment.label.setSummary(getString(R.string.non_notify));
 
       MainEditFragment.notifyInterval.setLabel(getString(R.string.none));
     }
     else {
-      NotifyIntervalEditFragment.label.setSummary(summary);
+      notifyIntervalEditFragment.label.setSummary(summary);
 
       MainEditFragment.notifyInterval.setLabel(summary);
     }

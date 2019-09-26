@@ -3,10 +3,12 @@ package com.hideaki.kk_reminder;
 import android.app.Dialog;
 import android.app.TimePickerDialog;
 import android.os.Bundle;
-import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
-import android.support.v4.app.DialogFragment;
-import android.support.v4.app.FragmentManager;
+
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.fragment.app.DialogFragment;
+import androidx.fragment.app.FragmentManager;
+
 import android.widget.TextView;
 import android.widget.TimePicker;
 
@@ -31,10 +33,9 @@ public class DefaultControlTimePickerDialogFragment extends DialogFragment
   private boolean isMinus;
   private int which;
   private boolean isSetWhichTimeControllerCalled = false;
-  private DefaultControlTimeModelPreference preference;
   private TextView target;
 
-  public void setWhichTimeController(TextView target, boolean isMinus, int which) {
+  void setWhichTimeController(TextView target, boolean isMinus, int which) {
 
     this.isMinus = isMinus;
     this.which = which;
@@ -43,7 +44,7 @@ public class DefaultControlTimePickerDialogFragment extends DialogFragment
   }
 
   @Override
-  public void show(FragmentManager manager, String tag) {
+  public void show(@NonNull FragmentManager manager, String tag) {
 
     if(isSetWhichTimeControllerCalled) {
       super.show(manager, tag);

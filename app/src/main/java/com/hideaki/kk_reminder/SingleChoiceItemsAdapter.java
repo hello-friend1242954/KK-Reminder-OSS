@@ -1,6 +1,7 @@
 package com.hideaki.kk_reminder;
 
-import android.support.constraint.ConstraintLayout;
+import androidx.constraintlayout.widget.ConstraintLayout;
+
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
@@ -29,12 +30,14 @@ public class SingleChoiceItemsAdapter extends BaseAdapter {
     AnimCheckBox checkBox;
     TextView title;
   }
-  private class MyOnClickListener implements View.OnClickListener, AnimCheckBox.OnCheckedChangeListener {
+
+  private class MyOnClickListener
+      implements View.OnClickListener, AnimCheckBox.OnCheckedChangeListener {
 
     private int position;
     private ViewHolder viewHolder;
 
-    public MyOnClickListener(int position, ViewHolder viewHolder) {
+    MyOnClickListener(int position, ViewHolder viewHolder) {
 
       this.position = position;
       this.viewHolder = viewHolder;
@@ -46,7 +49,9 @@ public class SingleChoiceItemsAdapter extends BaseAdapter {
       if(!viewHolder.checkBox.isChecked()) {
         viewHolder.checkBox.setChecked(true);
       }
-      else viewHolder.checkBox.setChecked(false);
+      else {
+        viewHolder.checkBox.setChecked(false);
+      }
     }
 
     @Override
@@ -66,16 +71,19 @@ public class SingleChoiceItemsAdapter extends BaseAdapter {
 
   @Override
   public int getCount() {
+
     return items.size();
   }
 
   @Override
   public Object getItem(int position) {
+
     return items.get(position);
   }
 
   @Override
   public long getItemId(int position) {
+
     return position;
   }
 
@@ -94,34 +102,40 @@ public class SingleChoiceItemsAdapter extends BaseAdapter {
 
       convertView.setTag(viewHolder);
     }
-    else viewHolder = (ViewHolder)convertView.getTag();
+    else {
+      viewHolder = (ViewHolder)convertView.getTag();
+    }
 
 
-    //現在のビュー位置でのtitleの取得とリスナーの初期化
+    // 現在のビュー位置でのtitleの取得とリスナーの初期化
     String title = (String)getItem(position);
     MyOnClickListener listener = new MyOnClickListener(position, viewHolder);
 
-    //リスナーの設定
+    // リスナーの設定
     viewHolder.item.setOnClickListener(listener);
     viewHolder.checkBox.setOnCheckedChangeListener(listener);
 
-    //各種表示処理
+    // 各種表示処理
     viewHolder.title.setText(title);
 
-    //チェック状態の初期化
+    // チェック状態の初期化
     if(position != checked_position) {
       manually_checked = false;
       if(is_first) {
         viewHolder.checkBox.setChecked(false, false);
       }
-      else viewHolder.checkBox.setChecked(false);
+      else {
+        viewHolder.checkBox.setChecked(false);
+      }
     }
     else {
       manually_checked = false;
       if(is_first) {
         viewHolder.checkBox.setChecked(true, false);
       }
-      else viewHolder.checkBox.setChecked(true);
+      else {
+        viewHolder.checkBox.setChecked(true);
+      }
     }
     manually_checked = true;
 

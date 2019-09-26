@@ -4,12 +4,15 @@ import android.app.Dialog;
 import android.content.DialogInterface;
 import android.content.res.Resources;
 import android.graphics.PorterDuff;
+import android.graphics.PorterDuffColorFilter;
 import android.graphics.drawable.GradientDrawable;
 import android.os.Bundle;
-import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
-import android.support.v4.app.DialogFragment;
-import android.support.v7.app.AlertDialog;
+
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.fragment.app.DialogFragment;
+import androidx.appcompat.app.AlertDialog;
+
 import android.view.View;
 import android.view.Window;
 import android.view.WindowManager;
@@ -25,6 +28,12 @@ import static com.hideaki.kk_reminder.UtilClass.setCursorDrawableColor;
 public class NotifyIntervalTimePickerDialogFragment extends DialogFragment {
 
   private EditText time;
+  private NotifyIntervalEditFragment notifyIntervalEditFragment;
+
+  NotifyIntervalTimePickerDialogFragment(NotifyIntervalEditFragment notifyIntervalEditFragment) {
+
+    this.notifyIntervalEditFragment = notifyIntervalEditFragment;
+  }
 
   @NonNull
   @Override
@@ -36,7 +45,10 @@ public class NotifyIntervalTimePickerDialogFragment extends DialogFragment {
 
     time = view.findViewById(R.id.time);
     setCursorDrawableColor(time);
-    time.getBackground().mutate().setColorFilter(activity.accent_color, PorterDuff.Mode.SRC_IN);
+    time.getBackground().mutate().setColorFilter(new PorterDuffColorFilter(
+        activity.accent_color,
+        PorterDuff.Mode.SRC_IN
+    ));
     time.setText(String.valueOf(MainEditFragment.notifyInterval.getOrg_time()));
     time.setSelection(time.getText().length());
 
@@ -102,10 +114,16 @@ public class NotifyIntervalTimePickerDialogFragment extends DialogFragment {
                 if(LOCALE.equals(Locale.JAPAN)) {
                   summary = activity.getString(R.string.unless_complete_task);
                   if(interval.getHour() != 0) {
-                    summary += res.getQuantityString(R.plurals.hour, interval.getHour(), interval.getHour());
+                    summary += res.getQuantityString(R.plurals.hour,
+                        interval.getHour(),
+                        interval.getHour()
+                    );
                   }
                   if(interval.getMinute() != 0) {
-                    summary += res.getQuantityString(R.plurals.minute, interval.getMinute(), interval.getMinute());
+                    summary += res.getQuantityString(R.plurals.minute,
+                        interval.getMinute(),
+                        interval.getMinute()
+                    );
                   }
                   summary += activity.getString(R.string.per);
                   if(interval.getOrg_time() == -1) {
@@ -113,45 +131,62 @@ public class NotifyIntervalTimePickerDialogFragment extends DialogFragment {
                   }
                   else {
                     summary += res.getQuantityString(R.plurals.times_notify, interval.getOrg_time(),
-                        interval.getOrg_time());
+                        interval.getOrg_time()
+                    );
                   }
                 }
                 else {
                   summary = "Notify every ";
                   if(interval.getHour() != 0) {
-                    summary += res.getQuantityString(R.plurals.hour, interval.getHour(), interval.getHour());
-                    if(!LOCALE.equals(Locale.JAPAN)) summary += " ";
+                    summary += res.getQuantityString(R.plurals.hour,
+                        interval.getHour(),
+                        interval.getHour()
+                    );
+                    if(!LOCALE.equals(Locale.JAPAN)) {
+                      summary += " ";
+                    }
                   }
                   if(interval.getMinute() != 0) {
-                    summary += res.getQuantityString(R.plurals.minute, interval.getMinute(), interval.getMinute());
-                    if(!LOCALE.equals(Locale.JAPAN)) summary += " ";
+                    summary += res.getQuantityString(R.plurals.minute,
+                        interval.getMinute(),
+                        interval.getMinute()
+                    );
+                    if(!LOCALE.equals(Locale.JAPAN)) {
+                      summary += " ";
+                    }
                   }
                   if(interval.getOrg_time() != -1) {
                     summary += res.getQuantityString(R.plurals.times_notify, interval.getOrg_time(),
-                        interval.getOrg_time()) + " ";
+                        interval.getOrg_time()
+                    ) + " ";
                   }
                   summary += activity.getString(R.string.unless_complete_task);
                 }
 
-                NotifyIntervalEditFragment.label.setSummary(summary);
+                notifyIntervalEditFragment.label.setSummary(summary);
 
                 MainEditFragment.notifyInterval.setLabel(summary);
               }
               else {
-                NotifyIntervalEditFragment.label.setSummary(activity.getString(R.string.non_notify));
+                notifyIntervalEditFragment.label.setSummary(activity.getString(R.string.non_notify));
 
                 MainEditFragment.notifyInterval.setLabel(activity.getString(R.string.none));
               }
 
-              //項目のタイトル部に現在の設定値を表示
+              // 項目のタイトル部に現在の設定値を表示
               int org_time = interval.getOrg_time();
-              NotifyIntervalEditFragment.time.setTitle(getResources().getQuantityString(R.plurals.times, org_time, org_time));
+              notifyIntervalEditFragment.time.setTitle(getResources().getQuantityString(
+                  R.plurals.times,
+                  org_time,
+                  org_time
+              ));
             }
           }
         })
         .setNeutralButton(R.string.cancel, new DialogInterface.OnClickListener() {
           @Override
           public void onClick(DialogInterface dialog, int which) {
+
           }
         })
         .setView(view)
@@ -166,10 +201,11 @@ public class NotifyIntervalTimePickerDialogFragment extends DialogFragment {
       }
     });
 
-    //ダイアログ表示時にソフトキーボードを自動で表示
+    // ダイアログ表示時にソフトキーボードを自動で表示
     time.setOnFocusChangeListener(new View.OnFocusChangeListener() {
       @Override
       public void onFocusChange(View v, boolean hasFocus) {
+
         if(hasFocus) {
           Window dialogWindow = dialog.getWindow();
           checkNotNull(dialogWindow);

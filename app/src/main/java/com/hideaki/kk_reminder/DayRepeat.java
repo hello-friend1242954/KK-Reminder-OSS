@@ -9,17 +9,17 @@ public class DayRepeat implements Serializable, Cloneable {
   private int interval = 0;
   private int scale = 0;
   private boolean day = false;
-  private int week = 0; //月～日曜日の7個のパラメータの設定状況のフラグをビットで表す
-  private int days_of_month = 0; //1日～月末までの最大31個のパラメータの設定状況のフラグをビットで表す
+  private int week = 0; // 月～日曜日の7個のパラメータの設定状況のフラグをビットで表す
+  private int days_of_month = 0; // 1日～月末までの最大31個のパラメータの設定状況のフラグをビットで表す
   private int ordinal_number = 0;
   private Week on_the_month = null;
-  //一度ordinal_numberに一致する週数の月曜日を見つけたら、この変数が5になるまで(金曜日になるまで)Repeatを
-  //毎日に固定する
+  // 一度ordinal_numberに一致する週数の月曜日を見つけたら、この変数が5になるまで(金曜日になるまで)Repeatを
+  // 毎日に固定する
   private int weekday_num = 0;
   private boolean days_of_month_setted = true;
-  private int year = 0; //1～12月の12個のパラメータの設定状況のフラグをビットで表す
+  private int year = 0; // 1～12月の12個のパラメータの設定状況のフラグをビットで表す
   private int day_of_month_of_year = 0;
-  private int setted = 0; //day, week, month, yearの4つについて設定状況のフラグをビットで表す
+  private int setted = 0; // day, week, month, yearの4つについて設定状況のフラグをビットで表す
   private int which_template = 0;
 
   String getLabel() {

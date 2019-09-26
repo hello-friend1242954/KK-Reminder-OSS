@@ -7,7 +7,9 @@ import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.PixelFormat;
 import android.graphics.drawable.GradientDrawable;
-import android.support.v4.content.ContextCompat;
+
+import androidx.core.content.ContextCompat;
+
 import android.util.AttributeSet;
 import android.view.Gravity;
 import android.view.MotionEvent;
@@ -54,24 +56,36 @@ public class SortableListView extends ListView {
     activity = (MainActivity)context;
   }
 
-  /** ドラッグイベントリスナの設定 */
+  /**
+   * ドラッグイベントリスナの設定
+   */
   public void setDragListener(DragListener listener) {
+
     dragListener = listener;
   }
 
-  /** ソートモードの切替 */
+  /**
+   * ソートモードの切替
+   */
   public void setSortable(boolean sortable) {
+
     this.sortable = sortable;
   }
 
-  /** ソート中アイテムの背景色を設定 */
+  /**
+   * ソート中アイテムの背景色を設定
+   */
   @Override
   public void setBackgroundColor(int color) {
+
     bitmapBackgroundColor = color;
   }
 
-  /** MotionEvent から position を取得する */
+  /**
+   * MotionEvent から position を取得する
+   */
   private int eventToPosition(MotionEvent event) {
+
     return pointToPosition((int)event.getX(), (int)event.getY());
   }
 
@@ -81,7 +95,8 @@ public class SortableListView extends ListView {
     if(TagEditListAdapter.is_sorting) {
       return eventToPosition(ev) != 0;
     }
-    return MyListAdapter.is_sorting || ManageListAdapter.is_sorting || NotesTodoListAdapter.isSorting
+    return MyListAdapter.is_sorting || ManageListAdapter.is_sorting ||
+        NotesTodoListAdapter.isSorting
         || super.onInterceptTouchEvent(ev);
   }
 
@@ -92,12 +107,16 @@ public class SortableListView extends ListView {
     return true;
   }
 
-  /** タッチイベント処理 */
+  /**
+   * タッチイベント処理
+   */
   @SuppressLint("ClickableViewAccessibility")
   @Override
   public boolean onTouchEvent(MotionEvent event) {
 
-    if(!sortable) return super.onTouchEvent(event);
+    if(!sortable) {
+      return super.onTouchEvent(event);
+    }
 
     switch(event.getAction()) {
       case MotionEvent.ACTION_DOWN: {
@@ -105,16 +124,22 @@ public class SortableListView extends ListView {
         return startDrag();
       }
       case MotionEvent.ACTION_MOVE: {
-        if(duringDrag(event)) return true;
+        if(duringDrag(event)) {
+          return true;
+        }
         break;
       }
       case MotionEvent.ACTION_UP: {
-        if(stopDrag(event, true)) return true;
+        if(stopDrag(event, true)) {
+          return true;
+        }
         break;
       }
       case MotionEvent.ACTION_CANCEL:
       case MotionEvent.ACTION_OUTSIDE: {
-        if(stopDrag(event, false)) return true;
+        if(stopDrag(event, false)) {
+          return true;
+        }
         break;
       }
     }
@@ -122,19 +147,26 @@ public class SortableListView extends ListView {
     return super.onTouchEvent(event);
   }
 
-  /** ACTION_DOWN時のMotionEventをプロパティに格納 */
+  /**
+   * ACTION_DOWN時のMotionEventをプロパティに格納
+   */
   private void storeMotionEvent(MotionEvent event) {
+
     actionDownEvent = MotionEvent.obtain(event); // 複製しないと値が勝手に変わる
   }
 
-  /** ドラッグ開始 */
+  /**
+   * ドラッグ開始
+   */
   private boolean startDrag() {
 
     // イベントからpositionを取得
     positionFrom = eventToPosition(actionDownEvent);
 
     // 取得したpositionが0未満＝範囲外の場合はドラッグを開始しない
-    if(positionFrom < 0) return false;
+    if(positionFrom < 0) {
+      return false;
+    }
     is_dragging = true;
 
     // View, Canvas, WindowManagerの取得・生成
@@ -153,12 +185,15 @@ public class SortableListView extends ListView {
     }
 
     // ImageView用のLayoutParamsが未設定の場合は設定する
-    if(layoutParams == null) initLayoutParams();
+    if(layoutParams == null) {
+      initLayoutParams();
+    }
 
     // ImageViewを生成しWindowManagerにaddViewする
     dragImageView = new ImageView(getContext());
     dragImageView.setBackgroundColor(bitmapBackgroundColor);
-    GradientDrawable drawable = (GradientDrawable)ContextCompat.getDrawable(activity, R.drawable.my_frame);
+    GradientDrawable drawable =
+        (GradientDrawable)ContextCompat.getDrawable(activity, R.drawable.my_frame);
     checkNotNull(drawable);
     drawable = (GradientDrawable)drawable.mutate();
     drawable.setStroke(3, activity.accent_color);
@@ -176,10 +211,14 @@ public class SortableListView extends ListView {
     return duringDrag(actionDownEvent);
   }
 
-  /** ドラッグ処理 */
+  /**
+   * ドラッグ処理
+   */
   private boolean duringDrag(MotionEvent event) {
 
-    if(!is_dragging || dragImageView == null) return false;
+    if(!is_dragging || dragImageView == null) {
+      return false;
+    }
 
     final int x = (int)event.getX();
     final int y = (int)event.getY();
@@ -200,7 +239,9 @@ public class SortableListView extends ListView {
     else if(y > height - slowBound) {
       speed = y > height - fastBound ? SCROLL_SPEED_FAST : SCROLL_SPEED_SLOW;
     }
-    else speed = 0;
+    else {
+      speed = 0;
+    }
 
     // スクロール処理
     if(speed != 0) {
@@ -232,10 +273,14 @@ public class SortableListView extends ListView {
     return true;
   }
 
-  /** ドラッグ終了 */
+  /**
+   * ドラッグ終了
+   */
   private boolean stopDrag(MotionEvent event, boolean isDrop) {
 
-    if(!is_dragging) return false;
+    if(!is_dragging) {
+      return false;
+    }
 
     if(isDrop && dragListener != null) {
       dragListener.onStopDrag(positionFrom, eventToPosition(event));
@@ -257,17 +302,25 @@ public class SortableListView extends ListView {
     return false;
   }
 
-  /** 指定インデックスのView要素を取得する */
+  /**
+   * 指定インデックスのView要素を取得する
+   */
   private View getChildByIndex(int index) {
+
     return getChildAt(index - getFirstVisiblePosition());
   }
 
-  /** WindowManager の取得 */
+  /**
+   * WindowManager の取得
+   */
   protected WindowManager getWindowManager() {
+
     return (WindowManager)getContext().getSystemService(Context.WINDOW_SERVICE);
   }
 
-  /** ImageView 用 LayoutParams の初期化 */
+  /**
+   * ImageView 用 LayoutParams の初期化
+   */
   @SuppressLint("RtlHardcoded")
   protected void initLayoutParams() {
 
@@ -285,7 +338,9 @@ public class SortableListView extends ListView {
     layoutParams.windowAnimations = 0;
   }
 
-  /** ImageView用LayoutParamsの座標情報を更新 */
+  /**
+   * ImageView用LayoutParamsの座標情報を更新
+   */
   protected void updateLayoutParams(int rawY) {
 
     if(MyListAdapter.is_sorting || ManageListAdapter.is_sorting) {
@@ -299,37 +354,56 @@ public class SortableListView extends ListView {
     }
   }
 
-  /** ドラッグイベントリスナーインターフェース */
+  /**
+   * ドラッグイベントリスナーインターフェース
+   */
   public interface DragListener {
 
-    /** ドラッグ開始時の処理 */
+    /**
+     * ドラッグ開始時の処理
+     */
     int onStartDrag(int position);
 
-    /** ドラッグ中の処理 */
+    /**
+     * ドラッグ中の処理
+     */
     int onDuringDrag(int positionFrom, int positionTo);
 
-    /** ドラッグ終了＝ドロップ時の処理 */
+    /**
+     * ドラッグ終了＝ドロップ時の処理
+     */
     boolean onStopDrag(int positionFrom, int positionTo);
   }
 
-  /** ドラッグイベントリスナー実装 */
+  /**
+   * ドラッグイベントリスナー実装
+   */
   public static class SimpleDragListener implements DragListener {
 
-    /** ドラッグ開始時の処理 */
+    /**
+     * ドラッグ開始時の処理
+     */
     @Override
     public int onStartDrag(int position) {
+
       return position;
     }
 
-    /** ドラッグ中の処理 */
+    /**
+     * ドラッグ中の処理
+     */
     @Override
     public int onDuringDrag(int positionFrom, int positionTo) {
+
       return positionFrom;
     }
 
-    /** ドラッグ終了＝ドロップ時の処理 */
+    /**
+     * ドラッグ終了＝ドロップ時の処理
+     */
     @Override
     public boolean onStopDrag(int positionFrom, int positionTo) {
+
       return positionFrom != positionTo && positionFrom >= 0 || positionTo >= 0;
     }
   }

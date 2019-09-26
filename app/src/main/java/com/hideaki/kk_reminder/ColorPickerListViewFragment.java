@@ -3,13 +3,15 @@ package com.hideaki.kk_reminder;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
-import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
-import android.support.v4.app.Fragment;
-import android.support.v4.app.FragmentManager;
-import android.support.v4.content.ContextCompat;
-import android.support.v7.app.ActionBar;
-import android.support.v7.widget.Toolbar;
+
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentManager;
+import androidx.core.content.ContextCompat;
+import androidx.appcompat.app.ActionBar;
+import androidx.appcompat.widget.Toolbar;
+
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
@@ -34,7 +36,7 @@ public class ColorPickerListViewFragment extends Fragment {
   }
 
   @Override
-  public void onAttach(Context context) {
+  public void onAttach(@NonNull Context context) {
 
     super.onAttach(context);
     activity = (MainActivity)context;
@@ -43,16 +45,19 @@ public class ColorPickerListViewFragment extends Fragment {
       ColorPickerListAdapter.order = order;
       if(!ColorPickerListAdapter.is_general_settings) {
         activity.colorPickerListAdapter.adapterTag = TagEditListAdapter.tagList.get(tag_position);
-        activity.colorPickerListAdapter.orgTag = activity.generalSettings.getTagList().get(tag_position);
+        activity.colorPickerListAdapter.orgTag =
+            activity.generalSettings.getTagList().get(tag_position);
         if(order == 0 || order == 1 || order == 4 || ColorPickerListAdapter.from_list_tag_edit) {
-          ColorPickerListAdapter.checked_position = activity.colorPickerListAdapter.adapterTag.getColor_order_group();
+          ColorPickerListAdapter.checked_position =
+              activity.colorPickerListAdapter.adapterTag.getColor_order_group();
         }
         else if(order == 3) {
           ColorPickerListAdapter.checked_position = MainEditFragment.list.getColorGroup();
         }
       }
       else {
-        ColorPickerListAdapter.checked_position = activity.generalSettings.getTheme().getColorGroup();
+        ColorPickerListAdapter.checked_position =
+            activity.generalSettings.getTheme().getColorGroup();
       }
 
     }
@@ -75,7 +80,11 @@ public class ColorPickerListViewFragment extends Fragment {
 
   @Nullable
   @Override
-  public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, Bundle savedInstanceState) {
+  public View onCreateView(
+      @NonNull LayoutInflater inflater,
+      @Nullable ViewGroup container,
+      Bundle savedInstanceState
+  ) {
 
     View view = inflater.inflate(R.layout.listview, container, false);
     view.setBackgroundColor(ContextCompat.getColor(activity, android.R.color.background_light));
@@ -86,7 +95,9 @@ public class ColorPickerListViewFragment extends Fragment {
       public boolean onKey(View v, int keyCode, KeyEvent event) {
 
         if(keyCode == KeyEvent.KEYCODE_BACK && event.getAction() == KeyEvent.ACTION_UP) {
-          if(order == 3) MainEditFragment.list.setColor_primary(true);
+          if(order == 3) {
+            MainEditFragment.list.setColor_primary(true);
+          }
           if(ColorPickerListAdapter.is_general_settings) {
             ColorPickerListAdapter.is_general_settings = false;
             if(!activity.generalSettings.getTheme().isColor_primary()) {
@@ -126,7 +137,14 @@ public class ColorPickerListViewFragment extends Fragment {
       }
 
       @Override
-      public void onScroll(AbsListView view, int firstVisibleItem, int visibleItemCount, int totalItemCount) {}
+      public void onScroll(
+          AbsListView view,
+          int firstVisibleItem,
+          int visibleItemCount,
+          int totalItemCount
+      ) {
+
+      }
     });
 
     Toolbar toolbar = activity.findViewById(R.id.toolbar_layout);
@@ -151,7 +169,9 @@ public class ColorPickerListViewFragment extends Fragment {
     switch(item.getItemId()) {
 
       case android.R.id.home: {
-        if(order == 3) MainEditFragment.list.setColor_primary(true);
+        if(order == 3) {
+          MainEditFragment.list.setColor_primary(true);
+        }
         if(ColorPickerListAdapter.is_general_settings) {
           ColorPickerListAdapter.is_general_settings = false;
           if(!activity.generalSettings.getTheme().isColor_primary()) {

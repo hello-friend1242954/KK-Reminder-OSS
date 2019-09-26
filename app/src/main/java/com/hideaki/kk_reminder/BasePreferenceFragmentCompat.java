@@ -1,14 +1,16 @@
 package com.hideaki.kk_reminder;
 
 import android.annotation.SuppressLint;
-import android.support.v4.app.DialogFragment;
-import android.support.v4.app.FragmentManager;
-import android.support.v7.app.AlertDialog;
-import android.support.v7.preference.Preference;
-import android.support.v7.preference.PreferenceGroupAdapter;
-import android.support.v7.preference.PreferenceScreen;
-import android.support.v7.preference.PreferenceViewHolder;
-import android.support.v7.widget.RecyclerView;
+
+import androidx.fragment.app.DialogFragment;
+import androidx.fragment.app.FragmentManager;
+import androidx.appcompat.app.AlertDialog;
+import androidx.preference.Preference;
+import androidx.preference.PreferenceGroupAdapter;
+import androidx.preference.PreferenceScreen;
+import androidx.preference.PreferenceViewHolder;
+import androidx.recyclerview.widget.RecyclerView;
+
 import android.view.View;
 import android.view.ViewGroup;
 
@@ -21,13 +23,14 @@ import static com.google.common.base.Preconditions.checkNotNull;
 
 public abstract class BasePreferenceFragmentCompat extends PreferenceFragmentCompat {
 
-  private static final String DIALOG_FRAGMENT_TAG = BasePreferenceFragmentCompat.class.getSimpleName();
+  private static final String DIALOG_FRAGMENT_TAG =
+      BasePreferenceFragmentCompat.class.getSimpleName();
 
+  @SuppressLint("RestrictedApi")
   @Override
   protected RecyclerView.Adapter onCreateAdapter(PreferenceScreen preferenceScreen) {
 
     return new PreferenceGroupAdapter(preferenceScreen) {
-      @SuppressLint("RestrictedApi")
       @Override
       public void onBindViewHolder(PreferenceViewHolder holder, int position) {
 
@@ -48,12 +51,19 @@ public abstract class BasePreferenceFragmentCompat extends PreferenceFragmentCom
 
   private void setZeroPaddingToLayoutChildren(View view) {
 
-    if(!(view instanceof ViewGroup)) return;
+    if(!(view instanceof ViewGroup)) {
+      return;
+    }
     ViewGroup viewGroup = (ViewGroup)view;
     int childCount = viewGroup.getChildCount();
     for(int i = 0; i < childCount; i++) {
       setZeroPaddingToLayoutChildren(viewGroup.getChildAt(i));
-      viewGroup.setPaddingRelative(0, viewGroup.getPaddingTop(), viewGroup.getPaddingEnd(), viewGroup.getPaddingBottom());
+      viewGroup.setPaddingRelative(
+          0,
+          viewGroup.getPaddingTop(),
+          viewGroup.getPaddingEnd(),
+          viewGroup.getPaddingBottom()
+      );
     }
   }
 
@@ -74,6 +84,7 @@ public abstract class BasePreferenceFragmentCompat extends PreferenceFragmentCom
 
       getFragmentManager().executePendingTransactions();
       final AlertDialog dialog = (AlertDialog)f.getDialog();
+      checkNotNull(dialog);
 
       MainActivity activity = (MainActivity)getActivity();
       checkNotNull(activity);
@@ -81,6 +92,8 @@ public abstract class BasePreferenceFragmentCompat extends PreferenceFragmentCom
       dialog.getButton(AlertDialog.BUTTON_POSITIVE).setTextColor(activity.accent_color);
       dialog.getButton(AlertDialog.BUTTON_NEGATIVE).setTextColor(activity.accent_color);
     }
-    else super.onDisplayPreferenceDialog(preference);
+    else {
+      super.onDisplayPreferenceDialog(preference);
+    }
   }
 }

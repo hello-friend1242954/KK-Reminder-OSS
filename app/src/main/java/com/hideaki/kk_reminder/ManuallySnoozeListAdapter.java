@@ -1,6 +1,7 @@
 package com.hideaki.kk_reminder;
 
-import android.support.constraint.ConstraintLayout;
+import androidx.constraintlayout.widget.ConstraintLayout;
+
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
@@ -26,23 +27,37 @@ public class ManuallySnoozeListAdapter extends BaseAdapter {
 
     this.activity = activity;
 
-    snoozeList = new ArrayList<>(Arrays.asList(activity.getResources().getStringArray(R.array.snooze_list)));
+    snoozeList =
+        new ArrayList<>(Arrays.asList(activity.getResources().getStringArray(R.array.snooze_list)));
     defaultSnoozeTime = "";
     int default_hour = activity.snooze_default_hour;
     if(default_hour != 0) {
-      defaultSnoozeTime += activity.getResources().getQuantityString(R.plurals.hour, default_hour, default_hour);
-      if(!LOCALE.equals(Locale.JAPAN)) defaultSnoozeTime += " ";
+      defaultSnoozeTime +=
+          activity.getResources().getQuantityString(R.plurals.hour, default_hour, default_hour);
+      if(!LOCALE.equals(Locale.JAPAN)) {
+        defaultSnoozeTime += " ";
+      }
     }
     int default_minute = activity.snooze_default_minute;
     if(default_minute != 0) {
-      defaultSnoozeTime += activity.getResources().getQuantityString(R.plurals.minute, default_minute, default_minute);
-      if(!LOCALE.equals(Locale.JAPAN)) defaultSnoozeTime += " ";
+      defaultSnoozeTime += activity
+          .getResources()
+          .getQuantityString(R.plurals.minute, default_minute, default_minute);
+      if(!LOCALE.equals(Locale.JAPAN)) {
+        defaultSnoozeTime += " ";
+      }
     }
     if(LOCALE.equals(Locale.JAPAN)) {
-      snoozeList.add(0, activity.getString(R.string.default_snooze) + " (" + defaultSnoozeTime + ")");
+      snoozeList.add(
+          0,
+          activity.getString(R.string.default_snooze) + " (" + defaultSnoozeTime + ")"
+      );
     }
     else {
-      snoozeList.add(0, activity.getString(R.string.default_snooze) + " (" + defaultSnoozeTime + ")");
+      snoozeList.add(
+          0,
+          activity.getString(R.string.default_snooze) + " (" + defaultSnoozeTime + ")"
+      );
     }
 
     manually_checked = false;
@@ -57,7 +72,8 @@ public class ManuallySnoozeListAdapter extends BaseAdapter {
     TextView howLong;
   }
 
-  private class MyOnClickListener implements View.OnClickListener, AnimCheckBox.OnCheckedChangeListener {
+  private class MyOnClickListener
+      implements View.OnClickListener, AnimCheckBox.OnCheckedChangeListener {
 
     private int position;
     private ViewHolder viewHolder;
@@ -92,7 +108,7 @@ public class ManuallySnoozeListAdapter extends BaseAdapter {
           activity.listView.removeFooterView(activity.footer);
         }
 
-        //選んだスヌーズ時間に応じてタイトルを変える
+        // 選んだスヌーズ時間に応じてタイトルを変える
         String snooze = activity.getString(R.string.snooze);
         String title;
         if(position == 0) {
@@ -105,12 +121,23 @@ public class ManuallySnoozeListAdapter extends BaseAdapter {
 
             title = "";
             if(activity.custom_hour != 0) {
-              title += activity.getResources().getQuantityString(R.plurals.hour, activity.custom_hour, activity.custom_hour);
-              if(!LOCALE.equals(Locale.JAPAN)) title += " ";
+              title += activity
+                  .getResources()
+                  .getQuantityString(R.plurals.hour, activity.custom_hour, activity.custom_hour);
+              if(!LOCALE.equals(Locale.JAPAN)) {
+                title += " ";
+              }
             }
             if(activity.custom_minute != 0) {
-              title += activity.getResources().getQuantityString(R.plurals.minute, activity.custom_minute, activity.custom_minute);
-              if(!LOCALE.equals(Locale.JAPAN)) title += " ";
+              title += activity
+                  .getResources()
+                  .getQuantityString(R.plurals.minute,
+                      activity.custom_minute,
+                      activity.custom_minute
+                  );
+              if(!LOCALE.equals(Locale.JAPAN)) {
+                title += " ";
+              }
             }
             title += snooze;
           }
@@ -118,7 +145,9 @@ public class ManuallySnoozeListAdapter extends BaseAdapter {
         }
         else {
           title = getItem(position).toString();
-          if(!LOCALE.equals(Locale.JAPAN)) title += " ";
+          if(!LOCALE.equals(Locale.JAPAN)) {
+            title += " ";
+          }
           title += snooze;
           activity.title.setText(title);
         }
@@ -134,16 +163,19 @@ public class ManuallySnoozeListAdapter extends BaseAdapter {
 
   @Override
   public int getCount() {
+
     return snoozeList.size();
   }
 
   @Override
   public Object getItem(int position) {
+
     return snoozeList.get(position);
   }
 
   @Override
   public long getItemId(int position) {
+
     return position;
   }
 
@@ -162,26 +194,30 @@ public class ManuallySnoozeListAdapter extends BaseAdapter {
 
       convertView.setTag(viewHolder);
     }
-    else viewHolder = (ViewHolder)convertView.getTag();
+    else {
+      viewHolder = (ViewHolder)convertView.getTag();
+    }
 
-    //現在のビュー位置でのcolor_nameの取得とリスナーの初期化
+    // 現在のビュー位置でのcolor_nameの取得とリスナーの初期化
     String snoozeItem = (String)getItem(position);
     MyOnClickListener listener = new MyOnClickListener(position, viewHolder);
 
-    //各リスナーの設定
+    // 各リスナーの設定
     viewHolder.snoozeItem.setOnClickListener(listener);
     viewHolder.checkBox.setOnCheckedChangeListener(listener);
 
-    //各種表示処理
+    // 各種表示処理
     viewHolder.howLong.setText(snoozeItem);
 
-    //チェック状態の初期化
+    // チェック状態の初期化
     if(position != checked_position) {
       manually_checked = false;
       if(is_first) {
         viewHolder.checkBox.setChecked(false, false);
       }
-      else viewHolder.checkBox.setChecked(false);
+      else {
+        viewHolder.checkBox.setChecked(false);
+      }
     }
     else {
       manually_checked = false;

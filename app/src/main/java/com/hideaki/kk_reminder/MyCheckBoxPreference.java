@@ -1,8 +1,10 @@
 package com.hideaki.kk_reminder;
 
 import android.content.Context;
-import android.support.v7.preference.CheckBoxPreference;
-import android.support.v7.preference.PreferenceViewHolder;
+
+import androidx.preference.CheckBoxPreference;
+import androidx.preference.PreferenceViewHolder;
+
 import android.util.AttributeSet;
 import android.widget.TextView;
 
@@ -37,7 +39,8 @@ public class MyCheckBoxPreference extends CheckBoxPreference {
 
     super.onAttached();
     if(listener == null) {
-      throw new RuntimeException(getKey() + " must call setOnMyCheckBoxPreferenceCheckedChangeListener");
+      throw new RuntimeException(
+          getKey() + " must call setOnMyCheckBoxPreferenceCheckedChangeListener");
     }
     is_checked = super.isChecked();
   }
@@ -56,7 +59,9 @@ public class MyCheckBoxPreference extends CheckBoxPreference {
       public void onChange(AnimCheckBox view, boolean checked) {
 
         is_checked = checked;
-        if(manually_checked) listener.onCheckedChange(getKey(), checked);
+        if(manually_checked) {
+          listener.onCheckedChange(getKey(), checked);
+        }
       }
     });
     title.setText(getTitle());
@@ -78,11 +83,17 @@ public class MyCheckBoxPreference extends CheckBoxPreference {
   @Override
   public void setChecked(boolean checked) {
 
-    if(!from_on_click) manually_checked = false;
-    else from_on_click = false;
+    if(!from_on_click) {
+      manually_checked = false;
+    }
+    else {
+      from_on_click = false;
+    }
 
     super.setChecked(checked);
-    if(animCheckBox != null) animCheckBox.setChecked(checked);
+    if(animCheckBox != null) {
+      animCheckBox.setChecked(checked);
+    }
 
     manually_checked = true;
   }

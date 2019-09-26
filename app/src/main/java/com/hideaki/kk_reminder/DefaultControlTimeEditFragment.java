@@ -2,26 +2,23 @@ package com.hideaki.kk_reminder;
 
 import android.content.Context;
 import android.os.Bundle;
-import android.support.annotation.Nullable;
-import android.support.v4.app.FragmentManager;
-import android.support.v4.content.ContextCompat;
-import android.support.v7.app.ActionBar;
-import android.support.v7.preference.Preference;
-import android.support.v7.preference.PreferenceScreen;
-import android.support.v7.widget.Toolbar;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.appcompat.app.ActionBar;
+import androidx.appcompat.widget.Toolbar;
+import androidx.core.content.ContextCompat;
+import androidx.fragment.app.FragmentManager;
+
 import static com.google.common.base.Preconditions.checkNotNull;
-import static com.hideaki.kk_reminder.UtilClass.DEFAULT_TEXT_SIZE;
 
 public class DefaultControlTimeEditFragment extends BasePreferenceFragmentCompat {
 
   private MainActivity activity;
-  private PreferenceScreen rootPreferenceScreen;
-  private Preference model;
 
   public static DefaultControlTimeEditFragment newInstance() {
 
@@ -29,7 +26,7 @@ public class DefaultControlTimeEditFragment extends BasePreferenceFragmentCompat
   }
 
   @Override
-  public void onAttach(Context context) {
+  public void onAttach(@NonNull Context context) {
 
     super.onAttach(context);
     activity = (MainActivity)context;
@@ -40,13 +37,14 @@ public class DefaultControlTimeEditFragment extends BasePreferenceFragmentCompat
 
     addPreferencesFromResource(R.xml.default_control_time);
     setHasOptionsMenu(true);
-
-    rootPreferenceScreen = getPreferenceScreen();
-    model = findPreference("model");
   }
 
   @Override
-  public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+  public View onCreateView(
+      LayoutInflater inflater,
+      ViewGroup container,
+      Bundle savedInstanceState
+  ) {
 
     View view = super.onCreateView(inflater, container, savedInstanceState);
     checkNotNull(view);
@@ -67,7 +65,7 @@ public class DefaultControlTimeEditFragment extends BasePreferenceFragmentCompat
   }
 
   @Override
-  public boolean onOptionsItemSelected(MenuItem item) {
+  public boolean onOptionsItemSelected(@NonNull MenuItem item) {
 
     FragmentManager manager = getFragmentManager();
     checkNotNull(manager);

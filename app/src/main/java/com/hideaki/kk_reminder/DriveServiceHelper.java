@@ -1,6 +1,6 @@
 package com.hideaki.kk_reminder;
 
-import android.support.annotation.Nullable;
+import androidx.annotation.Nullable;
 
 import com.google.android.gms.drive.DriveFolder;
 import com.google.android.gms.tasks.Task;
@@ -49,7 +49,8 @@ class DriveServiceHelper {
 
           fileLists.add(result);
           pageToken = result.getNextPageToken();
-        } while(pageToken != null);
+        }
+        while(pageToken != null);
 
         return fileLists;
       }
@@ -65,15 +66,17 @@ class DriveServiceHelper {
 
         return driveService.files().list()
             .setQ("mimeType = '" + DriveFolder.MIME_TYPE + "' and name = '" + folderName + "'"
-            + " and trashed = false")
+                + " and trashed = false")
             .setSpaces("drive")
             .execute();
       }
     });
   }
 
-  Task<File> createFile(final String fileName, final AbstractInputStreamContent content,
-      @Nullable final String folderId) {
+  Task<File> createFile(
+      final String fileName, final AbstractInputStreamContent content,
+      @Nullable final String folderId
+  ) {
 
     return Tasks.call(executor, new Callable<File>() {
       @Override
@@ -83,7 +86,9 @@ class DriveServiceHelper {
         if(folderId == null) {
           root = Collections.singletonList("root");
         }
-        else root = Collections.singletonList(folderId);
+        else {
+          root = Collections.singletonList(folderId);
+        }
 
         File metadata = new File()
             .setParents(root)
@@ -109,7 +114,9 @@ class DriveServiceHelper {
         if(folderId == null) {
           root = Collections.singletonList("root");
         }
-        else root = Collections.singletonList(folderId);
+        else {
+          root = Collections.singletonList(folderId);
+        }
 
         File metadata = new File()
             .setParents(root)

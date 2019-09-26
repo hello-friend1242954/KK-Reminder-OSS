@@ -3,15 +3,18 @@ package com.hideaki.kk_reminder;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.graphics.PorterDuff;
+import android.graphics.PorterDuffColorFilter;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
-import android.support.annotation.NonNull;
-import android.support.v4.app.Fragment;
-import android.support.v4.app.FragmentManager;
-import android.support.v4.content.ContextCompat;
-import android.support.v7.app.ActionBar;
-import android.support.v7.app.AlertDialog;
-import android.support.v7.widget.Toolbar;
+
+import androidx.annotation.NonNull;
+import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentManager;
+import androidx.core.content.ContextCompat;
+import androidx.appcompat.app.ActionBar;
+import androidx.appcompat.app.AlertDialog;
+import androidx.appcompat.widget.Toolbar;
+
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -37,7 +40,7 @@ public class NotesEditModeFragment extends Fragment {
 
   static final String TAG = NotesEditModeFragment.class.getSimpleName();
   static Item item = null;
-  static boolean is_editing;
+  private static boolean is_editing;
   private MainActivity activity;
   private MenuItem doneItem;
   private MenuItem checklistModeItem;
@@ -58,7 +61,7 @@ public class NotesEditModeFragment extends Fragment {
   }
 
   @Override
-  public void onAttach(Context context) {
+  public void onAttach(@NonNull Context context) {
 
     super.onAttach(context);
     activity = (MainActivity)context;
@@ -76,7 +79,11 @@ public class NotesEditModeFragment extends Fragment {
   }
 
   @Override
-  public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+  public View onCreateView(
+      @NonNull LayoutInflater inflater,
+      ViewGroup container,
+      Bundle savedInstanceState
+  ) {
 
     if(MainEditFragment.is_notes_popping) {
       FragmentManager manager = getFragmentManager();
@@ -122,7 +129,10 @@ public class NotesEditModeFragment extends Fragment {
 
     memo = view.findViewById(R.id.notes);
     setCursorDrawableColor(memo);
-    memo.getBackground().mutate().setColorFilter(activity.accent_color, PorterDuff.Mode.SRC_IN);
+    memo.getBackground().mutate().setColorFilter(new PorterDuffColorFilter(
+        activity.accent_color,
+        PorterDuff.Mode.SRC_IN
+    ));
     memo.setOnFocusChangeListener(new View.OnFocusChangeListener() {
       @Override
       public void onFocusChange(View v, boolean hasFocus) {
@@ -132,7 +142,10 @@ public class NotesEditModeFragment extends Fragment {
           Drawable drawable = ContextCompat.getDrawable(activity, R.drawable.ic_cancel_24dp);
           checkNotNull(drawable);
           drawable = drawable.mutate();
-          drawable.setColorFilter(activity.menu_item_color, PorterDuff.Mode.SRC_IN);
+          drawable.setColorFilter(new PorterDuffColorFilter(
+              activity.menu_item_color,
+              PorterDuff.Mode.SRC_IN
+          ));
           actionBar.setHomeAsUpIndicator(drawable);
 
           clearNotesItem.setVisible(false);
@@ -140,7 +153,8 @@ public class NotesEditModeFragment extends Fragment {
           checklistModeItem.setVisible(false);
         }
         else {
-          InputMethodManager manager = (InputMethodManager)activity.getSystemService(Context.INPUT_METHOD_SERVICE);
+          InputMethodManager manager =
+              (InputMethodManager)activity.getSystemService(Context.INPUT_METHOD_SERVICE);
           checkNotNull(manager);
           manager.hideSoftInputFromWindow(v.getWindowToken(), InputMethodManager.HIDE_NOT_ALWAYS);
         }
@@ -151,7 +165,9 @@ public class NotesEditModeFragment extends Fragment {
       if(notes.isChecked()) {
         stringBuilder.append(notes.getString()).append(" *").append(LINE_SEPARATOR);
       }
-      else stringBuilder.append(notes.getString()).append(LINE_SEPARATOR);
+      else {
+        stringBuilder.append(notes.getString()).append(LINE_SEPARATOR);
+      }
     }
     memo.setText(stringBuilder.toString());
     notes = stringBuilder.toString();
@@ -160,14 +176,14 @@ public class NotesEditModeFragment extends Fragment {
   }
 
   @Override
-  public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
+  public void onCreateOptionsMenu(@NonNull Menu menu, @NonNull MenuInflater inflater) {
 
     super.onCreateOptionsMenu(menu, inflater);
     inflater.inflate(R.menu.notes_edit_mode_menu, menu);
   }
 
   @Override
-  public void onPrepareOptionsMenu(Menu menu) {
+  public void onPrepareOptionsMenu(@NonNull Menu menu) {
 
     super.onPrepareOptionsMenu(menu);
 
@@ -175,14 +191,20 @@ public class NotesEditModeFragment extends Fragment {
     Drawable drawable = ContextCompat.getDrawable(activity, R.drawable.ic_list_24dp);
     checkNotNull(drawable);
     drawable = drawable.mutate();
-    drawable.setColorFilter(activity.menu_item_color, PorterDuff.Mode.SRC_IN);
+    drawable.setColorFilter(new PorterDuffColorFilter(
+        activity.menu_item_color,
+        PorterDuff.Mode.SRC_IN
+    ));
     checklistModeItem.setIcon(drawable);
 
     doneItem = menu.findItem(R.id.done);
     drawable = ContextCompat.getDrawable(activity, R.drawable.ic_check_circle_24dp);
     checkNotNull(drawable);
     drawable = drawable.mutate();
-    drawable.setColorFilter(activity.menu_item_color, PorterDuff.Mode.SRC_IN);
+    drawable.setColorFilter(new PorterDuffColorFilter(
+        activity.menu_item_color,
+        PorterDuff.Mode.SRC_IN
+    ));
     doneItem.setIcon(drawable);
     doneItem.setVisible(false);
 
@@ -190,7 +212,10 @@ public class NotesEditModeFragment extends Fragment {
     drawable = ContextCompat.getDrawable(activity, R.drawable.ic_delete_24dp);
     checkNotNull(drawable);
     drawable = drawable.mutate();
-    drawable.setColorFilter(activity.menu_item_color, PorterDuff.Mode.SRC_IN);
+    drawable.setColorFilter(new PorterDuffColorFilter(
+        activity.menu_item_color,
+        PorterDuff.Mode.SRC_IN
+    ));
     clearNotesItem.setIcon(drawable);
   }
 
@@ -223,6 +248,7 @@ public class NotesEditModeFragment extends Fragment {
             .setNeutralButton(R.string.cancel, new DialogInterface.OnClickListener() {
               @Override
               public void onClick(DialogInterface dialog, int which) {
+
               }
             })
             .create();

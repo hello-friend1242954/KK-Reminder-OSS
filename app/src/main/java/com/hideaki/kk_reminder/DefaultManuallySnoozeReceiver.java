@@ -15,12 +15,15 @@ import java.util.TreeSet;
 import static android.content.Context.MODE_PRIVATE;
 import static android.content.Context.NOTIFICATION_SERVICE;
 import static com.google.common.base.Preconditions.checkNotNull;
+import static com.hideaki.kk_reminder.StartupReceiver.getDynamicContext;
+import static com.hideaki.kk_reminder.StartupReceiver.getIsDirectBootContext;
 import static com.hideaki.kk_reminder.UtilClass.ACTION_IN_NOTIFICATION;
 import static com.hideaki.kk_reminder.UtilClass.CHILD_NOTIFICATION_ID;
 import static com.hideaki.kk_reminder.UtilClass.CREATED;
 import static com.hideaki.kk_reminder.UtilClass.DESTROYED;
 import static com.hideaki.kk_reminder.UtilClass.HOUR;
 import static com.hideaki.kk_reminder.UtilClass.INT_GENERAL;
+import static com.hideaki.kk_reminder.UtilClass.INT_GENERAL_COPY;
 import static com.hideaki.kk_reminder.UtilClass.ITEM;
 import static com.hideaki.kk_reminder.UtilClass.MINUTE;
 import static com.hideaki.kk_reminder.UtilClass.NOTIFICATION_ID_TABLE;
@@ -28,7 +31,9 @@ import static com.hideaki.kk_reminder.UtilClass.PARENT_NOTIFICATION_ID;
 import static com.hideaki.kk_reminder.UtilClass.SNOOZE_DEFAULT_HOUR;
 import static com.hideaki.kk_reminder.UtilClass.SNOOZE_DEFAULT_MINUTE;
 import static com.hideaki.kk_reminder.UtilClass.STRING_GENERAL;
+import static com.hideaki.kk_reminder.UtilClass.STRING_GENERAL_COPY;
 import static com.hideaki.kk_reminder.UtilClass.copyDatabase;
+import static com.hideaki.kk_reminder.UtilClass.copySharedPreferences;
 import static com.hideaki.kk_reminder.UtilClass.currentTimeMinutes;
 import static com.hideaki.kk_reminder.UtilClass.deserialize;
 import static com.hideaki.kk_reminder.UtilClass.serialize;
@@ -42,17 +47,23 @@ public class DefaultManuallySnoozeReceiver extends BroadcastReceiver {
   public void onReceive(Context context, Intent intent) {
 
     this.context = context;
-    accessor = new DBAccessor(context, false);
     Item item = (Item)deserialize(intent.getByteArrayExtra(ITEM));
     checkNotNull(item);
 
-    //通知を既読する
-    SharedPreferences stringPreferences = context.getSharedPreferences(STRING_GENERAL, MODE_PRIVATE);
-    Set<String> id_table = stringPreferences.getStringSet(NOTIFICATION_ID_TABLE, new TreeSet<String>());
+    accessor = new DBAccessor(getDynamicContext(context), getIsDirectBootContext(context));
+
+    // 通知を既読する
+    SharedPreferences stringPreferences = getDynamicContext(context).getSharedPreferences(
+        getIsDirectBootContext(context) ? STRING_GENERAL_COPY : STRING_GENERAL,
+        MODE_PRIVATE
+    );
+    Set<String> id_table =
+        stringPreferences.getStringSet(NOTIFICATION_ID_TABLE, new TreeSet<String>());
     checkNotNull(id_table);
     int parent_id = intent.getIntExtra(PARENT_NOTIFICATION_ID, 0);
     int child_id = intent.getIntExtra(CHILD_NOTIFICATION_ID, 0);
-    NotificationManager manager = (NotificationManager)context.getSystemService(NOTIFICATION_SERVICE);
+    NotificationManager manager =
+        (NotificationManager)context.getSystemService(NOTIFICATION_SERVICE);
     checkNotNull(manager);
 
     for(int i = 1; i <= child_id; i++) {
@@ -64,7 +75,14 @@ public class DefaultManuallySnoozeReceiver extends BroadcastReceiver {
         .putStringSet(NOTIFICATION_ID_TABLE, id_table)
         .apply();
 
-    SharedPreferences intPreferences = context.getSharedPreferences(INT_GENERAL, MODE_PRIVATE);
+    if(!getIsDirectBootContext(context)) {
+      copySharedPreferences(context, false);
+    }
+
+    SharedPreferences intPreferences = getDynamicContext(context).getSharedPreferences(
+        getIsDirectBootContext(context) ? INT_GENERAL_COPY : INT_GENERAL,
+        MODE_PRIVATE
+    );
     int snooze_default_hour = intPreferences.getInt(SNOOZE_DEFAULT_HOUR, 0);
     int snooze_default_minute = intPreferences.getInt(SNOOZE_DEFAULT_MINUTE, 15);
     long default_snooze = snooze_default_hour * HOUR + snooze_default_minute * MINUTE;
@@ -75,22 +93,27 @@ public class DefaultManuallySnoozeReceiver extends BroadcastReceiver {
     item.getDate().setTimeInMillis(currentTimeMinutes() + default_snooze);
     item.addTime_altered(default_snooze);
 
-    //更新
+    // 更新
     deleteAlarm(item);
     setAlarm(item);
     updateDB(item, MyDatabaseHelper.TODO_TABLE);
 
-    //データベースを端末暗号化ストレージへコピーする
-    copyDatabase(context, MyDatabaseHelper.DATABASE);
+    // データベースを端末暗号化ストレージへコピーする
+    if(!getIsDirectBootContext(context)) {
+      copyDatabase(context, false);
+    }
 
     int created = intPreferences.getInt(CREATED, -1);
     int destroyed = intPreferences.getInt(DESTROYED, -1);
-    if(created > destroyed) context.sendBroadcast(new Intent(ACTION_IN_NOTIFICATION));
+    if(created > destroyed) {
+      context.sendBroadcast(new Intent(ACTION_IN_NOTIFICATION));
+    }
   }
 
   public void setAlarm(Item item) {
 
-    if(item.getDate().getTimeInMillis() > System.currentTimeMillis() && item.getWhich_list_belongs() == 0) {
+    if(item.getDate().getTimeInMillis() > System.currentTimeMillis() &&
+        item.getWhich_list_belongs() == 0) {
       item.getNotify_interval().setTime(item.getNotify_interval().getOrg_time());
       Intent intent = new Intent(context, AlarmReceiver.class);
       byte[] ob_array = serialize(item);

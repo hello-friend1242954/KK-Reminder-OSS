@@ -10,10 +10,6 @@ import android.content.res.ColorStateList;
 import android.content.res.Resources;
 import android.graphics.Color;
 import android.os.Handler;
-import android.support.v4.content.ContextCompat;
-import android.support.v7.app.AlertDialog;
-import android.support.v7.view.ActionMode;
-import android.support.v7.widget.CardView;
 import android.text.format.DateFormat;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -41,13 +37,21 @@ import java.util.Locale;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import androidx.appcompat.app.AlertDialog;
+import androidx.appcompat.view.ActionMode;
+import androidx.cardview.widget.CardView;
+import androidx.core.content.ContextCompat;
+
 import static android.content.Context.MODE_PRIVATE;
 import static android.content.Context.NOTIFICATION_SERVICE;
 import static com.google.common.base.Preconditions.checkNotNull;
+import static com.hideaki.kk_reminder.StartupReceiver.getDynamicContext;
+import static com.hideaki.kk_reminder.StartupReceiver.getIsDirectBootContext;
 import static com.hideaki.kk_reminder.UtilClass.CHANGE_GRADE;
 import static com.hideaki.kk_reminder.UtilClass.COLLAPSE_GROUP;
 import static com.hideaki.kk_reminder.UtilClass.HOUR;
 import static com.hideaki.kk_reminder.UtilClass.INT_GENERAL;
+import static com.hideaki.kk_reminder.UtilClass.INT_GENERAL_COPY;
 import static com.hideaki.kk_reminder.UtilClass.IS_PREMIUM;
 import static com.hideaki.kk_reminder.UtilClass.LINE_SEPARATOR;
 import static com.hideaki.kk_reminder.UtilClass.LOCALE;
@@ -62,7 +66,7 @@ public class MyExpandableListAdapter extends BaseExpandableListAdapter implement
   static boolean[] display_groups = new boolean[5];
   static List<String> groups = new ArrayList<>();
   static List<List<Item>> children;
-  static long has_panel; //コントロールパネルがvisibleであるItemのid値を保持する
+  static long has_panel; // コントロールパネルがvisibleであるItemのid値を保持する
   static long panel_lock_id;
   private MainActivity activity;
   ActionMode actionMode = null;
@@ -77,13 +81,13 @@ public class MyExpandableListAdapter extends BaseExpandableListAdapter implement
   private int collapse_group;
   private boolean is_manual_expand_or_collapse = true;
   static boolean is_scrolling;
-  static boolean isClosed = false; //完了したタスクのコントロールパネルが閉じられたときに立てるフラグ
+  static boolean isClosed = false; // 完了したタスクのコントロールパネルが閉じられたときに立てるフラグ
 
   MyExpandableListAdapter(List<List<Item>> children, MainActivity activity) {
 
     MyExpandableListAdapter.children = children;
 
-    //groupsの初期化
+    // groupsの初期化
     groups.clear();
     Calendar now = Calendar.getInstance();
     Calendar tomorrow_cal = (Calendar)now.clone();
@@ -105,7 +109,11 @@ public class MyExpandableListAdapter extends BaseExpandableListAdapter implement
     groups.add(activity.getString(R.string.future));
 
     this.activity = activity;
-    SharedPreferences intPreferences = activity.getSharedPreferences(INT_GENERAL, MODE_PRIVATE);
+    SharedPreferences intPreferences =
+        getDynamicContext(activity).getSharedPreferences(
+            getIsDirectBootContext(activity) ? INT_GENERAL_COPY : INT_GENERAL,
+            MODE_PRIVATE
+        );
     collapse_group = intPreferences.getInt(COLLAPSE_GROUP, 0);
   }
 
@@ -138,8 +146,10 @@ public class MyExpandableListAdapter extends BaseExpandableListAdapter implement
     private int which_list;
     private List<Item> itemListToMove;
 
-    private MyOnClickListener(int group_position, int child_position, Item item,
-        ChildViewHolder viewHolder) {
+    private MyOnClickListener(
+        int group_position, int child_position, Item item,
+        ChildViewHolder viewHolder
+    ) {
 
       this.group_position = group_position;
       this.child_position = child_position;
@@ -236,8 +246,9 @@ public class MyExpandableListAdapter extends BaseExpandableListAdapter implement
     @Override
     public void onClick(View v) {
 
-      //すべての通知を既読する
-      NotificationManager manager = (NotificationManager)activity.getSystemService(NOTIFICATION_SERVICE);
+      // すべての通知を既読する
+      NotificationManager manager =
+          (NotificationManager)activity.getSystemService(NOTIFICATION_SERVICE);
       checkNotNull(manager);
       manager.cancelAll();
 
@@ -264,7 +275,7 @@ public class MyExpandableListAdapter extends BaseExpandableListAdapter implement
 
                         super.onAnimationStart(animation);
 
-                        //他タスクのコントロールパネルを閉じる
+                        // 他タスクのコントロールパネルを閉じる
                         int visible_count = activity.expandableListView.getChildCount();
                         for(int i = 0; i < visible_count; i++) {
                           View visibleView = activity.expandableListView.getChildAt(i);
@@ -405,8 +416,9 @@ public class MyExpandableListAdapter extends BaseExpandableListAdapter implement
         lock_block_notify_change = true;
         block_notify_change = true;
 
-        //すべての通知を既読する
-        NotificationManager manager = (NotificationManager)activity.getSystemService(NOTIFICATION_SERVICE);
+        // すべての通知を既読する
+        NotificationManager manager =
+            (NotificationManager)activity.getSystemService(NOTIFICATION_SERVICE);
         checkNotNull(manager);
         manager.cancelAll();
 
@@ -465,9 +477,10 @@ public class MyExpandableListAdapter extends BaseExpandableListAdapter implement
         int day_of_week;
         int month;
 
-        if((item.getMinuteRepeat().getWhich_setted() & 1) != 0 && item.getMinuteRepeat().getCount() != 0) {
+        if((item.getMinuteRepeat().getWhich_setted() & 1) != 0 &&
+            item.getMinuteRepeat().getCount() != 0) {
 
-          //countリピート設定時
+          // countリピート設定時
           in_minute_repeat = true;
           now = Calendar.getInstance();
           if(now.get(Calendar.SECOND) >= 30) {
@@ -486,7 +499,10 @@ public class MyExpandableListAdapter extends BaseExpandableListAdapter implement
           else {
             tmp = (Calendar)now.clone();
           }
-          tmp.set(Calendar.HOUR_OF_DAY, tmp.get(Calendar.HOUR_OF_DAY) + item.getMinuteRepeat().getHour());
+          tmp.set(
+              Calendar.HOUR_OF_DAY,
+              tmp.get(Calendar.HOUR_OF_DAY) + item.getMinuteRepeat().getHour()
+          );
           tmp.add(Calendar.MINUTE, item.getMinuteRepeat().getMinute());
 
           item.setOrg_alarm_stopped(item.isAlarm_stopped());
@@ -498,7 +514,7 @@ public class MyExpandableListAdapter extends BaseExpandableListAdapter implement
         else if((item.getMinuteRepeat().getWhich_setted() & (1 << 1)) != 0
             && item.getMinuteRepeat().getInterval() <= item.getMinuteRepeat().getDuration()) {
 
-          //durationリピート設定時
+          // durationリピート設定時
           in_minute_repeat = true;
           now = Calendar.getInstance();
           if(now.get(Calendar.SECOND) >= 30) {
@@ -517,7 +533,10 @@ public class MyExpandableListAdapter extends BaseExpandableListAdapter implement
           else {
             tmp = (Calendar)now.clone();
           }
-          tmp.set(Calendar.HOUR_OF_DAY, tmp.get(Calendar.HOUR_OF_DAY) + item.getMinuteRepeat().getHour());
+          tmp.set(
+              Calendar.HOUR_OF_DAY,
+              tmp.get(Calendar.HOUR_OF_DAY) + item.getMinuteRepeat().getHour()
+          );
           tmp.add(Calendar.MINUTE, item.getMinuteRepeat().getMinute());
           item.setOrg_alarm_stopped(item.isAlarm_stopped());
           item.setOrg_time_altered(item.getTime_altered());
@@ -529,7 +548,7 @@ public class MyExpandableListAdapter extends BaseExpandableListAdapter implement
         }
         else if((item.getDayRepeat().getSetted() & 1) != 0) {
 
-          //Dayリピート設定時
+          // Dayリピート設定時
           now = Calendar.getInstance();
           if(now.get(Calendar.SECOND) >= 30) {
             now.add(Calendar.MINUTE, 1);
@@ -553,7 +572,7 @@ public class MyExpandableListAdapter extends BaseExpandableListAdapter implement
         }
         else if((item.getDayRepeat().getSetted() & (1 << 1)) != 0) {
 
-          //Weekリピート設定時
+          // Weekリピート設定時
           now = Calendar.getInstance();
           if(now.get(Calendar.SECOND) >= 30) {
             now.add(Calendar.MINUTE, 1);
@@ -565,9 +584,10 @@ public class MyExpandableListAdapter extends BaseExpandableListAdapter implement
           if(item.getDate().getTimeInMillis() > now.getTimeInMillis()) {
             tmp = (Calendar)item.getDate().clone();
             day_of_week = item.getDate().get(Calendar.DAY_OF_WEEK) < 2 ?
-                item.getDate().get(Calendar.DAY_OF_WEEK) + 5 : item.getDate().get(Calendar.DAY_OF_WEEK) - 2;
+                item.getDate().get(Calendar.DAY_OF_WEEK) + 5 :
+                item.getDate().get(Calendar.DAY_OF_WEEK) - 2;
 
-            //intervalの処理
+            // intervalの処理
             day_of_week_last = Integer.toBinaryString(item.getDayRepeat().getWeek()).length() - 1;
             if(day_of_week >= day_of_week_last) {
               tmp.add(Calendar.DAY_OF_MONTH, (item.getDayRepeat().getInterval() - 1) * 7);
@@ -601,7 +621,7 @@ public class MyExpandableListAdapter extends BaseExpandableListAdapter implement
             day_of_week = now.get(Calendar.DAY_OF_WEEK) < 2 ?
                 now.get(Calendar.DAY_OF_WEEK) + 5 : now.get(Calendar.DAY_OF_WEEK) - 2;
 
-            //intervalの処理
+            // intervalの処理
             day_of_week_last = Integer.toBinaryString(item.getDayRepeat().getWeek()).length() - 1;
             if(day_of_week > day_of_week_last) {
               tmp.set(Calendar.DAY_OF_WEEK, Calendar.MONDAY);
@@ -647,7 +667,7 @@ public class MyExpandableListAdapter extends BaseExpandableListAdapter implement
         }
         else if((item.getDayRepeat().getSetted() & (1 << 2)) != 0) {
 
-          //Monthリピート設定時
+          // Monthリピート設定時
           now = Calendar.getInstance();
           if(now.get(Calendar.SECOND) >= 30) {
             now.add(Calendar.MINUTE, 1);
@@ -657,7 +677,7 @@ public class MyExpandableListAdapter extends BaseExpandableListAdapter implement
 
           if(item.getDayRepeat().isDays_of_month_setted()) {
 
-            //DaysOfMonthリピート設定時
+            // DaysOfMonthリピート設定時
             int day_of_month;
             int day_of_month_last;
 
@@ -665,8 +685,9 @@ public class MyExpandableListAdapter extends BaseExpandableListAdapter implement
               tmp = (Calendar)item.getDate().clone();
               day_of_month = item.getDate().get(Calendar.DAY_OF_MONTH);
 
-              //intervalの処理
-              day_of_month_last = Integer.toBinaryString(item.getDayRepeat().getDays_of_month()).length();
+              // intervalの処理
+              day_of_month_last =
+                  Integer.toBinaryString(item.getDayRepeat().getDays_of_month()).length();
               if(day_of_month_last > tmp.getActualMaximum(Calendar.DAY_OF_MONTH)) {
                 day_of_month_last = tmp.getActualMaximum(Calendar.DAY_OF_MONTH);
               }
@@ -708,8 +729,9 @@ public class MyExpandableListAdapter extends BaseExpandableListAdapter implement
               tmp.set(Calendar.MILLISECOND, 0);
               day_of_month = now.get(Calendar.DAY_OF_MONTH);
 
-              //intervalの処理
-              day_of_month_last = Integer.toBinaryString(item.getDayRepeat().getDays_of_month()).length();
+              // intervalの処理
+              day_of_month_last =
+                  Integer.toBinaryString(item.getDayRepeat().getDays_of_month()).length();
               if(day_of_month_last > tmp.getActualMaximum(Calendar.DAY_OF_MONTH)) {
                 day_of_month_last = tmp.getActualMaximum(Calendar.DAY_OF_MONTH);
               }
@@ -753,7 +775,7 @@ public class MyExpandableListAdapter extends BaseExpandableListAdapter implement
           }
           else {
 
-            //OnTheMonthリピート設定時
+            // OnTheMonthリピート設定時
             boolean match_to_ordinal_num;
             Calendar tmp2;
             Calendar tmp3;
@@ -774,7 +796,7 @@ public class MyExpandableListAdapter extends BaseExpandableListAdapter implement
             }
 
             if(item.getDate().getTimeInMillis() > now.getTimeInMillis()) {
-              //clone()で渡して不具合が出る場合はsetTimeInMillis()を使う
+              // clone()で渡して不具合が出る場合はsetTimeInMillis()を使う
               tmp = (Calendar)item.getDate().clone();
 
               if(day_of_week < 8) {
@@ -795,8 +817,9 @@ public class MyExpandableListAdapter extends BaseExpandableListAdapter implement
 
                 while(true) {
 
-                  //intervalの処理
-                  if(tmp.get(Calendar.DAY_OF_WEEK_IN_MONTH) > item.getDayRepeat().getOrdinal_number()) {
+                  // intervalの処理
+                  if(tmp.get(Calendar.DAY_OF_WEEK_IN_MONTH) >
+                      item.getDayRepeat().getOrdinal_number()) {
                     tmp.set(Calendar.DAY_OF_MONTH, 1);
                     tmp.add(Calendar.MONTH, item.getDayRepeat().getInterval());
                     tmp2 = (Calendar)tmp.clone();
@@ -807,8 +830,10 @@ public class MyExpandableListAdapter extends BaseExpandableListAdapter implement
                     }
                   }
 
-                  while(tmp.get(Calendar.DAY_OF_WEEK_IN_MONTH) < item.getDayRepeat().getOrdinal_number()
-                      && tmp.get(Calendar.DAY_OF_WEEK_IN_MONTH) < tmp.getActualMaximum(Calendar.DAY_OF_WEEK_IN_MONTH)) {
+                  while(tmp.get(Calendar.DAY_OF_WEEK_IN_MONTH) <
+                      item.getDayRepeat().getOrdinal_number()
+                      && tmp.get(Calendar.DAY_OF_WEEK_IN_MONTH) <
+                      tmp.getActualMaximum(Calendar.DAY_OF_WEEK_IN_MONTH)) {
                     tmp.add(Calendar.DAY_OF_MONTH, 7);
                   }
 
@@ -844,8 +869,9 @@ public class MyExpandableListAdapter extends BaseExpandableListAdapter implement
                 while(true) {
                   tmp.set(Calendar.DAY_OF_WEEK, Calendar.MONDAY);
 
-                  //intervalの処理
-                  if(tmp.get(Calendar.DAY_OF_WEEK_IN_MONTH) > item.getDayRepeat().getOrdinal_number()) {
+                  // intervalの処理
+                  if(tmp.get(Calendar.DAY_OF_WEEK_IN_MONTH) >
+                      item.getDayRepeat().getOrdinal_number()) {
                     tmp.set(Calendar.DAY_OF_MONTH, 1);
                     tmp.add(Calendar.MONTH, item.getDayRepeat().getInterval());
                     tmp2 = (Calendar)tmp.clone();
@@ -858,8 +884,10 @@ public class MyExpandableListAdapter extends BaseExpandableListAdapter implement
                     month = tmp.get(Calendar.MONTH);
                   }
 
-                  while(tmp.get(Calendar.DAY_OF_WEEK_IN_MONTH) < item.getDayRepeat().getOrdinal_number()
-                      && tmp.get(Calendar.DAY_OF_WEEK_IN_MONTH) < tmp.getActualMaximum(Calendar.DAY_OF_WEEK_IN_MONTH)) {
+                  while(tmp.get(Calendar.DAY_OF_WEEK_IN_MONTH) <
+                      item.getDayRepeat().getOrdinal_number()
+                      && tmp.get(Calendar.DAY_OF_WEEK_IN_MONTH) <
+                      tmp.getActualMaximum(Calendar.DAY_OF_WEEK_IN_MONTH)) {
                     tmp.add(Calendar.DAY_OF_MONTH, 7);
                   }
 
@@ -870,7 +898,8 @@ public class MyExpandableListAdapter extends BaseExpandableListAdapter implement
                     item.getDayRepeat().setWeekday_num(0);
                     break;
                   }
-                  else if(item.getDayRepeat().getWeekday_num() > 4 || month != tmp.get(Calendar.MONTH)) {
+                  else if(item.getDayRepeat().getWeekday_num() > 4 ||
+                      month != tmp.get(Calendar.MONTH)) {
                     tmp.add(Calendar.DAY_OF_MONTH, -item.getDayRepeat().getWeekday_num() + 1);
                     tmp.set(Calendar.DAY_OF_MONTH, 1);
                     tmp.add(Calendar.MONTH, item.getDayRepeat().getInterval());
@@ -893,12 +922,14 @@ public class MyExpandableListAdapter extends BaseExpandableListAdapter implement
 
                 match_to_ordinal_num = false;
                 if(item.getDayRepeat().getOrdinal_number() == 5) {
-                  if(tmp.get(Calendar.DAY_OF_WEEK_IN_MONTH) == tmp.getActualMaximum(Calendar.DAY_OF_WEEK_IN_MONTH)) {
+                  if(tmp.get(Calendar.DAY_OF_WEEK_IN_MONTH) ==
+                      tmp.getActualMaximum(Calendar.DAY_OF_WEEK_IN_MONTH)) {
                     match_to_ordinal_num = true;
                   }
                 }
                 else {
-                  if(tmp.get(Calendar.DAY_OF_WEEK_IN_MONTH) == item.getDayRepeat().getOrdinal_number()) {
+                  if(tmp.get(Calendar.DAY_OF_WEEK_IN_MONTH) ==
+                      item.getDayRepeat().getOrdinal_number()) {
                     match_to_ordinal_num = true;
                   }
                 }
@@ -925,8 +956,9 @@ public class MyExpandableListAdapter extends BaseExpandableListAdapter implement
 
                   while(true) {
 
-                    //intervalの処理
-                    if(tmp.get(Calendar.DAY_OF_WEEK_IN_MONTH) > item.getDayRepeat().getOrdinal_number()) {
+                    // intervalの処理
+                    if(tmp.get(Calendar.DAY_OF_WEEK_IN_MONTH) >
+                        item.getDayRepeat().getOrdinal_number()) {
                       tmp.set(Calendar.DAY_OF_MONTH, 1);
                       tmp.add(Calendar.MONTH, item.getDayRepeat().getInterval());
                       tmp2 = (Calendar)tmp.clone();
@@ -937,8 +969,10 @@ public class MyExpandableListAdapter extends BaseExpandableListAdapter implement
                       }
                     }
 
-                    while(tmp.get(Calendar.DAY_OF_WEEK_IN_MONTH) < item.getDayRepeat().getOrdinal_number()
-                        && tmp.get(Calendar.DAY_OF_WEEK_IN_MONTH) < tmp.getActualMaximum(Calendar.DAY_OF_WEEK_IN_MONTH)) {
+                    while(tmp.get(Calendar.DAY_OF_WEEK_IN_MONTH) <
+                        item.getDayRepeat().getOrdinal_number()
+                        && tmp.get(Calendar.DAY_OF_WEEK_IN_MONTH) <
+                        tmp.getActualMaximum(Calendar.DAY_OF_WEEK_IN_MONTH)) {
                       tmp.add(Calendar.DAY_OF_MONTH, 7);
                     }
 
@@ -984,8 +1018,9 @@ public class MyExpandableListAdapter extends BaseExpandableListAdapter implement
 
                 while(true) {
 
-                  //intervalの処理
-                  if(tmp.get(Calendar.DAY_OF_WEEK_IN_MONTH) > item.getDayRepeat().getOrdinal_number()) {
+                  // intervalの処理
+                  if(tmp.get(Calendar.DAY_OF_WEEK_IN_MONTH) >
+                      item.getDayRepeat().getOrdinal_number()) {
                     tmp.set(Calendar.DAY_OF_MONTH, 1);
                     tmp.add(Calendar.MONTH, item.getDayRepeat().getInterval());
                     tmp2 = (Calendar)tmp.clone();
@@ -996,8 +1031,10 @@ public class MyExpandableListAdapter extends BaseExpandableListAdapter implement
                     }
                   }
 
-                  while(tmp.get(Calendar.DAY_OF_WEEK_IN_MONTH) < item.getDayRepeat().getOrdinal_number()
-                      && tmp.get(Calendar.DAY_OF_WEEK_IN_MONTH) < tmp.getActualMaximum(Calendar.DAY_OF_WEEK_IN_MONTH)) {
+                  while(tmp.get(Calendar.DAY_OF_WEEK_IN_MONTH) <
+                      item.getDayRepeat().getOrdinal_number()
+                      && tmp.get(Calendar.DAY_OF_WEEK_IN_MONTH) <
+                      tmp.getActualMaximum(Calendar.DAY_OF_WEEK_IN_MONTH)) {
                     tmp.add(Calendar.DAY_OF_MONTH, 7);
                   }
 
@@ -1033,8 +1070,9 @@ public class MyExpandableListAdapter extends BaseExpandableListAdapter implement
                 while(true) {
                   tmp.set(Calendar.DAY_OF_WEEK, Calendar.MONDAY);
 
-                  //intervalの処理
-                  if(tmp.get(Calendar.DAY_OF_WEEK_IN_MONTH) > item.getDayRepeat().getOrdinal_number()) {
+                  // intervalの処理
+                  if(tmp.get(Calendar.DAY_OF_WEEK_IN_MONTH) >
+                      item.getDayRepeat().getOrdinal_number()) {
                     tmp.set(Calendar.DAY_OF_MONTH, 1);
                     tmp.add(Calendar.MONTH, item.getDayRepeat().getInterval());
                     tmp2 = (Calendar)tmp.clone();
@@ -1047,8 +1085,10 @@ public class MyExpandableListAdapter extends BaseExpandableListAdapter implement
                     month = tmp.get(Calendar.MONTH);
                   }
 
-                  while(tmp.get(Calendar.DAY_OF_WEEK_IN_MONTH) < item.getDayRepeat().getOrdinal_number()
-                      && tmp.get(Calendar.DAY_OF_WEEK_IN_MONTH) < tmp.getActualMaximum(Calendar.DAY_OF_WEEK_IN_MONTH)) {
+                  while(tmp.get(Calendar.DAY_OF_WEEK_IN_MONTH) <
+                      item.getDayRepeat().getOrdinal_number()
+                      && tmp.get(Calendar.DAY_OF_WEEK_IN_MONTH) <
+                      tmp.getActualMaximum(Calendar.DAY_OF_WEEK_IN_MONTH)) {
                     tmp.add(Calendar.DAY_OF_MONTH, 7);
                   }
 
@@ -1059,7 +1099,8 @@ public class MyExpandableListAdapter extends BaseExpandableListAdapter implement
                     item.getDayRepeat().setWeekday_num(0);
                     break;
                   }
-                  else if(item.getDayRepeat().getWeekday_num() > 4 || month != tmp.get(Calendar.MONTH)) {
+                  else if(item.getDayRepeat().getWeekday_num() > 4 ||
+                      month != tmp.get(Calendar.MONTH)) {
                     tmp.add(Calendar.DAY_OF_MONTH, -item.getDayRepeat().getWeekday_num() + 1);
                     tmp.set(Calendar.DAY_OF_MONTH, 1);
                     tmp.add(Calendar.MONTH, item.getDayRepeat().getInterval());
@@ -1082,7 +1123,8 @@ public class MyExpandableListAdapter extends BaseExpandableListAdapter implement
                   tmp2 = (Calendar)tmp.clone();
                   tmp2.add(Calendar.DAY_OF_MONTH, -1);
 
-                  if(tmp2.get(Calendar.DAY_OF_WEEK_IN_MONTH) == item.getDayRepeat().getOrdinal_number()) {
+                  if(tmp2.get(Calendar.DAY_OF_WEEK_IN_MONTH) ==
+                      item.getDayRepeat().getOrdinal_number()) {
                     sunday_match = true;
                   }
                 }
@@ -1095,12 +1137,14 @@ public class MyExpandableListAdapter extends BaseExpandableListAdapter implement
 
                   match_to_ordinal_num = false;
                   if(item.getDayRepeat().getOrdinal_number() == 5) {
-                    if(tmp.get(Calendar.DAY_OF_WEEK_IN_MONTH) == tmp.getActualMaximum(Calendar.DAY_OF_WEEK_IN_MONTH)) {
+                    if(tmp.get(Calendar.DAY_OF_WEEK_IN_MONTH) ==
+                        tmp.getActualMaximum(Calendar.DAY_OF_WEEK_IN_MONTH)) {
                       match_to_ordinal_num = true;
                     }
                   }
                   else {
-                    if(tmp.get(Calendar.DAY_OF_WEEK_IN_MONTH) == item.getDayRepeat().getOrdinal_number()) {
+                    if(tmp.get(Calendar.DAY_OF_WEEK_IN_MONTH) ==
+                        item.getDayRepeat().getOrdinal_number()) {
                       match_to_ordinal_num = true;
                     }
                   }
@@ -1127,8 +1171,9 @@ public class MyExpandableListAdapter extends BaseExpandableListAdapter implement
 
                     while(true) {
 
-                      //intervalの処理
-                      if(tmp.get(Calendar.DAY_OF_WEEK_IN_MONTH) > item.getDayRepeat().getOrdinal_number()) {
+                      // intervalの処理
+                      if(tmp.get(Calendar.DAY_OF_WEEK_IN_MONTH) >
+                          item.getDayRepeat().getOrdinal_number()) {
                         tmp.set(Calendar.DAY_OF_MONTH, 1);
                         tmp.add(Calendar.MONTH, item.getDayRepeat().getInterval());
                         tmp2 = (Calendar)tmp.clone();
@@ -1139,8 +1184,10 @@ public class MyExpandableListAdapter extends BaseExpandableListAdapter implement
                         }
                       }
 
-                      while(tmp.get(Calendar.DAY_OF_WEEK_IN_MONTH) < item.getDayRepeat().getOrdinal_number()
-                          && tmp.get(Calendar.DAY_OF_WEEK_IN_MONTH) < tmp.getActualMaximum(Calendar.DAY_OF_WEEK_IN_MONTH)) {
+                      while(tmp.get(Calendar.DAY_OF_WEEK_IN_MONTH) <
+                          item.getDayRepeat().getOrdinal_number()
+                          && tmp.get(Calendar.DAY_OF_WEEK_IN_MONTH) <
+                          tmp.getActualMaximum(Calendar.DAY_OF_WEEK_IN_MONTH)) {
                         tmp.add(Calendar.DAY_OF_MONTH, 7);
                       }
 
@@ -1166,7 +1213,7 @@ public class MyExpandableListAdapter extends BaseExpandableListAdapter implement
         }
         else if((item.getDayRepeat().getSetted() & (1 << 3)) != 0) {
 
-          //Yearリピート設定時
+          // Yearリピート設定時
           now = Calendar.getInstance();
           if(now.get(Calendar.SECOND) >= 30) {
             now.add(Calendar.MINUTE, 1);
@@ -1179,7 +1226,7 @@ public class MyExpandableListAdapter extends BaseExpandableListAdapter implement
             tmp = (Calendar)item.getDate().clone();
             month = item.getDate().get(Calendar.MONTH);
 
-            //intervalの処理
+            // intervalの処理
             month_last = Integer.toBinaryString(item.getDayRepeat().getYear()).length() - 1;
             if(month >= month_last) {
               tmp.set(Calendar.MONTH, 0);
@@ -1192,7 +1239,8 @@ public class MyExpandableListAdapter extends BaseExpandableListAdapter implement
               if((item.getDayRepeat().getYear() & (1 << (month + i))) != 0) {
                 tmp.add(Calendar.MONTH, i);
                 if(tmp.get(Calendar.DAY_OF_MONTH) < item.getDayRepeat().getDay_of_month_of_year()
-                    && item.getDayRepeat().getDay_of_month_of_year() <= tmp.getActualMaximum(Calendar.DAY_OF_MONTH)) {
+                    && item.getDayRepeat().getDay_of_month_of_year() <=
+                    tmp.getActualMaximum(Calendar.DAY_OF_MONTH)) {
                   tmp.set(Calendar.DAY_OF_MONTH, item.getDayRepeat().getDay_of_month_of_year());
                 }
 
@@ -1212,8 +1260,9 @@ public class MyExpandableListAdapter extends BaseExpandableListAdapter implement
           }
           else {
             tmp = (Calendar)now.clone();
-            //itemに登録されている日にちが今月の日にちの最大値を超えている場合、今月の日にちの最大値を設定する
-            if(tmp.getActualMaximum(Calendar.DAY_OF_MONTH) < item.getDate().get(Calendar.DAY_OF_MONTH)) {
+            // itemに登録されている日にちが今月の日にちの最大値を超えている場合、今月の日にちの最大値を設定する
+            if(tmp.getActualMaximum(Calendar.DAY_OF_MONTH) <
+                item.getDate().get(Calendar.DAY_OF_MONTH)) {
               tmp.set(Calendar.DAY_OF_MONTH, tmp.getActualMaximum(Calendar.DAY_OF_MONTH));
             }
             else {
@@ -1225,7 +1274,7 @@ public class MyExpandableListAdapter extends BaseExpandableListAdapter implement
             tmp.set(Calendar.MILLISECOND, 0);
             month = now.get(Calendar.MONTH);
 
-            //intervalの処理
+            // intervalの処理
             month_last = Integer.toBinaryString(item.getDayRepeat().getYear()).length() - 1;
             if(month > month_last) {
               tmp.set(Calendar.MONTH, 0);
@@ -1245,7 +1294,8 @@ public class MyExpandableListAdapter extends BaseExpandableListAdapter implement
               if((item.getDayRepeat().getYear() & (1 << (month + i))) != 0) {
                 tmp.add(Calendar.MONTH, i);
                 if(tmp.get(Calendar.DAY_OF_MONTH) < item.getDayRepeat().getDay_of_month_of_year()
-                    && item.getDayRepeat().getDay_of_month_of_year() <= tmp.getActualMaximum(Calendar.DAY_OF_MONTH)) {
+                    && item.getDayRepeat().getDay_of_month_of_year() <=
+                    tmp.getActualMaximum(Calendar.DAY_OF_MONTH)) {
                   tmp.set(Calendar.DAY_OF_MONTH, item.getDayRepeat().getDay_of_month_of_year());
                 }
 
@@ -1289,7 +1339,7 @@ public class MyExpandableListAdapter extends BaseExpandableListAdapter implement
         }
 
 
-        //tmp設定後の処理
+        // tmp設定後の処理
         if(item.getDayRepeat().getSetted() != 0 || item.getMinuteRepeat().getWhich_setted() != 0) {
           if(!in_minute_repeat) {
             item.setOrg_alarm_stopped(item.isAlarm_stopped());
@@ -1346,8 +1396,9 @@ public class MyExpandableListAdapter extends BaseExpandableListAdapter implement
     @Override
     public boolean onLongClick(View v) {
 
-      //すべての通知を既読する
-      NotificationManager manager = (NotificationManager)activity.getSystemService(NOTIFICATION_SERVICE);
+      // すべての通知を既読する
+      NotificationManager manager =
+          (NotificationManager)activity.getSystemService(NOTIFICATION_SERVICE);
       checkNotNull(manager);
       manager.cancelAll();
 
@@ -1374,7 +1425,7 @@ public class MyExpandableListAdapter extends BaseExpandableListAdapter implement
 
       actionMode.getMenuInflater().inflate(R.menu.action_mode_menu, menu);
 
-      //ActionMode時のみツールバーとステータスバーの色を設定
+      // ActionMode時のみツールバーとステータスバーの色を設定
       Window window = activity.getWindow();
       window.clearFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS);
       window.addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS);
@@ -1412,7 +1463,8 @@ public class MyExpandableListAdapter extends BaseExpandableListAdapter implement
           }
 
           String message = activity.getResources().getQuantityString(R.plurals.cab_delete_message,
-              itemListToMove.size(), itemListToMove.size()) + " (" + activity.getString(R.string.delete_dialog_message) + ")";
+              itemListToMove.size(), itemListToMove.size()
+          ) + " (" + activity.getString(R.string.delete_dialog_message) + ")";
           final AlertDialog dialog = new AlertDialog.Builder(activity)
               .setTitle(R.string.cab_delete)
               .setMessage(message)
@@ -1424,7 +1476,8 @@ public class MyExpandableListAdapter extends BaseExpandableListAdapter implement
                     for(Item item : itemList) {
                       if(item.isSelected()) {
                         activity.deleteDB(item, MyDatabaseHelper.TODO_TABLE);
-                        MyExpandableListAdapter.children = activity.getChildren(MyDatabaseHelper.TODO_TABLE);
+                        MyExpandableListAdapter.children =
+                            activity.getChildren(MyDatabaseHelper.TODO_TABLE);
                         activity.deleteAlarm(item);
                       }
                     }
@@ -1472,7 +1525,8 @@ public class MyExpandableListAdapter extends BaseExpandableListAdapter implement
           }
 
           String title = activity.getResources().getQuantityString(R.plurals.cab_selected_task_num,
-              itemListToMove.size(), itemListToMove.size()) + activity.getString(R.string.cab_move_task_message);
+              itemListToMove.size(), itemListToMove.size()
+          ) + activity.getString(R.string.cab_move_task_message);
           final SingleChoiceItemsAdapter adapter = new SingleChoiceItemsAdapter(items);
           final AlertDialog dialog = new AlertDialog.Builder(activity)
               .setTitle(title)
@@ -1488,7 +1542,8 @@ public class MyExpandableListAdapter extends BaseExpandableListAdapter implement
 
                   which_list = SingleChoiceItemsAdapter.checked_position;
 
-                  long list_id = activity.generalSettings.getNonScheduledLists().get(which_list).getId();
+                  long list_id =
+                      activity.generalSettings.getNonScheduledLists().get(which_list).getId();
                   MyListAdapter.itemList = new ArrayList<>();
                   for(Item item : activity.queryAllDB(MyDatabaseHelper.TODO_TABLE)) {
                     if(item.getWhich_list_belongs() == list_id) {
@@ -1501,7 +1556,7 @@ public class MyExpandableListAdapter extends BaseExpandableListAdapter implement
 
                     item.setSelected(false);
 
-                    //リストのIDをitemに登録する
+                    // リストのIDをitemに登録する
                     item.setWhich_list_belongs(list_id);
 
                     MyListAdapter.itemList.add(0, item);
@@ -1553,7 +1608,8 @@ public class MyExpandableListAdapter extends BaseExpandableListAdapter implement
           }
 
           String message = activity.getResources().getQuantityString(R.plurals.cab_clone_message,
-              itemListToMove.size(), itemListToMove.size());
+              itemListToMove.size(), itemListToMove.size()
+          );
           final AlertDialog dialog = new AlertDialog.Builder(activity)
               .setTitle(R.string.cab_clone)
               .setMessage(message)
@@ -1605,7 +1661,8 @@ public class MyExpandableListAdapter extends BaseExpandableListAdapter implement
           }
 
           String message = activity.getResources().getQuantityString(R.plurals.cab_share_message,
-              itemListToMove.size(), itemListToMove.size());
+              itemListToMove.size(), itemListToMove.size()
+          );
           final AlertDialog dialog = new AlertDialog.Builder(activity)
               .setTitle(R.string.cab_share)
               .setMessage(message)
@@ -1688,7 +1745,7 @@ public class MyExpandableListAdapter extends BaseExpandableListAdapter implement
       @Override
       protected FilterResults performFiltering(CharSequence constraint) {
 
-        //アカウントテスト用
+        // アカウントテスト用
         if(CHANGE_GRADE.equals(constraint.toString())) {
           if(activity.is_premium) {
             activity.setBooleanGeneralInSharedPreferences(IS_PREMIUM, false);
@@ -1698,7 +1755,7 @@ public class MyExpandableListAdapter extends BaseExpandableListAdapter implement
           }
         }
 
-        //入力文字列が大文字を含むかどうか調べる
+        // 入力文字列が大文字を含むかどうか調べる
         boolean is_upper = false;
         for(int i = 0; i < constraint.length(); i++) {
           if(Character.isUpperCase(constraint.charAt(i))) {
@@ -1707,7 +1764,7 @@ public class MyExpandableListAdapter extends BaseExpandableListAdapter implement
           }
         }
 
-        //検索処理
+        // 検索処理
         if(activity.actionBarFragment.checkedTag == -1) {
           children = activity.getChildren(MyDatabaseHelper.TODO_TABLE);
         }
@@ -1752,7 +1809,7 @@ public class MyExpandableListAdapter extends BaseExpandableListAdapter implement
 
         children = (List<List<Item>>)results.values;
 
-        //リストの表示更新
+        // リストの表示更新
         notifyDataSetChanged();
       }
     };
@@ -1761,7 +1818,7 @@ public class MyExpandableListAdapter extends BaseExpandableListAdapter implement
   @Override
   public int getGroupCount() {
 
-    //表示するgroupsのサイズを返す。
+    // 表示するgroupsのサイズを返す。
     int count = 0;
     Arrays.fill(display_groups, false);
     int size = groups.size();
@@ -1779,16 +1836,16 @@ public class MyExpandableListAdapter extends BaseExpandableListAdapter implement
   @Override
   public int getChildrenCount(int i) {
 
-    //getChildrenCount()はgetGroupCount()によって返されるgroupsのサイズ分だけ(サイズが3なら3回)呼ばれる。
-    //iはgetChildrenCount()の呼ばれた回数を表す。すなわちiは呼び出しを3回とすると1回目の呼び出しにおいて、
-    //表示するgroupsの0番目を表す。2回目では1番目、3回目では2番目である。
+    // getChildrenCount()はgetGroupCount()によって返されるgroupsのサイズ分だけ(サイズが3なら3回)呼ばれる。
+    // iはgetChildrenCount()の呼ばれた回数を表す。すなわちiは呼び出しを3回とすると1回目の呼び出しにおいて、
+    // 表示するgroupsの0番目を表す。2回目では1番目、3回目では2番目である。
     int count = 0;
     int size = groups.size();
     for(int j = 0; j < size; j++) {
       if(display_groups[j]) {
-        //単に return children.get(j).size() とすると、表示するgroupsの1番目だけを返し続けてしまうので、
-        //if(count == i) と条件を付けることで、getChildrenCount()の呼び出された回数に応じて表示する
-        //groupsの対応するgroupのみ返すようにしている。
+        // 単に return children.get(j).size() とすると、表示するgroupsの1番目だけを返し続けてしまうので、
+        // if(count == i) と条件を付けることで、getChildrenCount()の呼び出された回数に応じて表示する
+        // groupsの対応するgroupのみ返すようにしている。
         if(count == i) {
           return children.get(j).size();
         }
@@ -1802,7 +1859,7 @@ public class MyExpandableListAdapter extends BaseExpandableListAdapter implement
   @Override
   public Object getGroup(int i) {
 
-    //getGroupCount()によって返されるgroupsのサイズ分だけ呼ばれる。引数のiに関してもgetChildrenCount()と同じ。
+    // getGroupCount()によって返されるgroupsのサイズ分だけ呼ばれる。引数のiに関してもgetChildrenCount()と同じ。
     int count = 0;
     int size = groups.size();
     for(int j = 0; j < size; j++) {
@@ -1820,8 +1877,8 @@ public class MyExpandableListAdapter extends BaseExpandableListAdapter implement
   @Override
   public Object getChild(int i, int i1) {
 
-    //getChildrenCount()によって返されるchildrenのサイズ分×getGroupCount()によって返されるgroupsのサイズ分
-    //だけ呼ばれる。あとは他のメソッドと同じ。
+    // getChildrenCount()によって返されるchildrenのサイズ分×getGroupCount()によって返されるgroupsのサイズ分
+    // だけ呼ばれる。あとは他のメソッドと同じ。
     int count = 0;
     int size = groups.size();
     for(int j = 0; j < size; j++) {
@@ -1861,7 +1918,7 @@ public class MyExpandableListAdapter extends BaseExpandableListAdapter implement
       convertView = View.inflate(viewGroup.getContext(), R.layout.parent_layout, null);
     }
 
-    //グループの開閉状態の保持
+    // グループの開閉状態の保持
     ((ExpandableListView)viewGroup).setOnGroupCollapseListener(new ExpandableListView.OnGroupCollapseListener() {
       @Override
       public void onGroupCollapse(int groupPosition) {
@@ -1979,7 +2036,7 @@ public class MyExpandableListAdapter extends BaseExpandableListAdapter implement
       viewHolder = (ChildViewHolder)convertView.getTag();
     }
 
-    //現在のビュー位置でのitemの取得とリスナーの初期化
+    // 現在のビュー位置でのitemの取得とリスナーの初期化
     Item item = (Item)getChild(i, i1);
     int count = 0;
     MyOnClickListener listener = null;
@@ -1994,7 +2051,7 @@ public class MyExpandableListAdapter extends BaseExpandableListAdapter implement
       }
     }
 
-    //各リスナーの設定
+    // 各リスナーの設定
     viewHolder.child_card.setOnClickListener(listener);
     viewHolder.clock_image.setOnClickListener(listener);
     viewHolder.checkBox.setOnCheckedChangeListener(listener);
@@ -2013,7 +2070,7 @@ public class MyExpandableListAdapter extends BaseExpandableListAdapter implement
       }
     }
 
-    //各種表示処理
+    // 各種表示処理
     displayDate(viewHolder, item);
     viewHolder.detail.setText(item.getDetail());
     viewHolder.detail.setTextSize(activity.text_size);
@@ -2023,7 +2080,8 @@ public class MyExpandableListAdapter extends BaseExpandableListAdapter implement
     }
     else {
       viewHolder.tagPallet.setVisibility(View.VISIBLE);
-      int color = activity.generalSettings.getTagById(item.getWhich_tag_belongs()).getPrimary_color();
+      int color =
+          activity.generalSettings.getTagById(item.getWhich_tag_belongs()).getPrimary_color();
       if(color != 0) {
         viewHolder.tagPallet.setColorFilter(color);
       }
@@ -2044,7 +2102,7 @@ public class MyExpandableListAdapter extends BaseExpandableListAdapter implement
     viewHolder.plusTime2.setText(activity.getControlTimeText(false, 2));
     viewHolder.plusTime3.setText(activity.getControlTimeText(false, 3));
 
-    //ある子ビューでコントロールパネルを出したとき、他の子ビューのコントロールパネルを閉じる
+    // ある子ビューでコントロールパネルを出したとき、他の子ビューのコントロールパネルを閉じる
     if(viewHolder.control_panel.getVisibility() == View.VISIBLE &&
         (item.getId() != has_panel || actionMode != null)) {
       ((View)viewHolder.control_panel.getParent().getParent())
@@ -2061,7 +2119,8 @@ public class MyExpandableListAdapter extends BaseExpandableListAdapter implement
             }
           });
     }
-    else if(viewHolder.control_panel.getVisibility() == View.GONE && item.getId() == has_panel && actionMode == null) {
+    else if(viewHolder.control_panel.getVisibility() == View.GONE && item.getId() == has_panel &&
+        actionMode == null) {
       View cardView = (View)viewHolder.control_panel.getParent().getParent();
       cardView.setTranslationY(-30.0f);
       cardView.setAlpha(0.0f);
@@ -2080,7 +2139,7 @@ public class MyExpandableListAdapter extends BaseExpandableListAdapter implement
           });
     }
 
-    //チェックが入っている場合、チェックを外す
+    // チェックが入っている場合、チェックを外す
     if(viewHolder.checkBox.isChecked() && !item.isSelected()) {
       manually_checked = false;
       viewHolder.checkBox.setChecked(false);
@@ -2091,7 +2150,7 @@ public class MyExpandableListAdapter extends BaseExpandableListAdapter implement
     }
     manually_checked = true;
 
-    //CardViewが横から流れてくるアニメーション
+    // CardViewが横から流れてくるアニメーション
     if(is_scrolling && activity.play_slide_animation) {
       Animation animation = AnimationUtils.loadAnimation(activity, R.anim.listview_motion);
       convertView.startAnimation(animation);
@@ -2121,7 +2180,7 @@ public class MyExpandableListAdapter extends BaseExpandableListAdapter implement
     handler.postDelayed(runnable, 2000);
   }
 
-  //時間を表示する処理
+  // 時間を表示する処理
   private void displayDate(ChildViewHolder viewHolder, Item item) {
 
     Calendar now = Calendar.getInstance();
@@ -2319,7 +2378,7 @@ public class MyExpandableListAdapter extends BaseExpandableListAdapter implement
     }
   }
 
-  //リピートを表示する処理
+  // リピートを表示する処理
   private void displayRepeat(ChildViewHolder viewHolder, Item item) {
 
     String repeat_str = "";
@@ -2353,8 +2412,10 @@ public class MyExpandableListAdapter extends BaseExpandableListAdapter implement
 
     String day = item.getDayRepeat().getLabel();
     String minute = item.getMinuteRepeat().getLabel();
-    if(LOCALE.equals(Locale.JAPAN) && day != null && !"".equals(day) && !activity.getString(R.string.none).equals(day)
-        && (minute == null || "".equals(minute) || activity.getString(R.string.none).equals(minute))) {
+    if(LOCALE.equals(Locale.JAPAN) && day != null && !"".equals(day) &&
+        !activity.getString(R.string.none).equals(day)
+        &&
+        (minute == null || "".equals(minute) || activity.getString(R.string.none).equals(minute))) {
       repeat_str += "繰り返す";
     }
 

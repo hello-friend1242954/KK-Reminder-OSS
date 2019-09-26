@@ -13,12 +13,12 @@ public class MinuteRepeat implements Serializable, Cloneable {
   private int minute = 10;
   private int count = 3;
   private int org_count = 3;
-  private int org_count2 = 3; //スナックバーから元に戻すときのために値を保持する
+  private int org_count2 = 3; // スナックバーから元に戻すときのために値を保持する
   private int duration_hour = 1;
   private int duration_minute = 0;
   private int org_duration_hour = 1;
   private int org_duration_minute = 0;
-  private long org_duration2 = 0; //スナックバーから元に戻すときのために値を保持する
+  private long org_duration2 = 0; // スナックバーから元に戻すときのために値を保持する
   private int which_setted = 0;
 
   String getLabel() {

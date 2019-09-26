@@ -6,22 +6,25 @@ import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
 import android.net.Uri;
 import android.os.Bundle;
-import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
-import android.support.v4.app.FragmentManager;
-import android.support.v4.content.ContextCompat;
-import android.support.v4.view.GravityCompat;
-import android.support.v7.app.ActionBar;
-import android.support.v7.preference.Preference;
-import android.support.v7.preference.PreferenceScreen;
-import android.support.v7.widget.Toolbar;
+
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.fragment.app.FragmentManager;
+import androidx.core.content.ContextCompat;
+import androidx.core.view.GravityCompat;
+import androidx.appcompat.app.ActionBar;
+import androidx.preference.Preference;
+import androidx.preference.PreferenceScreen;
+import androidx.appcompat.widget.Toolbar;
+
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
-public class HelpAndFeedbackFragment extends BasePreferenceFragmentCompat implements Preference.OnPreferenceClickListener {
+public class HelpAndFeedbackFragment extends BasePreferenceFragmentCompat
+    implements Preference.OnPreferenceClickListener {
 
   static final String TAG = HelpAndFeedbackFragment.class.getSimpleName();
   private MainActivity activity;
@@ -32,7 +35,7 @@ public class HelpAndFeedbackFragment extends BasePreferenceFragmentCompat implem
   }
 
   @Override
-  public void onAttach(Context context) {
+  public void onAttach(@NonNull Context context) {
 
     super.onAttach(context);
     activity = (MainActivity)context;
@@ -68,13 +71,17 @@ public class HelpAndFeedbackFragment extends BasePreferenceFragmentCompat implem
 
     super.onViewCreated(view, savedInstanceState);
 
-    //設定項目間の区切り線の非表示
+    // 設定項目間の区切り線の非表示
     setDivider(new ColorDrawable(Color.TRANSPARENT));
     setDividerHeight(0);
   }
 
   @Override
-  public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
+  public View onCreateView(
+      LayoutInflater inflater,
+      @Nullable ViewGroup container,
+      @Nullable Bundle savedInstanceState
+  ) {
 
     View view = super.onCreateView(inflater, container, savedInstanceState);
     checkNotNull(view);

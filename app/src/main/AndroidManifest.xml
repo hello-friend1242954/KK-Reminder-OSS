@@ -21,7 +21,8 @@
         <activity
             android:name=".MainActivity"
             android:configChanges="orientation|screenSize"
-            android:launchMode="singleTask">
+            android:launchMode="singleTask"
+            android:directBootAware="true">
 
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -40,10 +41,12 @@
             android:launchMode="singleTask"
             android:taskAffinity=""
             android:excludeFromRecents="true"
-            android:theme="@style/ManuallySnoozeBackgroundTheme"/>
+            android:theme="@style/ManuallySnoozeBackgroundTheme"
+            android:directBootAware="true"/>
 
         <receiver
-            android:name=".AlarmReceiver"/>
+            android:name=".AlarmReceiver"
+            android:directBootAware="true"/>
 
         <receiver
             android:name=".StartupReceiver"
@@ -57,12 +60,22 @@
         </receiver>
 
         <receiver
-            android:name=".DefaultManuallySnoozeReceiver"/>
+            android:name=".DefaultManuallySnoozeReceiver"
+            android:directBootAware="true"/>
 
         <receiver
-            android:name=".DoneReceiver"/>
+            android:name=".DoneReceiver"
+            android:directBootAware="true"/>
 
         <service android:name=".DeleteDoneListService"/>
+
+        <service
+            android:name=".CopyDatabaseService"
+            android:directBootAware="true"/>
+
+        <service
+            android:name=".CopySharedPreferencesService"
+            android:directBootAware="true"/>
 
         <meta-data
             android:name="com.google.android.gms.ads.APPLICATION_ID"

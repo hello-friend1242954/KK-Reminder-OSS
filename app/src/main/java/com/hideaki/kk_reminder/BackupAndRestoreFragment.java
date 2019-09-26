@@ -9,15 +9,17 @@ import android.content.Intent;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
-import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
-import android.support.v4.app.FragmentManager;
-import android.support.v4.content.ContextCompat;
-import android.support.v7.app.ActionBar;
-import android.support.v7.app.AlertDialog;
-import android.support.v7.preference.Preference;
-import android.support.v7.preference.PreferenceScreen;
-import android.support.v7.widget.Toolbar;
+
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.fragment.app.FragmentManager;
+import androidx.core.content.ContextCompat;
+import androidx.appcompat.app.ActionBar;
+import androidx.appcompat.app.AlertDialog;
+import androidx.preference.Preference;
+import androidx.preference.PreferenceScreen;
+import androidx.appcompat.widget.Toolbar;
+
 import android.text.format.DateFormat;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
@@ -54,7 +56,8 @@ import static com.hideaki.kk_reminder.UtilClass.MENU_POSITION;
 import static com.hideaki.kk_reminder.UtilClass.REQUEST_CODE_SIGN_IN;
 import static com.hideaki.kk_reminder.UtilClass.SUBMENU_POSITION;
 
-public class BackupAndRestoreFragment extends BasePreferenceFragmentCompat implements Preference.OnPreferenceClickListener {
+public class BackupAndRestoreFragment extends BasePreferenceFragmentCompat
+    implements Preference.OnPreferenceClickListener {
 
   @SuppressLint("SdCardPath")
   private static final String DATABASE_PATH = "/data/data/com.hideaki.kk_reminder/databases/";
@@ -77,7 +80,7 @@ public class BackupAndRestoreFragment extends BasePreferenceFragmentCompat imple
   }
 
   @Override
-  public void onAttach(Context context) {
+  public void onAttach(@NonNull Context context) {
 
     super.onAttach(context);
     activity = (MainActivity)context;
@@ -104,13 +107,17 @@ public class BackupAndRestoreFragment extends BasePreferenceFragmentCompat imple
 
     super.onViewCreated(view, savedInstanceState);
 
-    //設定項目間の区切り線の非表示
+    // 設定項目間の区切り線の非表示
     setDivider(new ColorDrawable(Color.TRANSPARENT));
     setDividerHeight(0);
   }
 
   @Override
-  public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
+  public View onCreateView(
+      LayoutInflater inflater,
+      @Nullable ViewGroup container,
+      @Nullable Bundle savedInstanceState
+  ) {
 
     View view = super.onCreateView(inflater, container, savedInstanceState);
     checkNotNull(view);
@@ -127,17 +134,21 @@ public class BackupAndRestoreFragment extends BasePreferenceFragmentCompat imple
     actionBar.setDisplayHomeAsUpEnabled(true);
     actionBar.setTitle(R.string.backup_and_restore);
 
-    //ログイン状態の初期化
+    // ログイン状態の初期化
     signInAccount = GoogleSignIn.getLastSignedInAccount(activity);
 
-    if(signInAccount != null) preferenceCategory.addPreference(logout);
-    else preferenceCategory.removePreference(logout);
+    if(signInAccount != null) {
+      preferenceCategory.addPreference(logout);
+    }
+    else {
+      preferenceCategory.removePreference(logout);
+    }
 
     return view;
   }
 
   @Override
-  public boolean onOptionsItemSelected(MenuItem item) {
+  public boolean onOptionsItemSelected(@NonNull MenuItem item) {
 
     FragmentManager manager = getFragmentManager();
     checkNotNull(manager);
@@ -194,7 +205,9 @@ public class BackupAndRestoreFragment extends BasePreferenceFragmentCompat imple
 
               List<File> folderList = fileList.getFiles();
               if(folderList.size() == 0) {
-                Toast.makeText(activity, getString(R.string.backup_not_exists), Toast.LENGTH_LONG).show();
+                Toast
+                    .makeText(activity, getString(R.string.backup_not_exists), Toast.LENGTH_LONG)
+                    .show();
               }
               else {
                 driveServiceHelper.queryFiles(MIME_TYPE)
@@ -215,14 +228,22 @@ public class BackupAndRestoreFragment extends BasePreferenceFragmentCompat imple
                               activity, getString(R.string.backup_not_exists), Toast.LENGTH_LONG
                           ).show();
                         }
-                        else displayDialog(backupList, backupIdList);
+                        else {
+                          displayDialog(backupList, backupIdList);
+                        }
                       }
                     })
                     .addOnFailureListener(new OnFailureListener() {
                       @Override
                       public void onFailure(@NonNull Exception e) {
 
-                        Toast.makeText(activity, getString(R.string.fail_to_query), Toast.LENGTH_LONG).show();
+                        Toast
+                            .makeText(
+                                activity,
+                                getString(R.string.fail_to_query),
+                                Toast.LENGTH_LONG
+                            )
+                            .show();
                       }
                     });
               }
@@ -263,7 +284,9 @@ public class BackupAndRestoreFragment extends BasePreferenceFragmentCompat imple
           .setTitle(R.string.choose_backup_data_message)
           .setSingleChoiceItems(adapter, 0, new DialogInterface.OnClickListener() {
             @Override
-            public void onClick(DialogInterface dialog, int which) {}
+            public void onClick(DialogInterface dialog, int which) {
+
+            }
           })
           .setPositiveButton(R.string.determine, new DialogInterface.OnClickListener() {
             @Override
@@ -312,7 +335,9 @@ public class BackupAndRestoreFragment extends BasePreferenceFragmentCompat imple
             @Override
             public void onSuccess(Void aVoid) {
 
-              Toast.makeText(activity, getString(R.string.success_to_restore), Toast.LENGTH_LONG).show();
+              Toast
+                  .makeText(activity, getString(R.string.success_to_restore), Toast.LENGTH_LONG)
+                  .show();
 
               activity.setIntGeneralInSharedPreferences(MENU_POSITION, 0);
               activity.setIntGeneralInSharedPreferences(SUBMENU_POSITION, 0);
@@ -324,7 +349,9 @@ public class BackupAndRestoreFragment extends BasePreferenceFragmentCompat imple
             @Override
             public void onFailure(@NonNull Exception e) {
 
-              Toast.makeText(activity, getString(R.string.fail_to_restore), Toast.LENGTH_LONG).show();
+              Toast
+                  .makeText(activity, getString(R.string.fail_to_restore), Toast.LENGTH_LONG)
+                  .show();
             }
           });
     }
@@ -356,12 +383,16 @@ public class BackupAndRestoreFragment extends BasePreferenceFragmentCompat imple
                       public void onFailure(@NonNull Exception e) {
 
                         Toast.makeText(
-                            activity, getString(R.string.fail_to_make_backup_folder), Toast.LENGTH_LONG
+                            activity,
+                            getString(R.string.fail_to_make_backup_folder),
+                            Toast.LENGTH_LONG
                         ).show();
                       }
                     });
               }
-              else createBackupFile(folderList.get(0).getId());
+              else {
+                createBackupFile(folderList.get(0).getId());
+              }
             }
           })
           .addOnFailureListener(new OnFailureListener() {
@@ -387,14 +418,22 @@ public class BackupAndRestoreFragment extends BasePreferenceFragmentCompat imple
             @Override
             public void onSuccess(File file) {
 
-              Toast.makeText(activity, getString(R.string.create_new_backup), Toast.LENGTH_LONG).show();
+              Toast
+                  .makeText(activity, getString(R.string.create_new_backup), Toast.LENGTH_LONG)
+                  .show();
             }
           })
           .addOnFailureListener(new OnFailureListener() {
             @Override
             public void onFailure(@NonNull Exception e) {
 
-              Toast.makeText(activity, getString(R.string.fail_to_create_new_backup), Toast.LENGTH_LONG).show();
+              Toast
+                  .makeText(
+                      activity,
+                      getString(R.string.fail_to_create_new_backup),
+                      Toast.LENGTH_LONG
+                  )
+                  .show();
             }
           });
     }
@@ -402,10 +441,11 @@ public class BackupAndRestoreFragment extends BasePreferenceFragmentCompat imple
 
   private void signIn() {
 
-    GoogleSignInOptions signInOptions = new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
-        .requestEmail()
-        .requestScopes(new Scope(DriveScopes.DRIVE_FILE))
-        .build();
+    GoogleSignInOptions signInOptions =
+        new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
+            .requestEmail()
+            .requestScopes(new Scope(DriveScopes.DRIVE_FILE))
+            .build();
     signInClient = GoogleSignIn.getClient(activity, signInOptions);
     startActivityForResult(signInClient.getSignInIntent(), REQUEST_CODE_SIGN_IN);
   }
@@ -429,7 +469,9 @@ public class BackupAndRestoreFragment extends BasePreferenceFragmentCompat imple
             @Override
             public void onFailure(@NonNull Exception e) {
 
-              Toast.makeText(activity, getString(R.string.fail_to_logout), Toast.LENGTH_LONG).show();
+              Toast
+                  .makeText(activity, getString(R.string.fail_to_logout), Toast.LENGTH_LONG)
+                  .show();
             }
           });
     }
@@ -449,7 +491,9 @@ public class BackupAndRestoreFragment extends BasePreferenceFragmentCompat imple
 
       case REQUEST_CODE_SIGN_IN: {
 
-        if(resultCode != Activity.RESULT_OK) return;
+        if(resultCode != Activity.RESULT_OK) {
+          return;
+        }
 
         Task<GoogleSignInAccount> task = GoogleSignIn.getSignedInAccountFromIntent(data);
 
@@ -458,8 +502,12 @@ public class BackupAndRestoreFragment extends BasePreferenceFragmentCompat imple
           preferenceCategory.addPreference(logout);
 
           setDriveServiceHelper();
-          if(is_backup) backupToDrive();
-          else restoreFromDrive();
+          if(is_backup) {
+            backupToDrive();
+          }
+          else {
+            restoreFromDrive();
+          }
         }
         catch(ApiException e) {
 
@@ -483,11 +531,12 @@ public class BackupAndRestoreFragment extends BasePreferenceFragmentCompat imple
       credential.setSelectedAccount(account);
 
       Drive googleDriveService = new Drive.Builder(
-              AndroidHttp.newCompatibleTransport(),
-              new GsonFactory(),
-              credential)
-              .setApplicationName("KK Reminder")
-              .build();
+          AndroidHttp.newCompatibleTransport(),
+          new GsonFactory(),
+          credential
+      )
+          .setApplicationName("KK Reminder")
+          .build();
 
       driveServiceHelper = new DriveServiceHelper(googleDriveService);
     }

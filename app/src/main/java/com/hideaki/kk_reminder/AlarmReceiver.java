@@ -1,6 +1,5 @@
 package com.hideaki.kk_reminder;
 
-import android.annotation.SuppressLint;
 import android.app.AlarmManager;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
@@ -12,18 +11,22 @@ import android.graphics.BitmapFactory;
 import android.graphics.Color;
 import android.net.Uri;
 import android.os.PowerManager;
-import android.support.v4.app.NotificationCompat;
 
 import java.util.Locale;
 import java.util.Set;
 import java.util.TreeSet;
 
+import androidx.core.app.NotificationCompat;
+
 import static android.content.Context.MODE_PRIVATE;
 import static com.google.common.base.Preconditions.checkNotNull;
+import static com.hideaki.kk_reminder.StartupReceiver.getDynamicContext;
+import static com.hideaki.kk_reminder.StartupReceiver.getIsDirectBootContext;
 import static com.hideaki.kk_reminder.UtilClass.BOOT_FROM_NOTIFICATION;
 import static com.hideaki.kk_reminder.UtilClass.CHILD_NOTIFICATION_ID;
 import static com.hideaki.kk_reminder.UtilClass.HOUR;
 import static com.hideaki.kk_reminder.UtilClass.INT_GENERAL;
+import static com.hideaki.kk_reminder.UtilClass.INT_GENERAL_COPY;
 import static com.hideaki.kk_reminder.UtilClass.ITEM;
 import static com.hideaki.kk_reminder.UtilClass.LOCALE;
 import static com.hideaki.kk_reminder.UtilClass.MINUTE;
@@ -32,6 +35,8 @@ import static com.hideaki.kk_reminder.UtilClass.PARENT_NOTIFICATION_ID;
 import static com.hideaki.kk_reminder.UtilClass.SNOOZE_DEFAULT_HOUR;
 import static com.hideaki.kk_reminder.UtilClass.SNOOZE_DEFAULT_MINUTE;
 import static com.hideaki.kk_reminder.UtilClass.STRING_GENERAL;
+import static com.hideaki.kk_reminder.UtilClass.STRING_GENERAL_COPY;
+import static com.hideaki.kk_reminder.UtilClass.copySharedPreferences;
 import static com.hideaki.kk_reminder.UtilClass.currentTimeMinutes;
 import static com.hideaki.kk_reminder.UtilClass.deserialize;
 import static com.hideaki.kk_reminder.UtilClass.serialize;
@@ -43,15 +48,19 @@ public class AlarmReceiver extends BroadcastReceiver {
   @Override
   public void onReceive(Context context, Intent intent) {
 
-    accessor = new DBAccessor(context, false);
     Item item = (Item)deserialize(intent.getByteArrayExtra(ITEM));
     checkNotNull(item);
 
+    accessor = new DBAccessor(getDynamicContext(context), getIsDirectBootContext(context));
     int time = item.getNotify_interval().getTime();
 
-    //Notification IDの生成
-    SharedPreferences stringPreferences = context.getSharedPreferences(STRING_GENERAL, MODE_PRIVATE);
-    Set<String> id_table = stringPreferences.getStringSet(NOTIFICATION_ID_TABLE, new TreeSet<String>());
+    // Notification IDの生成
+    SharedPreferences stringPreferences = getDynamicContext(context).getSharedPreferences(
+        getIsDirectBootContext(context) ? STRING_GENERAL_COPY : STRING_GENERAL,
+        MODE_PRIVATE
+    );
+    Set<String> id_table =
+        stringPreferences.getStringSet(NOTIFICATION_ID_TABLE, new TreeSet<String>());
     checkNotNull(id_table);
     int parent_id = intent.getIntExtra(PARENT_NOTIFICATION_ID, 0);
     if(parent_id == 0) {
@@ -66,6 +75,9 @@ public class AlarmReceiver extends BroadcastReceiver {
               .putStringSet(NOTIFICATION_ID_TABLE, id_table)
               .apply();
 
+          if(!getIsDirectBootContext(context)) {
+            copySharedPreferences(context, false);
+          }
           break;
         }
         parent_id += parent_plus_unit;
@@ -81,7 +93,8 @@ public class AlarmReceiver extends BroadcastReceiver {
         context, (int)System.currentTimeMillis(), open_activity, PendingIntent.FLAG_UPDATE_CURRENT
     );
 
-    NotificationCompat.Builder builder = new NotificationCompat.Builder(context, "kk_reminder_01")
+    NotificationCompat.Builder builder = new NotificationCompat
+        .Builder(context, "kk_reminder_01")
         .setContentTitle("KK Reminder")
         .setContentText(item.getDetail())
         .setSmallIcon(R.mipmap.ic_launcher)
@@ -95,15 +108,15 @@ public class AlarmReceiver extends BroadcastReceiver {
         .setColor(Color.parseColor("#FF9b0000"))
         .setColorized(true);
 
-    //通知音の設定
+    // 通知音の設定
     String uriString = item.getSoundUri();
     if(uriString != null) {
       builder.setSound(Uri.parse(uriString));
     }
 
-    //手動スヌーズ用のIntentの設定
+    // 手動スヌーズ用のIntentの設定
 
-    //完了
+    // 完了
     Intent doneIntent = new Intent(context, DoneReceiver.class);
     doneIntent.putExtra(ITEM, serialize(item));
     doneIntent.putExtra(PARENT_NOTIFICATION_ID, parent_id);
@@ -113,18 +126,25 @@ public class AlarmReceiver extends BroadcastReceiver {
     );
     builder.addAction(R.mipmap.done, context.getString(R.string.done), doneSender);
 
-    //デフォルトスヌーズ
-    SharedPreferences intPreferences = context.getSharedPreferences(INT_GENERAL, MODE_PRIVATE);
+    // デフォルトスヌーズ
+    SharedPreferences intPreferences = getDynamicContext(context).getSharedPreferences(
+        getIsDirectBootContext(context) ? INT_GENERAL_COPY : INT_GENERAL,
+        MODE_PRIVATE
+    );
     int hour = intPreferences.getInt(SNOOZE_DEFAULT_HOUR, 0);
     int minute = intPreferences.getInt(SNOOZE_DEFAULT_MINUTE, 15);
     String summary = "";
     if(hour != 0) {
       summary += context.getResources().getQuantityString(R.plurals.hour, hour, hour);
-      if(!LOCALE.equals(Locale.JAPAN)) summary += " ";
+      if(!LOCALE.equals(Locale.JAPAN)) {
+        summary += " ";
+      }
     }
     if(minute != 0) {
       summary += context.getResources().getQuantityString(R.plurals.minute, minute, minute);
-      if(!LOCALE.equals(Locale.JAPAN)) summary += " ";
+      if(!LOCALE.equals(Locale.JAPAN)) {
+        summary += " ";
+      }
     }
     summary += context.getString(R.string.snooze);
 
@@ -137,7 +157,7 @@ public class AlarmReceiver extends BroadcastReceiver {
     );
     builder.addAction(R.mipmap.update, summary, defaultSnoozeSender);
 
-    //細かいスヌーズ
+    // 細かいスヌーズ
     Intent advancedSnoozeIntent = new Intent(context, ManuallySnoozeActivity.class);
     advancedSnoozeIntent.putExtra(ITEM, serialize(item));
     advancedSnoozeIntent.putExtra(PARENT_NOTIFICATION_ID, parent_id);
@@ -145,25 +165,31 @@ public class AlarmReceiver extends BroadcastReceiver {
     PendingIntent snoozeSender = PendingIntent.getActivity(
         context, (int)item.getId(), advancedSnoozeIntent, PendingIntent.FLAG_UPDATE_CURRENT
     );
-    builder.addAction(R.mipmap.snooze, context.getString(R.string.more_advanced_snooze), snoozeSender);
+    builder.addAction(
+        R.mipmap.snooze,
+        context.getString(R.string.more_advanced_snooze),
+        snoozeSender
+    );
 
-    //通知を発行
-    NotificationManager manager = (NotificationManager)context.getSystemService(Context.NOTIFICATION_SERVICE);
+    // 通知を発行
+    NotificationManager manager =
+        (NotificationManager)context.getSystemService(Context.NOTIFICATION_SERVICE);
     checkNotNull(manager);
     manager.notify(parent_id + child_id, builder.build());
 
-    //ロックされている場合、画面を点ける
+    // ロックされている場合、画面を点ける
     PowerManager powerManager = (PowerManager)context.getSystemService(Context.POWER_SERVICE);
     checkNotNull(powerManager);
-    @SuppressLint("InvalidWakeLockTag") PowerManager.WakeLock wakeLock = powerManager.newWakeLock(
+    PowerManager.WakeLock wakeLock = powerManager.newWakeLock(
         PowerManager.FULL_WAKE_LOCK |
-            PowerManager.ACQUIRE_CAUSES_WAKEUP |
-            PowerManager.ON_AFTER_RELEASE, "Notification");
+        PowerManager.ACQUIRE_CAUSES_WAKEUP |
+        PowerManager.ON_AFTER_RELEASE, "kk_reminder:Notification"
+    );
     if(!powerManager.isInteractive()) {
       wakeLock.acquire(10000);
     }
 
-    //再帰通知処理
+    // 再帰通知処理
     if(time != 0) {
       item.getNotify_interval().setTime(time - 1);
       Intent recursive_alarm = new Intent(context, AlarmReceiver.class);

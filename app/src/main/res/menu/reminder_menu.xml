@@ -22,7 +22,7 @@
         android:id="@+id/search_item"
         android:icon="@drawable/ic_search_white_24dp"
         android:title="@string/search_task"
-        app:actionViewClass="android.support.v7.widget.SearchView"
+        app:actionViewClass="androidx.appcompat.widget.SearchView"
         app:showAsAction="always" />
     <item
         android:id="@+id/add_item"

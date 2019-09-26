@@ -3,7 +3,9 @@ package com.hideaki.kk_reminder;
 import android.annotation.SuppressLint;
 import android.content.res.Resources;
 import android.content.res.TypedArray;
-import android.support.v7.widget.CardView;
+
+import androidx.cardview.widget.CardView;
+
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.animation.Animation;
@@ -41,7 +43,12 @@ public class ColorPickerListAdapter extends BaseAdapter {
   ColorPickerListAdapter(MainActivity activity) {
 
     this.activity = activity;
-    color_name_lists = new ArrayList<>(Arrays.asList(activity.getResources().getStringArray(R.array.colors_array)));
+    color_name_lists =
+        new ArrayList<>(Arrays.asList(
+            activity
+            .getResources()
+            .getStringArray(R.array.colors_array)
+        ));
   }
 
   private static class ViewHolder {
@@ -52,7 +59,8 @@ public class ColorPickerListAdapter extends BaseAdapter {
     ImageView pallet;
   }
 
-  private class MyOnClickListener implements View.OnClickListener, AnimCheckBox.OnCheckedChangeListener {
+  private class MyOnClickListener
+      implements View.OnClickListener, AnimCheckBox.OnCheckedChangeListener {
 
     private int position;
     private ViewHolder viewHolder;
@@ -83,7 +91,7 @@ public class ColorPickerListAdapter extends BaseAdapter {
         is_first = false;
         checked_position = position;
 
-        //チェックしたときにダイアログに表示する色を配列で指定
+        // チェックしたときにダイアログに表示する色を配列で指定
         res = activity.getResources();
         typedArraysOfArray = res.obtainTypedArray(R.array.colorsArray);
 
@@ -108,7 +116,7 @@ public class ColorPickerListAdapter extends BaseAdapter {
           colors_array[i] = colorsList.get(i);
         }
 
-        //ダイアログで選択を行わない場合も考慮してデフォルトの色を設定しておく
+        // ダイアログで選択を行わない場合も考慮してデフォルトの色を設定しておく
         int colors_id = typedArray.getResourceId(5, -1);
         checkArgument(colors_id != -1);
         colorVariationArray = res.obtainTypedArray(colors_id);
@@ -263,16 +271,19 @@ public class ColorPickerListAdapter extends BaseAdapter {
 
   @Override
   public int getCount() {
+
     return color_name_lists.size();
   }
 
   @Override
   public Object getItem(int position) {
+
     return color_name_lists.get(position);
   }
 
   @Override
   public long getItemId(int position) {
+
     return position;
   }
 
@@ -297,36 +308,40 @@ public class ColorPickerListAdapter extends BaseAdapter {
       viewHolder = (ViewHolder)convertView.getTag();
     }
 
-    //現在のビュー位置でのcolor_nameの取得とリスナーの初期化
+    // 現在のビュー位置でのcolor_nameの取得とリスナーの初期化
     String color_name = (String)getItem(position);
     MyOnClickListener listener = new MyOnClickListener(position, viewHolder);
 
-    //各リスナーの設定
+    // 各リスナーの設定
     viewHolder.color_list_card.setOnClickListener(listener);
     viewHolder.checkBox.setOnCheckedChangeListener(listener);
 
-    //各種表示処理
+    // 各種表示処理
     viewHolder.color_name.setText(color_name);
     viewHolder.color_name.setTextSize(activity.text_size);
 
-    //チェック状態の初期化
+    // チェック状態の初期化
     if(position != checked_position) {
       manually_checked = false;
       if(is_first) {
         viewHolder.checkBox.setChecked(false, false);
       }
-      else viewHolder.checkBox.setChecked(false);
+      else {
+        viewHolder.checkBox.setChecked(false);
+      }
     }
     else {
       manually_checked = false;
       if(is_first) {
         viewHolder.checkBox.setChecked(true, false);
       }
-      else viewHolder.checkBox.setChecked(true);
+      else {
+        viewHolder.checkBox.setChecked(true);
+      }
     }
     manually_checked = true;
 
-    //パレットの色を設定
+    // パレットの色を設定
     Resources res = activity.getResources();
     TypedArray typedArraysOfArray = res.obtainTypedArray(R.array.colorsArray);
 
@@ -345,7 +360,11 @@ public class ColorPickerListAdapter extends BaseAdapter {
         }
       }
       else {
-        colors_id = typedArray.getResourceId(activity.generalSettings.getTheme().getColorChild(), -1);
+        colors_id =
+            typedArray.getResourceId(
+                activity.generalSettings.getTheme().getColorChild(),
+                -1
+            );
       }
     }
     else {
@@ -362,7 +381,7 @@ public class ColorPickerListAdapter extends BaseAdapter {
     typedArray.recycle();
     typedArraysOfArray.recycle();
 
-    //CardViewが横から流れてくるアニメーション
+    // CardViewが横から流れてくるアニメーション
     if(is_scrolling && activity.play_slide_animation) {
       Animation animation = AnimationUtils.loadAnimation(activity, R.anim.listview_motion);
       convertView.startAnimation(animation);

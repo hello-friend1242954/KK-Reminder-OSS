@@ -3,9 +3,11 @@ package com.hideaki.kk_reminder;
 import android.app.Dialog;
 import android.app.TimePickerDialog;
 import android.os.Bundle;
-import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
-import android.support.v4.app.DialogFragment;
+
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.fragment.app.DialogFragment;
+
 import android.text.format.DateFormat;
 import android.widget.TimePicker;
 
@@ -13,7 +15,15 @@ import java.util.Calendar;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
-public class TimePickerDialogFragment extends DialogFragment implements TimePickerDialog.OnTimeSetListener {
+public class TimePickerDialogFragment extends DialogFragment
+    implements TimePickerDialog.OnTimeSetListener {
+
+  private MainEditFragment mainEditFragment;
+
+  TimePickerDialogFragment(MainEditFragment mainEditFragment) {
+
+    this.mainEditFragment = mainEditFragment;
+  }
 
   @NonNull
   @Override
@@ -33,6 +43,6 @@ public class TimePickerDialogFragment extends DialogFragment implements TimePick
 
     MainEditFragment.final_cal.set(Calendar.HOUR_OF_DAY, hourOfDay);
     MainEditFragment.final_cal.set(Calendar.MINUTE, minute);
-    MainEditFragment.timePicker.setTitle(DateFormat.format("kk:mm", MainEditFragment.final_cal));
+    mainEditFragment.timePicker.setTitle(DateFormat.format("kk:mm", MainEditFragment.final_cal));
   }
 }

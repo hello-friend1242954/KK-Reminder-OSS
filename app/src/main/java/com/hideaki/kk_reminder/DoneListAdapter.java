@@ -3,10 +3,12 @@ package com.hideaki.kk_reminder;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Color;
-import android.support.v4.content.ContextCompat;
-import android.support.v7.app.AlertDialog;
-import android.support.v7.view.ActionMode;
-import android.support.v7.widget.CardView;
+
+import androidx.core.content.ContextCompat;
+import androidx.appcompat.app.AlertDialog;
+import androidx.appcompat.view.ActionMode;
+import androidx.cardview.widget.CardView;
+
 import android.text.format.DateFormat;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -61,7 +63,8 @@ public class DoneListAdapter extends BaseAdapter implements Filterable {
     ImageView tagPallet;
   }
 
-  private class MyOnClickListener implements View.OnClickListener, AnimCheckBox.OnCheckedChangeListener,
+  private class MyOnClickListener
+      implements View.OnClickListener, AnimCheckBox.OnCheckedChangeListener,
       View.OnLongClickListener, ActionMode.Callback {
 
     private int position;
@@ -90,6 +93,12 @@ public class DoneListAdapter extends BaseAdapter implements Filterable {
             final String[] items = new String[3];
             if(order == 0) {
               Calendar now = Calendar.getInstance();
+              if(now.get(Calendar.SECOND) >= 30) {
+                now.add(Calendar.MINUTE, 1);
+              }
+              now.set(Calendar.SECOND, 0);
+              now.set(Calendar.MILLISECOND, 0);
+
               tmp = (Calendar)now.clone();
               tmp.set(Calendar.HOUR_OF_DAY, item.getDate().get(Calendar.HOUR_OF_DAY));
               tmp.set(Calendar.MINUTE, item.getDate().get(Calendar.MINUTE));
@@ -116,7 +125,9 @@ public class DoneListAdapter extends BaseAdapter implements Filterable {
                 .setTitle(R.string.done_task_click_title)
                 .setSingleChoiceItems(adapter, 0, new DialogInterface.OnClickListener() {
                   @Override
-                  public void onClick(DialogInterface dialog, int which) {}
+                  public void onClick(DialogInterface dialog, int which) {
+
+                  }
                 })
                 .setPositiveButton(R.string.determine, new DialogInterface.OnClickListener() {
                   @Override
@@ -145,6 +156,7 @@ public class DoneListAdapter extends BaseAdapter implements Filterable {
                 .setNeutralButton(R.string.cancel, new DialogInterface.OnClickListener() {
                   @Override
                   public void onClick(DialogInterface dialog, int which) {
+
                   }
                 })
                 .create();
@@ -163,7 +175,9 @@ public class DoneListAdapter extends BaseAdapter implements Filterable {
           else if(viewHolder.checkBox.isChecked()) {
             viewHolder.checkBox.setChecked(false);
           }
-          else viewHolder.checkBox.setChecked(true);
+          else {
+            viewHolder.checkBox.setChecked(true);
+          }
           break;
         }
       }
@@ -183,7 +197,9 @@ public class DoneListAdapter extends BaseAdapter implements Filterable {
         notifyDataSetChanged();
         checked_item_num--;
         actionMode.setTitle(Integer.toString(checked_item_num));
-        if(checked_item_num == 0) actionMode.finish();
+        if(checked_item_num == 0) {
+          actionMode.finish();
+        }
       }
     }
 
@@ -195,7 +211,9 @@ public class DoneListAdapter extends BaseAdapter implements Filterable {
         if(viewHolder.checkBox.isChecked()) {
           viewHolder.checkBox.setChecked(false);
         }
-        else viewHolder.checkBox.setChecked(true);
+        else {
+          viewHolder.checkBox.setChecked(true);
+        }
 
         return true;
       }
@@ -211,7 +229,7 @@ public class DoneListAdapter extends BaseAdapter implements Filterable {
 
       actionMode.getMenuInflater().inflate(R.menu.action_mode_menu, menu);
 
-      //ActionMode時のみツールバーとステータスバーの色を設定
+      // ActionMode時のみツールバーとステータスバーの色を設定
       Window window = activity.getWindow();
       window.clearFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS);
       window.addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS);
@@ -243,7 +261,8 @@ public class DoneListAdapter extends BaseAdapter implements Filterable {
           }
 
           String message = activity.getResources().getQuantityString(R.plurals.cab_delete_message,
-              itemListToMove.size(), itemListToMove.size()) + " (" + activity.getString(R.string.delete_dialog_message) + ")";
+              itemListToMove.size(), itemListToMove.size()
+          ) + " (" + activity.getString(R.string.delete_dialog_message) + ")";
           final AlertDialog dialog = new AlertDialog.Builder(activity)
               .setTitle(R.string.cab_delete)
               .setMessage(message)
@@ -263,6 +282,7 @@ public class DoneListAdapter extends BaseAdapter implements Filterable {
               .setNeutralButton(R.string.cancel, new DialogInterface.OnClickListener() {
                 @Override
                 public void onClick(DialogInterface dialog, int which) {
+
                 }
               })
               .create();
@@ -289,8 +309,10 @@ public class DoneListAdapter extends BaseAdapter implements Filterable {
             }
           }
 
-          String message = activity.getResources().getQuantityString(R.plurals.cab_recycle_task_message,
-              itemListToMove.size(), itemListToMove.size());
+          String message =
+              activity.getResources().getQuantityString(R.plurals.cab_recycle_task_message,
+                  itemListToMove.size(), itemListToMove.size()
+              );
           final AlertDialog dialog = new AlertDialog.Builder(activity)
               .setTitle(R.string.cab_recycle_task_title)
               .setMessage(message)
@@ -334,6 +356,7 @@ public class DoneListAdapter extends BaseAdapter implements Filterable {
               .setNeutralButton(R.string.cancel, new DialogInterface.OnClickListener() {
                 @Override
                 public void onClick(DialogInterface dialog, int which) {
+
                 }
               })
               .create();
@@ -361,7 +384,8 @@ public class DoneListAdapter extends BaseAdapter implements Filterable {
           }
 
           String message = activity.getResources().getQuantityString(R.plurals.cab_share_message,
-              itemListToMove.size(), itemListToMove.size());
+              itemListToMove.size(), itemListToMove.size()
+          );
           final AlertDialog dialog = new AlertDialog.Builder(activity)
               .setTitle(R.string.cab_share)
               .setMessage(message)
@@ -398,6 +422,7 @@ public class DoneListAdapter extends BaseAdapter implements Filterable {
               .setNeutralButton(R.string.cancel, new DialogInterface.OnClickListener() {
                 @Override
                 public void onClick(DialogInterface dialog, int which) {
+
                 }
               })
               .create();
@@ -449,7 +474,7 @@ public class DoneListAdapter extends BaseAdapter implements Filterable {
       @Override
       protected FilterResults performFiltering(CharSequence constraint) {
 
-        //入力文字列が大文字を含むかどうか調べる
+        // 入力文字列が大文字を含むかどうか調べる
         boolean is_upper = false;
         for(int i = 0; i < constraint.length(); i++) {
           if(Character.isUpperCase(constraint.charAt(i))) {
@@ -458,7 +483,7 @@ public class DoneListAdapter extends BaseAdapter implements Filterable {
           }
         }
 
-        //検索処理
+        // 検索処理
         if(activity.actionBarFragment.checkedTag == -1) {
           itemList = activity.getDoneItem();
         }
@@ -497,7 +522,7 @@ public class DoneListAdapter extends BaseAdapter implements Filterable {
 
         itemList = (List<Item>)results.values;
 
-        //リストの表示更新
+        // リストの表示更新
         notifyDataSetChanged();
       }
     };
@@ -505,16 +530,19 @@ public class DoneListAdapter extends BaseAdapter implements Filterable {
 
   @Override
   public int getCount() {
+
     return itemList.size();
   }
 
   @Override
   public Object getItem(int position) {
+
     return itemList.get(position);
   }
 
   @Override
   public long getItemId(int position) {
+
     return position;
   }
 
@@ -553,18 +581,18 @@ public class DoneListAdapter extends BaseAdapter implements Filterable {
       viewHolder = (ViewHolder)convertView.getTag();
     }
 
-    //現在のビュー位置でのitemの取得とリスナーの初期化
+    // 現在のビュー位置でのitemの取得とリスナーの初期化
     Item item = (Item)getItem(position);
     MyOnClickListener listener = new MyOnClickListener(position, item, viewHolder);
 
-    //各リスナーの設定
+    // 各リスナーの設定
     viewHolder.item_card.setOnClickListener(listener);
     viewHolder.checkBox.setOnCheckedChangeListener(listener);
 
     viewHolder.item_card.setOnLongClickListener(listener);
     viewHolder.checkBox.setOnLongClickListener(listener);
 
-    //各種表示処理
+    // 各種表示処理
     viewHolder.detail.setText(item.getDetail());
     viewHolder.detail.setTextSize(activity.text_size);
     viewHolder.detail.setTextColor(Color.GRAY);
@@ -578,7 +606,7 @@ public class DoneListAdapter extends BaseAdapter implements Filterable {
       );
     }
 
-    //チェックが入っている場合、チェックを外す
+    // チェックが入っている場合、チェックを外す
     if(viewHolder.checkBox.isChecked() && !item.isSelected()) {
       manually_checked = false;
       viewHolder.checkBox.setChecked(false);
@@ -589,11 +617,15 @@ public class DoneListAdapter extends BaseAdapter implements Filterable {
     }
     manually_checked = true;
 
-    //選択モードでない場合、チェックボックスを無効にする
-    if(actionMode == null) viewHolder.checkBox.setEnabled(false);
-    else viewHolder.checkBox.setEnabled(true);
+    // 選択モードでない場合、チェックボックスを無効にする
+    if(actionMode == null) {
+      viewHolder.checkBox.setEnabled(false);
+    }
+    else {
+      viewHolder.checkBox.setEnabled(true);
+    }
 
-    //個別レイアウト
+    // 個別レイアウト
     if(order == 0) {
       viewHolder.clock_image.setColorFilter(Color.GRAY);
 
@@ -625,7 +657,7 @@ public class DoneListAdapter extends BaseAdapter implements Filterable {
       viewHolder.order_icon.setVisibility(View.GONE);
     }
 
-    //CardViewが横から流れてくるアニメーション
+    // CardViewが横から流れてくるアニメーション
     if(is_scrolling && activity.play_slide_animation) {
       Animation animation = AnimationUtils.loadAnimation(activity, R.anim.listview_motion);
       convertView.startAnimation(animation);

@@ -3,12 +3,15 @@ package com.hideaki.kk_reminder;
 import android.app.Dialog;
 import android.content.DialogInterface;
 import android.graphics.PorterDuff;
+import android.graphics.PorterDuffColorFilter;
 import android.graphics.drawable.GradientDrawable;
 import android.os.Bundle;
-import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
-import android.support.v4.app.DialogFragment;
-import android.support.v7.app.AlertDialog;
+
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.fragment.app.DialogFragment;
+import androidx.appcompat.app.AlertDialog;
+
 import android.view.View;
 import android.view.Window;
 import android.view.WindowManager;
@@ -24,6 +27,12 @@ import static com.hideaki.kk_reminder.UtilClass.setCursorDrawableColor;
 public class MinuteRepeatCountPickerDialogFragment extends DialogFragment {
 
   private EditText count;
+  private MinuteRepeatEditFragment minuteRepeatEditFragment;
+
+  MinuteRepeatCountPickerDialogFragment(MinuteRepeatEditFragment minuteRepeatEditFragment) {
+
+    this.minuteRepeatEditFragment = minuteRepeatEditFragment;
+  }
 
   @NonNull
   @Override
@@ -35,7 +44,10 @@ public class MinuteRepeatCountPickerDialogFragment extends DialogFragment {
 
     count = view.findViewById(R.id.count);
     setCursorDrawableColor(count);
-    count.getBackground().mutate().setColorFilter(activity.accent_color, PorterDuff.Mode.SRC_IN);
+    count.getBackground().mutate().setColorFilter(new PorterDuffColorFilter(
+        activity.accent_color,
+        PorterDuff.Mode.SRC_IN
+    ));
     count.setText(String.valueOf(MainEditFragment.minuteRepeat.getOrg_count()));
     count.setSelection(count.getText().length());
 
@@ -97,29 +109,41 @@ public class MinuteRepeatCountPickerDialogFragment extends DialogFragment {
               int hour = MainEditFragment.minuteRepeat.getHour();
               if(hour != 0) {
                 interval += activity.getResources().getQuantityString(R.plurals.hour, hour, hour);
-                if(!LOCALE.equals(Locale.JAPAN)) interval += " ";
+                if(!LOCALE.equals(Locale.JAPAN)) {
+                  interval += " ";
+                }
               }
               int minute = MainEditFragment.minuteRepeat.getMinute();
               if(minute != 0) {
-                interval += activity.getResources().getQuantityString(R.plurals.minute, minute, minute);
-                if(!LOCALE.equals(Locale.JAPAN)) interval += " ";
+                interval +=
+                    activity.getResources().getQuantityString(R.plurals.minute, minute, minute);
+                if(!LOCALE.equals(Locale.JAPAN)) {
+                  interval += " ";
+                }
               }
               int count = MainEditFragment.minuteRepeat.getOrg_count();
-              String label = activity.getResources().getQuantityString(R.plurals.repeat_minute_count_format,
-                  count, interval, count);
+              String label =
+                  activity.getResources().getQuantityString(R.plurals.repeat_minute_count_format,
+                      count, interval, count
+                  );
               MinuteRepeatEditFragment.label_str = label;
-              MinuteRepeatEditFragment.label.setSummary(label);
+              minuteRepeatEditFragment.label.setSummary(label);
 
               MainEditFragment.minuteRepeat.setLabel(label);
 
-              //項目のタイトル部に現在の設定値を表示
-              MinuteRepeatEditFragment.count_picker.setTitle(getResources().getQuantityString(R.plurals.times, count, count));
+              // 項目のタイトル部に現在の設定値を表示
+              minuteRepeatEditFragment.count_picker.setTitle(getResources().getQuantityString(
+                  R.plurals.times,
+                  count,
+                  count
+              ));
             }
           }
         })
         .setNeutralButton(R.string.cancel, new DialogInterface.OnClickListener() {
           @Override
           public void onClick(DialogInterface dialog, int which) {
+
           }
         })
         .setView(view)
@@ -134,10 +158,11 @@ public class MinuteRepeatCountPickerDialogFragment extends DialogFragment {
       }
     });
 
-    //ダイアログ表示時にソフトキーボードを自動で表示
+    // ダイアログ表示時にソフトキーボードを自動で表示
     count.setOnFocusChangeListener(new View.OnFocusChangeListener() {
       @Override
       public void onFocusChange(View v, boolean hasFocus) {
+
         if(hasFocus) {
           Window dialogWindow = dialog.getWindow();
           checkNotNull(dialogWindow);

@@ -2,8 +2,10 @@ package com.hideaki.kk_reminder;
 
 import android.content.Context;
 import android.content.ContextWrapper;
-import android.support.v7.preference.Preference;
-import android.support.v7.preference.PreferenceViewHolder;
+
+import androidx.preference.Preference;
+import androidx.preference.PreferenceViewHolder;
+
 import android.text.format.DateFormat;
 import android.util.AttributeSet;
 import android.view.View;
@@ -46,9 +48,13 @@ public class DefaultTextSizeModelPreference extends Preference {
     }
 
     set_time += " (";
-    if(!LOCALE.equals(Locale.JAPAN)) set_time += " ";
+    if(!LOCALE.equals(Locale.JAPAN)) {
+      set_time += " ";
+    }
     set_time += activity.getString(R.string.within_one_minute);
-    if(!LOCALE.equals(Locale.JAPAN)) set_time += " ";
+    if(!LOCALE.equals(Locale.JAPAN)) {
+      set_time += " ";
+    }
     set_time += ")";
 
     date.setText(set_time);

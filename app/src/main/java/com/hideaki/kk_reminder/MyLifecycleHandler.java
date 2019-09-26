@@ -4,10 +4,16 @@ import android.app.Activity;
 import android.app.Application;
 import android.os.Bundle;
 
+import androidx.annotation.NonNull;
+
 import static android.content.Context.MODE_PRIVATE;
+import static com.hideaki.kk_reminder.StartupReceiver.getDynamicContext;
+import static com.hideaki.kk_reminder.StartupReceiver.getIsDirectBootContext;
 import static com.hideaki.kk_reminder.UtilClass.CREATED;
 import static com.hideaki.kk_reminder.UtilClass.DESTROYED;
 import static com.hideaki.kk_reminder.UtilClass.INT_GENERAL;
+import static com.hideaki.kk_reminder.UtilClass.INT_GENERAL_COPY;
+import static com.hideaki.kk_reminder.UtilClass.copySharedPreferences;
 
 public class MyLifecycleHandler implements Application.ActivityLifecycleCallbacks {
 
@@ -19,28 +25,30 @@ public class MyLifecycleHandler implements Application.ActivityLifecycleCallback
 //  private int stopped;
 
   @Override
-  public void onActivityCreated(Activity activity, Bundle savedInstanceState) {
+  public void onActivityCreated(@NonNull Activity activity, Bundle savedInstanceState) {
 
-    created++;
-    saveCountInSharedPreferences(activity);
+    if(activity instanceof MainActivity) {
+      created++;
+      saveCountInSharedPreferences(activity);
+    }
   }
 
   @Override
-  public void onActivityStarted(Activity activity) {
+  public void onActivityStarted(@NonNull Activity activity) {
 
 //    started++;
 //    saveCountInSharedPreferences(activity);
   }
 
   @Override
-  public void onActivityResumed(Activity activity) {
+  public void onActivityResumed(@NonNull Activity activity) {
 
 //    resumed++;
 //    saveCountInSharedPreferences(activity);
   }
 
   @Override
-  public void onActivityPaused(Activity activity) {
+  public void onActivityPaused(@NonNull Activity activity) {
 
 //    paused++;
 //    if(resumed == paused) {
@@ -51,7 +59,7 @@ public class MyLifecycleHandler implements Application.ActivityLifecycleCallback
   }
 
   @Override
-  public void onActivityStopped(Activity activity) {
+  public void onActivityStopped(@NonNull Activity activity) {
 
 //    stopped++;
 //    if(started == stopped) {
@@ -62,23 +70,32 @@ public class MyLifecycleHandler implements Application.ActivityLifecycleCallback
   }
 
   @Override
-  public void onActivitySaveInstanceState(Activity activity, Bundle outState) {}
+  public void onActivitySaveInstanceState(@NonNull Activity activity, @NonNull Bundle outState) {
+
+  }
 
   @Override
-  public void onActivityDestroyed(Activity activity) {
+  public void onActivityDestroyed(@NonNull Activity activity) {
 
-    destroyed++;
-    if(created == destroyed) {
-      created = 0;
-      destroyed = 0;
+    if(activity instanceof MainActivity) {
+      destroyed++;
+      if(created == destroyed) {
+        created = 0;
+        destroyed = 0;
+      }
+      saveCountInSharedPreferences(activity);
+
+      copySharedPreferences(activity, false);
     }
-    saveCountInSharedPreferences(activity);
   }
 
   private void saveCountInSharedPreferences(Activity activity) {
 
-    activity
-        .getSharedPreferences(INT_GENERAL, MODE_PRIVATE)
+    getDynamicContext(activity)
+        .getSharedPreferences(
+            getIsDirectBootContext(activity) ? INT_GENERAL_COPY : INT_GENERAL,
+            MODE_PRIVATE
+        )
         .edit()
         .putInt(CREATED, created)
         .putInt(DESTROYED, destroyed)

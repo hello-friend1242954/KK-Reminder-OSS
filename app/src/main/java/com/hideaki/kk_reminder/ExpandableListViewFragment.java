@@ -2,24 +2,27 @@ package com.hideaki.kk_reminder;
 
 import android.app.NotificationManager;
 import android.content.Context;
+import android.os.Build;
 import android.os.Bundle;
-import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
-import android.support.v4.app.Fragment;
-import android.support.v4.app.FragmentManager;
-import android.support.v4.content.ContextCompat;
-import android.support.v4.view.GravityCompat;
 import android.view.Gravity;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AbsListView;
+import android.widget.ExpandableListView;
 import android.widget.LinearLayout;
 
 import com.diegocarloslima.fgelv.lib.FloatingGroupExpandableListView;
 import com.google.android.gms.ads.AdRequest;
 import com.google.android.gms.ads.AdView;
+
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.core.content.ContextCompat;
+import androidx.core.view.GravityCompat;
+import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentManager;
 
 import static android.content.Context.NOTIFICATION_SERVICE;
 import static com.google.common.base.Preconditions.checkNotNull;
@@ -29,7 +32,7 @@ public class ExpandableListViewFragment extends Fragment {
 
   static final String TAG = ExpandableListViewFragment.class.getSimpleName();
   private MainActivity activity;
-  private FloatingGroupExpandableListView oldExpandableListView;
+  private ExpandableListView oldExpandableListView;
   static int position;
   static int offset;
   static int group_height;
@@ -42,7 +45,7 @@ public class ExpandableListViewFragment extends Fragment {
   }
 
   @Override
-  public void onAttach(Context context) {
+  public void onAttach(@NonNull Context context) {
 
     super.onAttach(context);
     activity = (MainActivity)context;
@@ -78,21 +81,39 @@ public class ExpandableListViewFragment extends Fragment {
     super.onDestroyView();
     position = oldExpandableListView.getFirstVisiblePosition();
     View child = oldExpandableListView.getChildAt(0);
-    if(child != null) offset = child.getTop();
+    if(child != null) {
+      offset = child.getTop();
+    }
   }
 
   @Nullable
   @Override
-  public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, Bundle savedInstanceState) {
+  public View onCreateView(
+      @NonNull LayoutInflater inflater,
+      @Nullable ViewGroup container,
+      Bundle savedInstanceState
+  ) {
 
     isGetTagNull = false;
 
-    //すべての通知を既読する
-    NotificationManager manager = (NotificationManager)activity.getSystemService(NOTIFICATION_SERVICE);
+    // すべての通知を既読する
+    NotificationManager manager =
+        (NotificationManager)activity.getSystemService(NOTIFICATION_SERVICE);
     checkNotNull(manager);
     manager.cancelAll();
 
-    View view = inflater.inflate(R.layout.expandable_listview, container, false);
+    View view;
+    if(Build.VERSION.SDK_INT <= Build.VERSION_CODES.P) {
+      view =
+          inflater.inflate(
+              R.layout.expandable_listview_less_than_or_equal_api_28,
+              container,
+              false
+          );
+    }
+    else {
+      view = inflater.inflate(R.layout.expandable_listview, container, false);
+    }
     view.setBackgroundColor(ContextCompat.getColor(activity, android.R.color.background_light));
     view.setFocusableInTouchMode(true);
     view.requestFocus();
@@ -118,7 +139,10 @@ public class ExpandableListViewFragment extends Fragment {
     LinearLayout linearLayout = new LinearLayout(activity);
     linearLayout.setOrientation(LinearLayout.VERTICAL);
     LinearLayout.LayoutParams layoutParams =
-        new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.MATCH_PARENT);
+        new LinearLayout.LayoutParams(
+            LinearLayout.LayoutParams.MATCH_PARENT,
+            LinearLayout.LayoutParams.MATCH_PARENT
+        );
     layoutParams.gravity = Gravity.CENTER;
     layoutParams.weight = 1;
     layoutParams.height = 0;
@@ -130,7 +154,12 @@ public class ExpandableListViewFragment extends Fragment {
     ((ViewGroup)activity.expandableListView.getParent()).addView(linearLayout, 0, layoutParams);
     activity.expandableListView.setEmptyView(linearLayout);
     setPosition();
-    activity.expandableListView.setAdapter(activity.wrapperAdapter);
+    if(Build.VERSION.SDK_INT <= Build.VERSION_CODES.P) {
+      activity.expandableListView.setAdapter(activity.wrapperAdapter);
+    }
+    else {
+      activity.expandableListView.setAdapter(activity.expandableListAdapter);
+    }
     activity.expandableListView.setTextFilterEnabled(true);
     activity.expandableListView.setOnScrollListener(new AbsListView.OnScrollListener() {
       @Override
@@ -153,11 +182,20 @@ public class ExpandableListViewFragment extends Fragment {
       }
 
       @Override
-      public void onScroll(AbsListView view, int firstVisibleItem, int visibleItemCount, int totalItemCount) {}
+      public void onScroll(
+          AbsListView view,
+          int firstVisibleItem,
+          int visibleItemCount,
+          int totalItemCount
+      ) {
+
+      }
     });
 
     AdView adView = view.findViewById(R.id.adView);
-    if(activity.is_premium) adView.setVisibility(View.GONE);
+    if(activity.is_premium) {
+      adView.setVisibility(View.GONE);
+    }
     else {
       AdRequest adRequest = new AdRequest.Builder().build();
       adView.loadAd(adRequest);
@@ -184,7 +222,9 @@ public class ExpandableListViewFragment extends Fragment {
         activity.expandableListView.setSelectionFromTop(position, offset);
         if(position == 0 && offset == 0 && group_height == 0) {
           View child = activity.expandableListView.getChildAt(0);
-          if(child != null) group_height = child.getHeight();
+          if(child != null) {
+            group_height = child.getHeight();
+          }
         }
       }
     });

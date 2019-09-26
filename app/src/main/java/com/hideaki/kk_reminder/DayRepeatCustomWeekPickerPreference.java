@@ -1,9 +1,11 @@
 package com.hideaki.kk_reminder;
 
 import android.content.Context;
-import android.support.constraint.ConstraintLayout;
-import android.support.v7.preference.Preference;
-import android.support.v7.preference.PreferenceViewHolder;
+
+import androidx.constraintlayout.widget.ConstraintLayout;
+import androidx.preference.Preference;
+import androidx.preference.PreferenceViewHolder;
+
 import android.util.AttributeSet;
 import android.view.View;
 import android.widget.TableLayout;
@@ -11,7 +13,8 @@ import android.widget.TableRow;
 
 import java.util.Calendar;
 
-public class DayRepeatCustomWeekPickerPreference extends Preference implements AnimCheckBox.OnCheckedChangeListener, View.OnClickListener {
+public class DayRepeatCustomWeekPickerPreference extends Preference
+    implements AnimCheckBox.OnCheckedChangeListener, View.OnClickListener {
 
   private AnimCheckBox checkBox;
   private int mask_num;
@@ -44,7 +47,9 @@ public class DayRepeatCustomWeekPickerPreference extends Preference implements A
       for(int j = 0; j < table_row_size; j++) {
         ConstraintLayout constraintLayout = (ConstraintLayout)tableRow.getChildAt(j);
         checkBox = (AnimCheckBox)constraintLayout.getChildAt(0);
-        if((week & (1 << (i * 5 + j))) != 0) checkBox.setChecked(true, false);
+        if((week & (1 << (i * 5 + j))) != 0) {
+          checkBox.setChecked(true, false);
+        }
         constraintLayout.setOnClickListener(this);
         checkBox.setOnCheckedChangeListener(this);
       }
@@ -57,7 +62,9 @@ public class DayRepeatCustomWeekPickerPreference extends Preference implements A
     checkBox = view;
     mask_num = Integer.parseInt(checkBox.getTag().toString());
 
-    if(checkBox.isChecked()) week |= (1 << mask_num);
+    if(checkBox.isChecked()) {
+      week |= (1 << mask_num);
+    }
     else {
       week &= ~(1 << mask_num);
       if(week == 0) {

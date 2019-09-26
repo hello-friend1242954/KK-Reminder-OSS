@@ -1,13 +1,16 @@
 package com.hideaki.kk_reminder;
 
 import android.content.Context;
-import android.support.annotation.Nullable;
+
+import androidx.annotation.Nullable;
+
 import android.util.AttributeSet;
 import android.widget.Checkable;
 
-public class CheckableTextView extends android.support.v7.widget.AppCompatTextView implements Checkable {
+public class CheckableTextView extends androidx.appcompat.widget.AppCompatTextView
+    implements Checkable {
 
-  private static final int[] CHECKED_STATE_SET = { android.R.attr.state_checked };
+  private static final int[] CHECKED_STATE_SET = {android.R.attr.state_checked};
 
   private boolean mChecked;
 
@@ -19,7 +22,9 @@ public class CheckableTextView extends android.support.v7.widget.AppCompatTextVi
   @Override
   public void setChecked(boolean checked) {
 
-    if(mChecked != checked) mChecked = !mChecked;
+    if(mChecked != checked) {
+      mChecked = !mChecked;
+    }
     refreshDrawableState();
   }
 
@@ -39,7 +44,9 @@ public class CheckableTextView extends android.support.v7.widget.AppCompatTextVi
   protected int[] onCreateDrawableState(int extraSpace) {
 
     final int[] drawableState = super.onCreateDrawableState(extraSpace + 1);
-    if(isChecked()) mergeDrawableStates(drawableState, CHECKED_STATE_SET);
+    if(isChecked()) {
+      mergeDrawableStates(drawableState, CHECKED_STATE_SET);
+    }
 
     return drawableState;
   }

@@ -1,7 +1,9 @@
 package com.hideaki.kk_reminder;
 
 import android.os.Handler;
-import android.support.constraint.ConstraintLayout;
+
+import androidx.constraintlayout.widget.ConstraintLayout;
+
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
@@ -34,7 +36,8 @@ public class NotesDoneListAdapter extends BaseAdapter {
     TextView string;
   }
 
-  private class MyOnClickListener implements View.OnClickListener, AnimCheckBox.OnCheckedChangeListener {
+  private class MyOnClickListener
+      implements View.OnClickListener, AnimCheckBox.OnCheckedChangeListener {
 
     private int position;
     private Notes notes;
@@ -76,7 +79,7 @@ public class NotesDoneListAdapter extends BaseAdapter {
       Collections.sort(NotesTodoListAdapter.notesList, NOTES_COMPARATOR);
       notesList.remove(position);
 
-      //todoListにおけるheaderの管理
+      // todoListにおけるheaderの管理
       int todo_list_size = NotesTodoListAdapter.notesList.size();
       if(todo_list_size != 0 && fragment.sortableListView.getHeaderViewsCount() == 0) {
         fragment.sortableListView.addHeaderView(fragment.todoHeader);
@@ -87,7 +90,7 @@ public class NotesDoneListAdapter extends BaseAdapter {
         fragment.sortItem.setVisible(false);
       }
 
-      //doneListにおけるheaderの管理
+      // doneListにおけるheaderの管理
       int done_list_size = notesList.size();
       if(done_list_size != 0 && fragment.listView.getHeaderViewsCount() == 0) {
         fragment.listView.addHeaderView(fragment.doneHeader);
@@ -114,16 +117,19 @@ public class NotesDoneListAdapter extends BaseAdapter {
 
   @Override
   public int getCount() {
+
     return notesList.size();
   }
 
   @Override
   public Object getItem(int position) {
+
     return notesList.get(position);
   }
 
   @Override
   public long getItemId(int position) {
+
     return position;
   }
 
@@ -133,7 +139,8 @@ public class NotesDoneListAdapter extends BaseAdapter {
     final ViewHolder viewHolder;
 
     if(convertView == null || convertView.getTag() == null) {
-      convertView = View.inflate(parent.getContext(), R.layout.notes_checklist_done_item_layout, null);
+      convertView =
+          View.inflate(parent.getContext(), R.layout.notes_checklist_done_item_layout, null);
 
       viewHolder = new ViewHolder();
       viewHolder.notesItem = convertView.findViewById(R.id.notes_item);
@@ -146,15 +153,15 @@ public class NotesDoneListAdapter extends BaseAdapter {
       viewHolder = (ViewHolder)convertView.getTag();
     }
 
-    //現在のビュー位置でのtagの取得とリスナーの初期化
+    // 現在のビュー位置でのtagの取得とリスナーの初期化
     Notes notes = (Notes)getItem(position);
     MyOnClickListener listener = new MyOnClickListener(position, notes, viewHolder);
 
-    //リスナーの設定
+    // リスナーの設定
     viewHolder.notesItem.setOnClickListener(listener);
     viewHolder.checkBox.setOnCheckedChangeListener(listener);
 
-    //チェック状態の初期化
+    // チェック状態の初期化
     if(isFirst) {
       viewHolder.checkBox.setChecked(true, false);
     }
@@ -162,7 +169,7 @@ public class NotesDoneListAdapter extends BaseAdapter {
       viewHolder.checkBox.setChecked(true);
     }
 
-    //各種表示処理
+    // 各種表示処理
     viewHolder.string.setText(notes.getString());
 
     return convertView;

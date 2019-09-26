@@ -3,13 +3,15 @@ package com.hideaki.kk_reminder;
 import android.annotation.SuppressLint;
 import android.content.Context;
 import android.os.Bundle;
-import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
-import android.support.v4.app.Fragment;
-import android.support.v4.app.FragmentManager;
-import android.support.v4.content.ContextCompat;
-import android.support.v4.view.GravityCompat;
-import android.support.v7.app.AlertDialog;
+
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentManager;
+import androidx.core.content.ContextCompat;
+import androidx.core.view.GravityCompat;
+import androidx.appcompat.app.AlertDialog;
+
 import android.view.Gravity;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
@@ -33,9 +35,9 @@ public class ListViewFragment extends Fragment {
   static final String TAG = ListViewFragment.class.getSimpleName();
   private MainActivity activity;
   @SuppressLint("UseSparseArrays")
-  static Map<Long, Integer> listPosition = new HashMap<>();
+  private static Map<Long, Integer> listPosition = new HashMap<>();
   @SuppressLint("UseSparseArrays")
-  static Map<Long, Integer> listOffset = new HashMap<>();
+  private static Map<Long, Integer> listOffset = new HashMap<>();
   private ListView oldListView;
   private long id;
 
@@ -45,7 +47,7 @@ public class ListViewFragment extends Fragment {
   }
 
   @Override
-  public void onAttach(Context context) {
+  public void onAttach(@NonNull Context context) {
 
     super.onAttach(context);
     activity = (MainActivity)context;
@@ -73,17 +75,25 @@ public class ListViewFragment extends Fragment {
     super.onDestroyView();
     listPosition.put(id, oldListView.getFirstVisiblePosition());
     View child = oldListView.getChildAt(0);
-    if(child != null) listOffset.put(id, child.getTop());
+    if(child != null) {
+      listOffset.put(id, child.getTop());
+    }
   }
 
   @Nullable
   @Override
-  public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, Bundle savedInstanceState) {
+  public View onCreateView(
+      @NonNull LayoutInflater inflater,
+      @Nullable ViewGroup container,
+      Bundle savedInstanceState
+  ) {
 
     if(activity.whichMenuOpen > 0) {
       id = activity.generalSettings.getNonScheduledLists().get(activity.whichMenuOpen - 1).getId();
     }
-    else id = 0;
+    else {
+      id = 0;
+    }
 
     View view = inflater.inflate(R.layout.listview, container, false);
     view.setBackgroundColor(ContextCompat.getColor(activity, android.R.color.background_light));
@@ -122,7 +132,10 @@ public class ListViewFragment extends Fragment {
     LinearLayout linearLayout = new LinearLayout(activity);
     linearLayout.setOrientation(LinearLayout.VERTICAL);
     LinearLayout.LayoutParams layoutParams =
-        new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.MATCH_PARENT);
+        new LinearLayout.LayoutParams(
+            LinearLayout.LayoutParams.MATCH_PARENT,
+            LinearLayout.LayoutParams.MATCH_PARENT
+        );
     layoutParams.gravity = Gravity.CENTER;
     layoutParams.weight = 1;
     layoutParams.height = 0;
@@ -141,8 +154,12 @@ public class ListViewFragment extends Fragment {
 
         Integer list_position = listPosition.get(id);
         Integer list_offset = listOffset.get(id);
-        if(list_position == null) list_position = 0;
-        if(list_offset == null) list_offset = 0;
+        if(list_position == null) {
+          list_position = 0;
+        }
+        if(list_offset == null) {
+          list_offset = 0;
+        }
         activity.listView.setSelectionFromTop(list_position, list_offset);
       }
     });
@@ -169,11 +186,20 @@ public class ListViewFragment extends Fragment {
       }
 
       @Override
-      public void onScroll(AbsListView view, int firstVisibleItem, int visibleItemCount, int totalItemCount) {}
+      public void onScroll(
+          AbsListView view,
+          int firstVisibleItem,
+          int visibleItemCount,
+          int totalItemCount
+      ) {
+
+      }
     });
 
     AdView adView = view.findViewById(R.id.adView);
-    if(activity.is_premium) adView.setVisibility(View.GONE);
+    if(activity.is_premium) {
+      adView.setVisibility(View.GONE);
+    }
     else {
       AdRequest adRequest = new AdRequest.Builder().build();
       adView.loadAd(adRequest);

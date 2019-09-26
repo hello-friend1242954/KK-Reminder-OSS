@@ -1,7 +1,9 @@
 package com.hideaki.kk_reminder;
 
 import android.os.Handler;
-import android.support.constraint.ConstraintLayout;
+
+import androidx.constraintlayout.widget.ConstraintLayout;
+
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
@@ -81,7 +83,7 @@ public class NotesTodoListAdapter extends BaseAdapter {
       Collections.sort(NotesDoneListAdapter.notesList, NOTES_COMPARATOR);
       notesList.remove(position);
 
-      //todoListにおけるheaderの管理
+      // todoListにおけるheaderの管理
       int todoListSize = notesList.size();
       if(todoListSize != 0 && fragment.sortableListView.getHeaderViewsCount() == 0) {
         fragment.sortableListView.addHeaderView(fragment.todoHeader);
@@ -92,7 +94,7 @@ public class NotesTodoListAdapter extends BaseAdapter {
         fragment.sortItem.setVisible(false);
       }
 
-      //doneListにおけるheaderの管理
+      // doneListにおけるheaderの管理
       int doneListSize = NotesDoneListAdapter.notesList.size();
       if(doneListSize != 0) {
         NotesDoneListAdapter.isFirst = true;
@@ -198,21 +200,21 @@ public class NotesTodoListAdapter extends BaseAdapter {
       viewHolder = (ViewHolder)convertView.getTag();
     }
 
-    //現在のビュー位置でのtagの取得とリスナーの初期化
+    // 現在のビュー位置でのtagの取得とリスナーの初期化
     Notes notes = (Notes)getItem(position);
     MyOnClickListener listener = new MyOnClickListener(position, notes, viewHolder);
 
-    //リスナーの設定
+    // リスナーの設定
     viewHolder.notesItem.setOnClickListener(listener);
     viewHolder.checkBox.setOnCheckedChangeListener(listener);
 
-    //各種表示処理
+    // 各種表示処理
     viewHolder.string.setText(notes.getString());
 
-    //チェック状態の初期化
+    // チェック状態の初期化
     viewHolder.checkBox.setChecked(false);
 
-    //タグの左にあるアイコンの表示設定
+    // タグの左にあるアイコンの表示設定
     if(isSorting) {
       viewHolder.hamburgerIcon.setVisibility(View.VISIBLE);
       viewHolder.checkBox.setVisibility(View.GONE);
@@ -222,7 +224,7 @@ public class NotesTodoListAdapter extends BaseAdapter {
       viewHolder.checkBox.setVisibility(View.VISIBLE);
     }
 
-    //並び替え中にドラッグしているアイテムが二重に表示されないようにする
+    // 並び替え中にドラッグしているアイテムが二重に表示されないようにする
     convertView.setVisibility(position == draggingPosition ? View.INVISIBLE : View.VISIBLE);
 
     return convertView;

@@ -3,14 +3,17 @@ package com.hideaki.kk_reminder;
 import android.content.Context;
 import android.content.res.Resources;
 import android.os.Bundle;
-import android.support.annotation.Nullable;
-import android.support.v4.app.FragmentManager;
-import android.support.v4.content.ContextCompat;
-import android.support.v7.app.ActionBar;
-import android.support.v7.preference.CheckBoxPreference;
-import android.support.v7.preference.Preference;
-import android.support.v7.preference.PreferenceScreen;
-import android.support.v7.widget.Toolbar;
+
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.fragment.app.FragmentManager;
+import androidx.core.content.ContextCompat;
+import androidx.appcompat.app.ActionBar;
+import androidx.preference.CheckBoxPreference;
+import androidx.preference.Preference;
+import androidx.preference.PreferenceScreen;
+import androidx.appcompat.widget.Toolbar;
+
 import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
@@ -22,7 +25,8 @@ import static com.google.common.base.Preconditions.checkNotNull;
 import static com.hideaki.kk_reminder.UtilClass.LOCALE;
 
 public class NotifyIntervalEditFragment extends BasePreferenceFragmentCompat
-    implements Preference.OnPreferenceClickListener, MyCheckBoxPreference.MyCheckBoxPreferenceCheckedChangeListener {
+    implements Preference.OnPreferenceClickListener,
+    MyCheckBoxPreference.MyCheckBoxPreferenceCheckedChangeListener {
 
   private MainActivity activity;
   private PreferenceScreen rootPreferenceScreen;
@@ -34,11 +38,11 @@ public class NotifyIntervalEditFragment extends BasePreferenceFragmentCompat
   private CheckBoxPreference everyThirtyMinutes;
   private CheckBoxPreference everyHour;
   private CheckBoxPreference everyDay;
-  static CheckBoxPreference custom;
+  private CheckBoxPreference custom;
   private PreferenceScreen custom_description;
-  static PreferenceScreen duration;
-  static PreferenceScreen time;
-  static PreferenceScreen label;
+  PreferenceScreen duration;
+  PreferenceScreen time;
+  PreferenceScreen label;
 
   public static NotifyIntervalEditFragment newInstance() {
 
@@ -46,7 +50,7 @@ public class NotifyIntervalEditFragment extends BasePreferenceFragmentCompat
   }
 
   @Override
-  public void onAttach(Context context) {
+  public void onAttach(@NonNull Context context) {
 
     super.onAttach(context);
     activity = (MainActivity)context;
@@ -87,7 +91,11 @@ public class NotifyIntervalEditFragment extends BasePreferenceFragmentCompat
   }
 
   @Override
-  public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
+  public View onCreateView(
+      LayoutInflater inflater,
+      @Nullable ViewGroup container,
+      @Nullable Bundle savedInstanceState
+  ) {
 
     View view = super.onCreateView(inflater, container, savedInstanceState);
     checkNotNull(view);
@@ -104,7 +112,7 @@ public class NotifyIntervalEditFragment extends BasePreferenceFragmentCompat
     actionBar.setDisplayHomeAsUpEnabled(true);
     actionBar.setTitle(R.string.interval);
 
-    //チェック状態の初期化
+    // チェック状態の初期化
     none.setChecked(false);
     defaultNotify.setChecked(false);
     everyMinute.setChecked(false);
@@ -169,11 +177,16 @@ public class NotifyIntervalEditFragment extends BasePreferenceFragmentCompat
         String summary = "";
         if(interval.getHour() != 0) {
           summary += res.getQuantityString(R.plurals.hour, interval.getHour(), interval.getHour());
-          if(!LOCALE.equals(Locale.JAPAN)) summary += " ";
+          if(!LOCALE.equals(Locale.JAPAN)) {
+            summary += " ";
+          }
         }
         if(interval.getMinute() != 0) {
-          summary += res.getQuantityString(R.plurals.minute, interval.getMinute(), interval.getMinute());
-          if(!LOCALE.equals(Locale.JAPAN)) summary += " ";
+          summary +=
+              res.getQuantityString(R.plurals.minute, interval.getMinute(), interval.getMinute());
+          if(!LOCALE.equals(Locale.JAPAN)) {
+            summary += " ";
+          }
         }
         duration.setTitle(summary);
         int org_time = interval.getOrg_time();
@@ -185,7 +198,7 @@ public class NotifyIntervalEditFragment extends BasePreferenceFragmentCompat
       }
     }
 
-    //ラベルの初期化
+    // ラベルの初期化
     String label_str = MainEditFragment.notifyInterval.getLabel();
     if(label_str == null || label_str.equals(getString(R.string.none))) {
       label.setSummary(R.string.non_notify);
@@ -198,7 +211,7 @@ public class NotifyIntervalEditFragment extends BasePreferenceFragmentCompat
   }
 
   @Override
-  public boolean onOptionsItemSelected(MenuItem item) {
+  public boolean onOptionsItemSelected(@NonNull MenuItem item) {
 
     FragmentManager manager = getFragmentManager();
     checkNotNull(manager);
@@ -212,14 +225,16 @@ public class NotifyIntervalEditFragment extends BasePreferenceFragmentCompat
     switch(preference.getKey()) {
       case "duration": {
 
-        NotifyIntervalDurationPickerDialogFragment dialog = new NotifyIntervalDurationPickerDialogFragment();
+        NotifyIntervalDurationPickerDialogFragment dialog =
+            new NotifyIntervalDurationPickerDialogFragment(this);
         dialog.show(activity.getSupportFragmentManager(), "notify_interval_duration_picker");
 
         return true;
       }
       case "time": {
 
-        NotifyIntervalTimePickerDialogFragment dialog = new NotifyIntervalTimePickerDialogFragment();
+        NotifyIntervalTimePickerDialogFragment dialog =
+            new NotifyIntervalTimePickerDialogFragment(this);
         dialog.show(activity.getSupportFragmentManager(), "notify_interval_time_picker");
 
         return true;
@@ -277,7 +292,9 @@ public class NotifyIntervalEditFragment extends BasePreferenceFragmentCompat
           if(label_str == null || label_str.equals(getString(R.string.none))) {
             label.setSummary(R.string.non_notify);
           }
-          else label.setSummary(label_str);
+          else {
+            label.setSummary(label_str);
+          }
 
           MainEditFragment.notifyInterval = notifyInterval.clone();
         }
@@ -393,18 +410,26 @@ public class NotifyIntervalEditFragment extends BasePreferenceFragmentCompat
         if(interval.getHour() != 0) {
           is_empty = false;
           summary += res.getQuantityString(R.plurals.hour, interval.getHour(), interval.getHour());
-          if(!LOCALE.equals(Locale.JAPAN)) summary += " ";
+          if(!LOCALE.equals(Locale.JAPAN)) {
+            summary += " ";
+          }
         }
         if(interval.getMinute() != 0) {
           is_empty = false;
-          summary += res.getQuantityString(R.plurals.minute, interval.getMinute(), interval.getMinute());
-          if(!LOCALE.equals(Locale.JAPAN)) summary += " ";
+          summary +=
+              res.getQuantityString(R.plurals.minute, interval.getMinute(), interval.getMinute());
+          if(!LOCALE.equals(Locale.JAPAN)) {
+            summary += " ";
+          }
         }
 
         if(is_empty) {
           interval.setMinute(5);
-          summary += res.getQuantityString(R.plurals.minute, interval.getMinute(), interval.getMinute());
-          if(!LOCALE.equals(Locale.JAPAN)) summary += " ";
+          summary +=
+              res.getQuantityString(R.plurals.minute, interval.getMinute(), interval.getMinute());
+          if(!LOCALE.equals(Locale.JAPAN)) {
+            summary += " ";
+          }
         }
 
         duration.setTitle(summary);

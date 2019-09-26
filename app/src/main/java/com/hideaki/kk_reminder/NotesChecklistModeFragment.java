@@ -3,16 +3,19 @@ package com.hideaki.kk_reminder;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.graphics.PorterDuff;
+import android.graphics.PorterDuffColorFilter;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
-import android.support.annotation.NonNull;
-import android.support.v4.app.Fragment;
-import android.support.v4.app.FragmentManager;
-import android.support.v4.content.ContextCompat;
-import android.support.v4.widget.DrawerLayout;
-import android.support.v7.app.ActionBar;
-import android.support.v7.app.AlertDialog;
-import android.support.v7.widget.Toolbar;
+
+import androidx.annotation.NonNull;
+import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentManager;
+import androidx.core.content.ContextCompat;
+import androidx.drawerlayout.widget.DrawerLayout;
+import androidx.appcompat.app.ActionBar;
+import androidx.appcompat.app.AlertDialog;
+import androidx.appcompat.widget.Toolbar;
+
 import android.view.Gravity;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
@@ -64,7 +67,7 @@ public class NotesChecklistModeFragment extends Fragment {
   }
 
   @Override
-  public void onAttach(Context context) {
+  public void onAttach(@NonNull Context context) {
 
     super.onAttach(context);
     activity = (MainActivity)context;
@@ -85,7 +88,11 @@ public class NotesChecklistModeFragment extends Fragment {
   }
 
   @Override
-  public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+  public View onCreateView(
+      @NonNull LayoutInflater inflater,
+      ViewGroup container,
+      Bundle savedInstanceState
+  ) {
 
     if(MainEditFragment.is_notes_popping) {
       FragmentManager manager = getFragmentManager();
@@ -118,17 +125,21 @@ public class NotesChecklistModeFragment extends Fragment {
       }
     });
 
-    //NotesTodoListとNotesDoneListの保持するnotesListの初期化
+    // NotesTodoListとNotesDoneListの保持するnotesListの初期化
     NotesTodoListAdapter.notesList = new ArrayList<>();
     NotesDoneListAdapter.notesList = new ArrayList<>();
     for(Notes notes : item.getNotesList()) {
-      if(notes.isChecked()) NotesDoneListAdapter.notesList.add(notes);
-      else NotesTodoListAdapter.notesList.add(notes);
+      if(notes.isChecked()) {
+        NotesDoneListAdapter.notesList.add(notes);
+      }
+      else {
+        NotesTodoListAdapter.notesList.add(notes);
+      }
     }
     Collections.sort(NotesTodoListAdapter.notesList, NOTES_COMPARATOR);
     Collections.sort(NotesDoneListAdapter.notesList, NOTES_COMPARATOR);
 
-    //NotesTodoListの初期化
+    // NotesTodoListの初期化
     NotesTodoListAdapter.isSorting = false;
     sortableListView = view.findViewById(R.id.notes_todo);
     todoHeader = View.inflate(activity, R.layout.notes_todo_list_header, null);
@@ -144,7 +155,7 @@ public class NotesChecklistModeFragment extends Fragment {
     sortableListView.setSortable(true);
     sortableListView.setAdapter(notesTodoListAdapter);
 
-    //NotesDoneListの初期化
+    // NotesDoneListの初期化
     listView = view.findViewById(R.id.notes_done);
     doneHeader = View.inflate(activity, R.layout.notes_done_list_header, null);
     doneHeader.setOnClickListener(null);
@@ -162,7 +173,10 @@ public class NotesChecklistModeFragment extends Fragment {
       LinearLayout linearLayout = new LinearLayout(activity);
       linearLayout.setOrientation(LinearLayout.VERTICAL);
       LinearLayout.LayoutParams layoutParams =
-          new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.MATCH_PARENT);
+          new LinearLayout.LayoutParams(
+              LinearLayout.LayoutParams.MATCH_PARENT,
+              LinearLayout.LayoutParams.MATCH_PARENT
+          );
       layoutParams.gravity = Gravity.CENTER;
       emptyView.setLayoutParams(layoutParams);
       linearLayout.addView(emptyView);
@@ -176,7 +190,10 @@ public class NotesChecklistModeFragment extends Fragment {
     Drawable drawable = toolbar.getOverflowIcon();
     checkNotNull(drawable);
     drawable = drawable.mutate();
-    drawable.setColorFilter(activity.menu_item_color, PorterDuff.Mode.SRC_IN);
+    drawable.setColorFilter(new PorterDuffColorFilter(
+        activity.menu_item_color,
+        PorterDuff.Mode.SRC_IN
+    ));
     toolbar.setOverflowIcon(drawable);
     activity.setSupportActionBar(toolbar);
     actionBar = activity.getSupportActionBar();
@@ -191,14 +208,14 @@ public class NotesChecklistModeFragment extends Fragment {
   }
 
   @Override
-  public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
+  public void onCreateOptionsMenu(@NonNull Menu menu, @NonNull MenuInflater inflater) {
 
     super.onCreateOptionsMenu(menu, inflater);
     inflater.inflate(R.menu.notes_checklist_mode_menu, menu);
   }
 
   @Override
-  public void onPrepareOptionsMenu(Menu menu) {
+  public void onPrepareOptionsMenu(@NonNull Menu menu) {
 
     super.onPrepareOptionsMenu(menu);
 
@@ -206,27 +223,35 @@ public class NotesChecklistModeFragment extends Fragment {
     Drawable drawable = ContextCompat.getDrawable(activity, R.drawable.ic_sort_24dp);
     checkNotNull(drawable);
     drawable = drawable.mutate();
-    drawable.setColorFilter(activity.menu_item_color, PorterDuff.Mode.SRC_IN);
+    drawable.setColorFilter(new PorterDuffColorFilter(
+        activity.menu_item_color,
+        PorterDuff.Mode.SRC_IN
+    ));
     sortItem.setIcon(drawable);
 
     editModeItem = menu.findItem(R.id.edit_mode);
     drawable = ContextCompat.getDrawable(activity, R.drawable.ic_edit_24dp);
     checkNotNull(drawable);
     drawable = drawable.mutate();
-    drawable.setColorFilter(activity.menu_item_color, PorterDuff.Mode.SRC_IN);
+    drawable.setColorFilter(new PorterDuffColorFilter(
+        activity.menu_item_color,
+        PorterDuff.Mode.SRC_IN
+    ));
     editModeItem.setIcon(drawable);
 
     deleteItem = menu.findItem(R.id.delete_checked_items);
 
     unselectItem = menu.findItem(R.id.unselect_all_items);
 
-    //Todoリストのアイテム数に応じた表示処理
+    // Todoリストのアイテム数に応じた表示処理
     if(NotesTodoListAdapter.notesList.size() == 0) {
       sortItem.setVisible(false);
     }
-    else sortItem.setVisible(true);
+    else {
+      sortItem.setVisible(true);
+    }
 
-    //Doneリストのアイテム数に応じた表示処理
+    // Doneリストのアイテム数に応じた表示処理
     if(NotesDoneListAdapter.notesList.size() == 0) {
       deleteItem.setVisible(false);
       unselectItem.setVisible(false);
@@ -261,11 +286,15 @@ public class NotesChecklistModeFragment extends Fragment {
 
                 NotesChecklistModeFragment.item.setNotesList(new ArrayList<>(NotesTodoListAdapter.notesList));
 
-                if(NotesChecklistModeFragment.item.getNotesList().size() == 0 && !is_empty_view_added) {
+                if(NotesChecklistModeFragment.item.getNotesList().size() == 0 &&
+                    !is_empty_view_added) {
                   LinearLayout linearLayout = new LinearLayout(activity);
                   linearLayout.setOrientation(LinearLayout.VERTICAL);
                   LinearLayout.LayoutParams layoutParams =
-                      new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.MATCH_PARENT);
+                      new LinearLayout.LayoutParams(
+                          LinearLayout.LayoutParams.MATCH_PARENT,
+                          LinearLayout.LayoutParams.MATCH_PARENT
+                      );
                   layoutParams.gravity = Gravity.CENTER;
                   emptyView.setLayoutParams(layoutParams);
                   linearLayout.addView(emptyView);
@@ -275,17 +304,22 @@ public class NotesChecklistModeFragment extends Fragment {
                   is_empty_view_added = true;
                 }
 
-                if(activity.isItemExists(NotesChecklistModeFragment.item, MyDatabaseHelper.TODO_TABLE)) {
+                if(activity.isItemExists(
+                    NotesChecklistModeFragment.item,
+                    MyDatabaseHelper.TODO_TABLE
+                )) {
                   activity.updateDB(NotesChecklistModeFragment.item, MyDatabaseHelper.TODO_TABLE);
                 }
                 else {
-                  MainEditFragment.item.setNotesList(new ArrayList<>(NotesChecklistModeFragment.item.getNotesList()));
+                  MainEditFragment.item.setNotesList(new ArrayList<>(NotesChecklistModeFragment.item
+                      .getNotesList()));
                 }
               }
             })
             .setNeutralButton(R.string.cancel, new DialogInterface.OnClickListener() {
               @Override
               public void onClick(DialogInterface dialog, int which) {
+
               }
             })
             .create();
@@ -363,7 +397,8 @@ public class NotesChecklistModeFragment extends Fragment {
             deleteItem.setVisible(true);
             unselectItem.setVisible(true);
           }
-          if(NotesTodoListAdapter.notesList.size() != 0 && sortableListView.getHeaderViewsCount() == 0) {
+          if(NotesTodoListAdapter.notesList.size() != 0 &&
+              sortableListView.getHeaderViewsCount() == 0) {
             sortableListView.addHeaderView(todoHeader);
           }
           listView.setVisibility(View.VISIBLE);
@@ -404,7 +439,10 @@ public class NotesChecklistModeFragment extends Fragment {
 
           if(is_updated) {
             NotesChecklistModeFragment.item.setNotesList(new ArrayList<>(notesList));
-            if(activity.isItemExists(NotesChecklistModeFragment.item, MyDatabaseHelper.TODO_TABLE)) {
+            if(activity.isItemExists(
+                NotesChecklistModeFragment.item,
+                MyDatabaseHelper.TODO_TABLE
+            )) {
               activity.updateDB(NotesChecklistModeFragment.item, MyDatabaseHelper.TODO_TABLE);
             }
             else {

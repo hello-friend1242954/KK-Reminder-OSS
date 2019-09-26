@@ -2,13 +2,16 @@ package com.hideaki.kk_reminder;
 
 import android.content.Context;
 import android.os.Bundle;
-import android.support.annotation.Nullable;
-import android.support.v4.app.FragmentManager;
-import android.support.v4.content.ContextCompat;
-import android.support.v7.app.ActionBar;
-import android.support.v7.preference.Preference;
-import android.support.v7.preference.PreferenceScreen;
-import android.support.v7.widget.Toolbar;
+
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.fragment.app.FragmentManager;
+import androidx.core.content.ContextCompat;
+import androidx.appcompat.app.ActionBar;
+import androidx.preference.Preference;
+import androidx.preference.PreferenceScreen;
+import androidx.appcompat.widget.Toolbar;
+
 import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
@@ -22,7 +25,7 @@ import static com.hideaki.kk_reminder.UtilClass.LOCALE;
 public class DefaultManuallySnoozeFragment extends BasePreferenceFragmentCompat {
 
   private MainActivity activity;
-  static PreferenceScreen label;
+  PreferenceScreen label;
 
   public static DefaultManuallySnoozeFragment newInstance() {
 
@@ -30,7 +33,7 @@ public class DefaultManuallySnoozeFragment extends BasePreferenceFragmentCompat 
   }
 
   @Override
-  public void onAttach(Context context) {
+  public void onAttach(@NonNull Context context) {
 
     super.onAttach(context);
     activity = (MainActivity)context;
@@ -47,7 +50,10 @@ public class DefaultManuallySnoozeFragment extends BasePreferenceFragmentCompat 
       @Override
       public boolean onPreferenceClick(Preference preference) {
 
-        DefaultManuallySnoozePickerDialogFragment dialog = new DefaultManuallySnoozePickerDialogFragment();
+        DefaultManuallySnoozePickerDialogFragment dialog =
+            new DefaultManuallySnoozePickerDialogFragment(
+                DefaultManuallySnoozeFragment.this
+            );
         dialog.show(activity.getSupportFragmentManager(), "default_manually_snooze_picker");
         return true;
       }
@@ -55,7 +61,11 @@ public class DefaultManuallySnoozeFragment extends BasePreferenceFragmentCompat 
   }
 
   @Override
-  public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
+  public View onCreateView(
+      LayoutInflater inflater,
+      @Nullable ViewGroup container,
+      @Nullable Bundle savedInstanceState
+  ) {
 
     View view = super.onCreateView(inflater, container, savedInstanceState);
     checkNotNull(view);
@@ -72,17 +82,21 @@ public class DefaultManuallySnoozeFragment extends BasePreferenceFragmentCompat 
     actionBar.setDisplayHomeAsUpEnabled(true);
     actionBar.setTitle(R.string.default_manually_snooze);
 
-    //時間表示の初期化
+    // 時間表示の初期化
     int hour = activity.snooze_default_hour;
     int minute = activity.snooze_default_minute;
     String summary = "";
     if(hour != 0) {
       summary += getResources().getQuantityString(R.plurals.hour, hour, hour);
-      if(!LOCALE.equals(Locale.JAPAN)) summary += " ";
+      if(!LOCALE.equals(Locale.JAPAN)) {
+        summary += " ";
+      }
     }
     if(minute != 0) {
       summary += getResources().getQuantityString(R.plurals.minute, minute, minute);
-      if(!LOCALE.equals(Locale.JAPAN)) summary += " ";
+      if(!LOCALE.equals(Locale.JAPAN)) {
+        summary += " ";
+      }
     }
     label.setTitle(summary);
 
@@ -90,7 +104,7 @@ public class DefaultManuallySnoozeFragment extends BasePreferenceFragmentCompat 
   }
 
   @Override
-  public boolean onOptionsItemSelected(MenuItem item) {
+  public boolean onOptionsItemSelected(@NonNull MenuItem item) {
 
     FragmentManager manager = getFragmentManager();
     checkNotNull(manager);

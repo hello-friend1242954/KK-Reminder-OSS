@@ -3,15 +3,18 @@ package com.hideaki.kk_reminder;
 import android.content.Context;
 import android.content.res.Resources;
 import android.os.Bundle;
-import android.support.annotation.Nullable;
-import android.support.v4.app.FragmentManager;
-import android.support.v4.content.ContextCompat;
-import android.support.v7.app.ActionBar;
-import android.support.v7.app.AlertDialog;
-import android.support.v7.preference.CheckBoxPreference;
-import android.support.v7.preference.Preference;
-import android.support.v7.preference.PreferenceScreen;
-import android.support.v7.widget.Toolbar;
+
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.fragment.app.FragmentManager;
+import androidx.core.content.ContextCompat;
+import androidx.appcompat.app.ActionBar;
+import androidx.appcompat.app.AlertDialog;
+import androidx.preference.CheckBoxPreference;
+import androidx.preference.Preference;
+import androidx.preference.PreferenceScreen;
+import androidx.appcompat.widget.Toolbar;
+
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
@@ -23,17 +26,19 @@ import java.util.Locale;
 import static com.google.common.base.Preconditions.checkNotNull;
 import static com.hideaki.kk_reminder.UtilClass.LOCALE;
 
-public class MinuteRepeatEditFragment extends BasePreferenceFragmentCompat implements Preference.OnPreferenceClickListener, MyCheckBoxPreference.MyCheckBoxPreferenceCheckedChangeListener {
+public class MinuteRepeatEditFragment extends BasePreferenceFragmentCompat
+    implements Preference.OnPreferenceClickListener,
+    MyCheckBoxPreference.MyCheckBoxPreferenceCheckedChangeListener {
 
   private PreferenceScreen rootPreferenceScreen;
-  static PreferenceScreen label;
-  static PreferenceScreen interval;
+  PreferenceScreen label;
+  PreferenceScreen interval;
   static String label_str;
-  static CheckBoxPreference never;
-  static CheckBoxPreference count;
-  static CheckBoxPreference duration;
-  static PreferenceScreen count_picker;
-  static PreferenceScreen durationPicker;
+  private CheckBoxPreference never;
+  CheckBoxPreference count;
+  CheckBoxPreference duration;
+  PreferenceScreen count_picker;
+  PreferenceScreen durationPicker;
   private MainActivity activity;
 
   public static MinuteRepeatEditFragment newInstance() {
@@ -42,7 +47,7 @@ public class MinuteRepeatEditFragment extends BasePreferenceFragmentCompat imple
   }
 
   @Override
-  public void onAttach(Context context) {
+  public void onAttach(@NonNull Context context) {
 
     super.onAttach(context);
     activity = (MainActivity)context;
@@ -73,12 +78,16 @@ public class MinuteRepeatEditFragment extends BasePreferenceFragmentCompat imple
   }
 
   @Override
-  public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
+  public View onCreateView(
+      LayoutInflater inflater,
+      @Nullable ViewGroup container,
+      @Nullable Bundle savedInstanceState
+  ) {
 
     View view = super.onCreateView(inflater, container, savedInstanceState);
     checkNotNull(view);
 
-    view.setBackgroundColor(ContextCompat.getColor(activity ,android.R.color.background_light));
+    view.setBackgroundColor(ContextCompat.getColor(activity, android.R.color.background_light));
     view.setFocusableInTouchMode(true);
     view.requestFocus();
     view.setOnKeyListener(new View.OnKeyListener() {
@@ -86,7 +95,8 @@ public class MinuteRepeatEditFragment extends BasePreferenceFragmentCompat imple
       public boolean onKey(View v, int keyCode, KeyEvent event) {
 
         if(keyCode == KeyEvent.KEYCODE_BACK && event.getAction() == KeyEvent.ACTION_UP) {
-          if(MainEditFragment.minuteRepeat.getInterval() > MainEditFragment.minuteRepeat.getOrgDuration()
+          if(MainEditFragment.minuteRepeat.getInterval() >
+              MainEditFragment.minuteRepeat.getOrgDuration()
               && duration.isChecked()) {
             new AlertDialog.Builder(activity)
                 .setMessage(R.string.repeat_minute_illegal_dialog)
@@ -108,21 +118,25 @@ public class MinuteRepeatEditFragment extends BasePreferenceFragmentCompat imple
     actionBar.setDisplayHomeAsUpEnabled(true);
     actionBar.setTitle(R.string.repeat_minute_unit);
 
-    //intervalのラベルの初期化
+    // intervalのラベルの初期化
     String interval = "";
     int hour = MainEditFragment.minuteRepeat.getHour();
     if(hour != 0) {
       interval += activity.getResources().getQuantityString(R.plurals.hour, hour, hour);
-      if(!LOCALE.equals(Locale.JAPAN)) interval += " ";
+      if(!LOCALE.equals(Locale.JAPAN)) {
+        interval += " ";
+      }
     }
     int minute = MainEditFragment.minuteRepeat.getMinute();
     if(minute != 0) {
       interval += activity.getResources().getQuantityString(R.plurals.minute, minute, minute);
-      if(!LOCALE.equals(Locale.JAPAN)) interval += " ";
+      if(!LOCALE.equals(Locale.JAPAN)) {
+        interval += " ";
+      }
     }
-    MinuteRepeatEditFragment.interval.setTitle(interval);
+    this.interval.setTitle(interval);
 
-    //チェック状態の初期化
+    // チェック状態の初期化
     never.setChecked(false);
     count.setChecked(false);
     duration.setChecked(false);
@@ -141,9 +155,13 @@ public class MinuteRepeatEditFragment extends BasePreferenceFragmentCompat imple
         rootPreferenceScreen.addPreference(count_picker);
         rootPreferenceScreen.removePreference(durationPicker);
 
-        //項目のタイトル部に現在の設定値を表示
+        // 項目のタイトル部に現在の設定値を表示
         int org_count = MainEditFragment.minuteRepeat.getOrg_count();
-        count_picker.setTitle(getResources().getQuantityString(R.plurals.times, org_count, org_count));
+        count_picker.setTitle(getResources().getQuantityString(
+            R.plurals.times,
+            org_count,
+            org_count
+        ));
         break;
       }
       case 1 << 1: {
@@ -152,17 +170,25 @@ public class MinuteRepeatEditFragment extends BasePreferenceFragmentCompat imple
         rootPreferenceScreen.removePreference(count_picker);
         rootPreferenceScreen.addPreference(durationPicker);
 
-        //durationのラベルの初期化
+        // durationのラベルの初期化
         String durationLabel = "";
         int duration_hour = MainEditFragment.minuteRepeat.getOrg_duration_hour();
         if(duration_hour != 0) {
-          durationLabel += activity.getResources().getQuantityString(R.plurals.hour, duration_hour, duration_hour);
-          if(!LOCALE.equals(Locale.JAPAN)) durationLabel += " ";
+          durationLabel += activity
+              .getResources()
+              .getQuantityString(R.plurals.hour, duration_hour, duration_hour);
+          if(!LOCALE.equals(Locale.JAPAN)) {
+            durationLabel += " ";
+          }
         }
         int duration_minute = MainEditFragment.minuteRepeat.getOrg_duration_minute();
         if(duration_minute != 0) {
-          durationLabel += activity.getResources().getQuantityString(R.plurals.minute, duration_minute, duration_minute);
-          if(!LOCALE.equals(Locale.JAPAN)) durationLabel += " ";
+          durationLabel += activity
+              .getResources()
+              .getQuantityString(R.plurals.minute, duration_minute, duration_minute);
+          if(!LOCALE.equals(Locale.JAPAN)) {
+            durationLabel += " ";
+          }
         }
         durationPicker.setTitle(durationLabel);
 
@@ -170,7 +196,7 @@ public class MinuteRepeatEditFragment extends BasePreferenceFragmentCompat imple
       }
     }
 
-    //ラベルの初期化
+    // ラベルの初期化
     if(MainEditFragment.minuteRepeat.getLabel() == null) {
       label.setSummary(R.string.non_repeat);
     }
@@ -182,7 +208,7 @@ public class MinuteRepeatEditFragment extends BasePreferenceFragmentCompat imple
   }
 
   @Override
-  public boolean onOptionsItemSelected(MenuItem item) {
+  public boolean onOptionsItemSelected(@NonNull MenuItem item) {
 
     if(MainEditFragment.minuteRepeat.getInterval() > MainEditFragment.minuteRepeat.getOrgDuration()
         && duration.isChecked()) {
@@ -204,20 +230,23 @@ public class MinuteRepeatEditFragment extends BasePreferenceFragmentCompat imple
     switch(preference.getKey()) {
       case "interval": {
 
-        MinuteRepeatIntervalPickerDialogFragment dialog = new MinuteRepeatIntervalPickerDialogFragment();
+        MinuteRepeatIntervalPickerDialogFragment dialog =
+            new MinuteRepeatIntervalPickerDialogFragment(this);
         dialog.show(activity.getSupportFragmentManager(), "minute_repeat_interval_picker");
 
         return true;
       }
       case "count_picker": {
 
-        MinuteRepeatCountPickerDialogFragment dialog = new MinuteRepeatCountPickerDialogFragment();
+        MinuteRepeatCountPickerDialogFragment dialog =
+            new MinuteRepeatCountPickerDialogFragment(this);
         dialog.show(activity.getSupportFragmentManager(), "minute_repeat_count_picker");
         return true;
       }
       case "duration_picker": {
 
-        MinuteRepeatDurationPickerDialogFragment dialog = new MinuteRepeatDurationPickerDialogFragment();
+        MinuteRepeatDurationPickerDialogFragment dialog =
+            new MinuteRepeatDurationPickerDialogFragment(this);
         dialog.show(activity.getSupportFragmentManager(), "minute_repeat_duration_picker");
         return true;
       }
@@ -246,7 +275,9 @@ public class MinuteRepeatEditFragment extends BasePreferenceFragmentCompat imple
             rootPreferenceScreen.removePreference(durationPicker);
           }
         }
-        else never.setChecked(true);
+        else {
+          never.setChecked(true);
+        }
 
         break;
       }
@@ -258,32 +289,41 @@ public class MinuteRepeatEditFragment extends BasePreferenceFragmentCompat imple
           int hour = MainEditFragment.minuteRepeat.getHour();
           if(hour != 0) {
             interval += res.getQuantityString(R.plurals.hour, hour, hour);
-            if(!LOCALE.equals(Locale.JAPAN)) interval += " ";
+            if(!LOCALE.equals(Locale.JAPAN)) {
+              interval += " ";
+            }
           }
           int minute = MainEditFragment.minuteRepeat.getMinute();
           if(minute != 0) {
             interval += res.getQuantityString(R.plurals.minute, minute, minute);
-            if(!LOCALE.equals(Locale.JAPAN)) interval += " ";
+            if(!LOCALE.equals(Locale.JAPAN)) {
+              interval += " ";
+            }
           }
           int count = MainEditFragment.minuteRepeat.getOrg_count();
           label_str = res.getQuantityString(R.plurals.repeat_minute_count_format,
-              count, interval, count);
+              count, interval, count
+          );
           label.setSummary(label_str);
 
-          //項目のタイトル部に現在の設定値を表示
+          // 項目のタイトル部に現在の設定値を表示
           count_picker.setTitle(getResources().getQuantityString(R.plurals.times, count, count));
 
           MainEditFragment.minuteRepeat.setLabel(label_str);
           MainEditFragment.minuteRepeat.setWhich_setted(1);
 
-          if(never.isChecked()) never.setChecked(false);
+          if(never.isChecked()) {
+            never.setChecked(false);
+          }
           if(duration.isChecked()) {
             duration.setChecked(false);
             rootPreferenceScreen.removePreference(durationPicker);
           }
           rootPreferenceScreen.addPreference(count_picker);
         }
-        else count.setChecked(true);
+        else {
+          count.setChecked(true);
+        }
 
         break;
       }
@@ -295,23 +335,31 @@ public class MinuteRepeatEditFragment extends BasePreferenceFragmentCompat imple
           int hour = MainEditFragment.minuteRepeat.getHour();
           if(hour != 0) {
             interval += res.getQuantityString(R.plurals.hour, hour, hour);
-            if(!LOCALE.equals(Locale.JAPAN)) interval += " ";
+            if(!LOCALE.equals(Locale.JAPAN)) {
+              interval += " ";
+            }
           }
           int minute = MainEditFragment.minuteRepeat.getMinute();
           if(minute != 0) {
             interval += res.getQuantityString(R.plurals.minute, minute, minute);
-            if(!LOCALE.equals(Locale.JAPAN)) interval += " ";
+            if(!LOCALE.equals(Locale.JAPAN)) {
+              interval += " ";
+            }
           }
           String duration = "";
           int duration_hour = MainEditFragment.minuteRepeat.getOrg_duration_hour();
           if(duration_hour != 0) {
             duration += res.getQuantityString(R.plurals.hour, duration_hour, duration_hour);
-            if(!LOCALE.equals(Locale.JAPAN)) duration += " ";
+            if(!LOCALE.equals(Locale.JAPAN)) {
+              duration += " ";
+            }
           }
           int duration_minute = MainEditFragment.minuteRepeat.getOrg_duration_minute();
           if(duration_minute != 0) {
             duration += res.getQuantityString(R.plurals.minute, duration_minute, duration_minute);
-            if(!LOCALE.equals(Locale.JAPAN)) duration += " ";
+            if(!LOCALE.equals(Locale.JAPAN)) {
+              duration += " ";
+            }
           }
           label_str = getString(R.string.repeat_minute_duration_format, interval, duration);
 
@@ -321,14 +369,18 @@ public class MinuteRepeatEditFragment extends BasePreferenceFragmentCompat imple
           MainEditFragment.minuteRepeat.setLabel(label_str);
           MainEditFragment.minuteRepeat.setWhich_setted(1 << 1);
 
-          if(never.isChecked()) never.setChecked(false);
+          if(never.isChecked()) {
+            never.setChecked(false);
+          }
           if(count.isChecked()) {
             count.setChecked(false);
             rootPreferenceScreen.removePreference(count_picker);
           }
           rootPreferenceScreen.addPreference(durationPicker);
         }
-        else duration.setChecked(true);
+        else {
+          duration.setChecked(true);
+        }
 
         break;
       }

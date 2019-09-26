@@ -4,12 +4,14 @@ import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
-import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
-import android.support.v4.app.Fragment;
-import android.support.v4.app.FragmentManager;
-import android.support.v4.content.ContextCompat;
-import android.support.v4.view.GravityCompat;
+
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentManager;
+import androidx.core.content.ContextCompat;
+import androidx.core.view.GravityCompat;
+
 import android.view.Gravity;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
@@ -36,12 +38,12 @@ public class DoneListViewFragment extends Fragment {
 
   static final String TAG = DoneListViewFragment.class.getSimpleName();
   private MainActivity activity;
-  static int expandable_list_position;
-  static int expandable_list_offset;
+  private static int expandable_list_position;
+  private static int expandable_list_offset;
   @SuppressLint("UseSparseArrays")
-  static Map<Long, Integer> listPosition = new HashMap<>();
+  private static Map<Long, Integer> listPosition = new HashMap<>();
   @SuppressLint("UseSparseArrays")
-  static Map<Long, Integer> listOffset = new HashMap<>();
+  private static Map<Long, Integer> listOffset = new HashMap<>();
   private ListView oldListView;
   private int order;
   private long id;
@@ -52,7 +54,7 @@ public class DoneListViewFragment extends Fragment {
   }
 
   @Override
-  public void onAttach(Context context) {
+  public void onAttach(@NonNull Context context) {
 
     super.onAttach(context);
     activity = (MainActivity)context;
@@ -84,14 +86,18 @@ public class DoneListViewFragment extends Fragment {
 
         expandable_list_position = oldListView.getFirstVisiblePosition();
         View child = oldListView.getChildAt(0);
-        if(child != null) expandable_list_offset = child.getTop();
+        if(child != null) {
+          expandable_list_offset = child.getTop();
+        }
         break;
       }
       case 1: {
 
         listPosition.put(id, oldListView.getFirstVisiblePosition());
         View child = oldListView.getChildAt(0);
-        if(child != null) listOffset.put(id, child.getTop());
+        if(child != null) {
+          listOffset.put(id, child.getTop());
+        }
         break;
       }
     }
@@ -99,7 +105,11 @@ public class DoneListViewFragment extends Fragment {
 
   @Nullable
   @Override
-  public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, Bundle savedInstanceState) {
+  public View onCreateView(
+      @NonNull LayoutInflater inflater,
+      @Nullable ViewGroup container,
+      Bundle savedInstanceState
+  ) {
 
     order = activity.order;
     if(order == 1) {
@@ -142,7 +152,9 @@ public class DoneListViewFragment extends Fragment {
         activity.startService(intent);
       }
     }
-    else DoneListAdapter.itemList = itemList;
+    else {
+      DoneListAdapter.itemList = itemList;
+    }
     DoneListAdapter.checked_item_num = 0;
     DoneListAdapter.order = order;
     activity.listView = view.findViewById(R.id.listView);
@@ -150,7 +162,10 @@ public class DoneListViewFragment extends Fragment {
     LinearLayout linearLayout = new LinearLayout(activity);
     linearLayout.setOrientation(LinearLayout.VERTICAL);
     LinearLayout.LayoutParams layoutParams =
-        new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.MATCH_PARENT);
+        new LinearLayout.LayoutParams(
+            LinearLayout.LayoutParams.MATCH_PARENT,
+            LinearLayout.LayoutParams.MATCH_PARENT
+        );
     layoutParams.gravity = Gravity.CENTER;
     layoutParams.weight = 1;
     layoutParams.height = 0;
@@ -182,8 +197,12 @@ public class DoneListViewFragment extends Fragment {
 
             Integer list_position = listPosition.get(id);
             Integer list_offset = listOffset.get(id);
-            if(list_position == null) list_position = 0;
-            if(list_offset == null) list_offset = 0;
+            if(list_position == null) {
+              list_position = 0;
+            }
+            if(list_offset == null) {
+              list_offset = 0;
+            }
             activity.listView.setSelectionFromTop(list_position, list_offset);
             break;
           }
@@ -213,11 +232,20 @@ public class DoneListViewFragment extends Fragment {
       }
 
       @Override
-      public void onScroll(AbsListView view, int firstVisibleItem, int visibleItemCount, int totalItemCount) {}
+      public void onScroll(
+          AbsListView view,
+          int firstVisibleItem,
+          int visibleItemCount,
+          int totalItemCount
+      ) {
+
+      }
     });
 
     AdView adView = view.findViewById(R.id.adView);
-    if(activity.is_premium) adView.setVisibility(View.GONE);
+    if(activity.is_premium) {
+      adView.setVisibility(View.GONE);
+    }
     else {
       AdRequest adRequest = new AdRequest.Builder().build();
       adView.loadAd(adRequest);

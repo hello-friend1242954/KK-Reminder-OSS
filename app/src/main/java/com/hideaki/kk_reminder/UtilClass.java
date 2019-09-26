@@ -3,6 +3,7 @@ package com.hideaki.kk_reminder;
 import android.annotation.SuppressLint;
 import android.annotation.TargetApi;
 import android.content.Context;
+import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.drawable.BitmapDrawable;
@@ -11,9 +12,6 @@ import android.graphics.drawable.VectorDrawable;
 import android.media.RingtoneManager;
 import android.net.Uri;
 import android.os.Build;
-import android.support.annotation.DrawableRes;
-import android.support.graphics.drawable.VectorDrawableCompat;
-import android.support.v4.content.ContextCompat;
 import android.widget.EditText;
 import android.widget.TextView;
 
@@ -32,9 +30,16 @@ import java.util.Calendar;
 import java.util.Locale;
 import java.util.concurrent.atomic.AtomicInteger;
 
+import androidx.annotation.DrawableRes;
+import androidx.annotation.RequiresApi;
+import androidx.core.content.ContextCompat;
+import androidx.vectordrawable.graphics.drawable.VectorDrawableCompat;
+
 class UtilClass {
 
-  private UtilClass() {}
+  private UtilClass() {
+
+  }
 
   private static final AtomicInteger uniqueId = new AtomicInteger(1);
   static final ScheduledItemComparator SCHEDULED_ITEM_COMPARATOR = new ScheduledItemComparator();
@@ -50,6 +55,7 @@ class UtilClass {
   static final String ITEM = "ITEM";
   static final String LIST = "LIST";
   static final String INT_GENERAL = "INT_GENERAL";
+  static final String INT_GENERAL_COPY = "INT_GENERAL_COPY";
   static final String DEFAULT_MINUS_TIME_1_HOUR = "DEFAULT_MINUS_TIME_1_HOUR";
   static final String DEFAULT_MINUS_TIME_1_MINUTE = "DEFAULT_MINUS_TIME_1_MINUTE";
   static final String DEFAULT_MINUS_TIME_2_HOUR = "DEFAULT_MINUS_TIME_2_HOUR";
@@ -69,19 +75,21 @@ class UtilClass {
   static final String SUBMENU_POSITION = "SUBMENU_POSITION";
   static final String CREATED = "CREATED";
   static final String DESTROYED = "DESTROYED";
-//  static final String ATTACHED = "ATTACHED";
+  //  static final String ATTACHED = "ATTACHED";
 //  static final String DETACHED = "DETACHED";
   static final String CHANGE_GRADE = "I am sceoppa100 developer";
   static final String COLLAPSE_GROUP = "COLLAPSE_GROUP";
-//  static final String RESUMED = "RESUMED";
+  //  static final String RESUMED = "RESUMED";
 //  static final String PAUSED = "PAUSED";
 //  static final String STARTED = "STARTED";
 //  static final String STOPPED = "STOPPED";
   static final String BOOLEAN_GENERAL = "BOOLEAN_GENERAL";
+  static final String BOOLEAN_GENERAL_COPY = "BOOLEAN_GENERAL_COPY";
   static final String PLAY_SLIDE_ANIMATION = "PLAY_SLIDE_ANIMATION";
   static final String IS_EXPANDABLE_TODO = "IS_EXPANDABLE_TODO";
   static final String IS_PREMIUM = "IS_PREMIUM";
   static final String STRING_GENERAL = "STRING_GENERAL";
+  static final String STRING_GENERAL_COPY = "STRING_GENERAL_COPY";
   static final String NOTIFICATION_ID_TABLE = "NOTIFICATION_ID_TABLE";
   static final String PARENT_NOTIFICATION_ID = "PARENT_NOTIFICATION_ID";
   static final String CHILD_NOTIFICATION_ID = "CHILD_NOTIFICATION_ID";
@@ -94,12 +102,19 @@ class UtilClass {
 
   static void setCursorDrawableColor(EditText editText) {
 
-    try {
-      Field f = TextView.class.getDeclaredField("mCursorDrawableRes");
-      f.setAccessible(true);
-      f.set(editText, R.drawable.cursor);
+    if(Build.VERSION.SDK_INT <= Build.VERSION_CODES.P) {
+      try {
+        Field f = TextView.class.getDeclaredField("mCursorDrawableRes");
+        f.setAccessible(true);
+        f.set(editText, R.drawable.cursor);
+      }
+      catch(Exception ignored) {}
     }
-    catch(Exception ignored) {}
+    else {
+      // mCursorDrawableResへのアクセスは非SDKインターフェースなのでAndroid10以降は無効となる
+      // 代わりにAPI29で追加されたEditText#setTextCursorDrawable()を使う
+      editText.setTextCursorDrawable(R.drawable.cursor);
+    }
   }
 
   @TargetApi(Build.VERSION_CODES.LOLLIPOP)
@@ -134,8 +149,7 @@ class UtilClass {
   @SuppressLint("NewApi")
   public static Bitmap getBitmap(
       Context context,
-      @DrawableRes
-      int drawableResId
+      @DrawableRes int drawableResId
   ) {
 
     Drawable drawable = ContextCompat.getDrawable(context, drawableResId);
@@ -167,14 +181,14 @@ class UtilClass {
 
   static int getPxFromDp(Context context, int dp) {
 
-    float scale = context.getResources().getDisplayMetrics().density; //画面のdensityを指定
+    float scale = context.getResources().getDisplayMetrics().density; // 画面のdensityを指定
     return (int)(dp * scale + 0.5f);
   }
 
-  //int型のユニークIDを取得するメソッド
+  // int型のユニークIDを取得するメソッド
   static int generateUniqueId() {
 
-    for(;;) {
+    for(; ; ) {
       final int result = uniqueId.get();
       int new_value = result + 1;
       if(new_value == Integer.MAX_VALUE) {
@@ -186,7 +200,7 @@ class UtilClass {
     }
   }
 
-  //シリアライズメソッド
+  // シリアライズメソッド
   static byte[] serialize(Object data) {
 
     ByteArrayOutputStream baos = new ByteArrayOutputStream();
@@ -203,7 +217,7 @@ class UtilClass {
     return baos.toByteArray();
   }
 
-  //デシリアライズメソッド
+  // デシリアライズメソッド
   static Object deserialize(byte[] stream) {
 
     if(stream == null) {
@@ -225,24 +239,127 @@ class UtilClass {
     }
   }
 
-  // データベースの複製を作り、それを端末暗号化ストレージへ移動する
-  static void copyDatabase(Context context, String ORG_DATABASE) {
+  // 指定されたContext上でデータベースの複製を作り、それを他方のContextへ移動する
+  static void copyDatabase(Context context, boolean isFromDirectBootContext) {
+
+    // 引数のcontextは必ず通常の(directBootContextでない)Contextを指定すること
+    if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+      // NormalContext上でコピーする場合はアプリに負荷をかけないようにするため非同期の
+      // IntentServiceを利用し、DirectBootContext上でコピーする場合は同期で実行させて
+      // sendBroadcast()を発行し、アプリ起動時のタスクの情報を最も直近に行われた
+      // Transactionに同期させる。(実際には仕様上、アプリのMainActivityがフォアグラウンド
+      // にあるときのみ非同期でコピーを行っている。)
+      if(!isFromDirectBootContext && MainActivity.isScreenOn) {
+        Intent intent = new Intent(context, CopyDatabaseService.class);
+        context.startService(intent);
+      }
+      else {
+        copyDatabaseKernel(context, isFromDirectBootContext);
+      }
+    }
+  }
+
+  // 指定されたContext上でSharedPreferencesの複製を作り、それを他方のContextへ移動する
+  static void copySharedPreferences(Context context, boolean isFromDirectBootContext) {
 
     if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-      // データベースの複製を作る
-      String databasePath = context.getDatabasePath(ORG_DATABASE).getAbsolutePath();
-      File file = new File(databasePath);
+      if(!isFromDirectBootContext && MainActivity.isScreenOn) {
+        Intent intent = new Intent(context, CopySharedPreferencesService.class);
+        context.startService(intent);
+      }
+      else {
+        copySharedPreferencesKernel(context, isFromDirectBootContext);
+      }
+    }
+  }
+
+  @RequiresApi(api = Build.VERSION_CODES.N)
+  static void copyDatabaseKernel(Context context, boolean isFromDirectBootContext) {
+
+    // データベースの複製を作る
+    // 引数のcontextは必ず通常の(directBootContextでない)Contextを指定すること
+    Context direct_boot_context = context.createDeviceProtectedStorageContext();
+    String databasePath;
+    if(isFromDirectBootContext) {
+      databasePath =
+          direct_boot_context.getDatabasePath(MyDatabaseHelper.DATABASE_COPY).getAbsolutePath();
+    }
+    else {
+      databasePath = context.getDatabasePath(MyDatabaseHelper.DATABASE).getAbsolutePath();
+    }
+    File file = new File(databasePath);
+    OutputStream os = null;
+    InputStream is = null;
+
+    if(file.exists()) {
+      try {
+        String BASE_NAME = isFromDirectBootContext ?
+            MyDatabaseHelper.DATABASE : MyDatabaseHelper.DATABASE_COPY;
+        os = new FileOutputStream(file.getParent() + "/" + BASE_NAME);
+        is = new FileInputStream(databasePath);
+
+        byte[] buffer = new byte[1024];
+        int length;
+        while((length = is.read(buffer)) > 0) {
+          os.write(buffer, 0, length);
+        }
+
+        os.flush();
+      }
+      catch(Exception e) {
+        e.printStackTrace();
+      }
+      finally {
+        try {
+          if(os != null) {
+            os.close();
+          }
+          if(is != null) {
+            is.close();
+          }
+        }
+        catch(Exception e) {
+          e.printStackTrace();
+        }
+      }
+    }
+
+    // 指定されたContext上で複製したデータベースを他方のContextへ移動する
+    if(isFromDirectBootContext) {
+      context.moveDatabaseFrom(direct_boot_context, MyDatabaseHelper.DATABASE);
+    }
+    else {
+      direct_boot_context.moveDatabaseFrom(context, MyDatabaseHelper.DATABASE_COPY);
+    }
+  }
+
+  @RequiresApi(api = Build.VERSION_CODES.N)
+  static void copySharedPreferencesKernel(Context context, boolean isFromDirectBootContext) {
+
+    // SharedPreferencesの複製を作る
+    // 引数のcontextは必ず通常の(directBootContextでない)Contextを指定すること
+    Context direct_boot_context = context.createDeviceProtectedStorageContext();
+    final String sharedPreferencesDirectory =
+        context.getFilesDir().getParent() + "/shared_prefs/";
+    final String[] sharedPreferencesFiles = {INT_GENERAL, BOOLEAN_GENERAL, STRING_GENERAL};
+    for(String sharedPreferencesFile : sharedPreferencesFiles) {
+      String sharedPreferencesPath = sharedPreferencesDirectory;
+      if(isFromDirectBootContext) {
+        sharedPreferencesPath += sharedPreferencesFile + "_COPY.xml";
+      }
+      else {
+        sharedPreferencesPath += sharedPreferencesFile + ".xml";
+      }
+      File file = new File(sharedPreferencesPath);
       OutputStream os = null;
       InputStream is = null;
 
       if(file.exists()) {
         try {
-          os = new FileOutputStream(
-              file.getParent() +
-                  "/" +
-                  MyDatabaseHelper.DATABASE_COPY
-          );
-          is = new FileInputStream(databasePath);
+          String BASE_NAME = isFromDirectBootContext ?
+              sharedPreferencesFile + ".xml" : sharedPreferencesFile + "_COPY.xml";
+          os = new FileOutputStream(file.getParent() + "/" + BASE_NAME);
+          is = new FileInputStream(sharedPreferencesPath);
 
           byte[] buffer = new byte[1024];
           int length;
@@ -253,26 +370,33 @@ class UtilClass {
           os.flush();
         }
         catch(Exception e) {
+          e.printStackTrace();
         }
         finally {
           try {
             if(os != null) {
               os.close();
-              os = null;
             }
             if(is != null) {
               is.close();
-              is = null;
             }
           }
           catch(Exception e) {
+            e.printStackTrace();
           }
         }
       }
 
-      //複製したデータベースを端末暗号化ストレージへ移動する
-      Context direct_boot_context = context.createDeviceProtectedStorageContext();
-      direct_boot_context.moveDatabaseFrom(context, MyDatabaseHelper.DATABASE_COPY);
+      // 指定されたContext上で複製したSharedPreferencesを他方のContextへ移動する
+      if(isFromDirectBootContext) {
+        context.moveSharedPreferencesFrom(direct_boot_context, sharedPreferencesFile);
+      }
+      else {
+        direct_boot_context.moveSharedPreferencesFrom(
+            context,
+            sharedPreferencesFile + "_COPY"
+        );
+      }
     }
   }
 }

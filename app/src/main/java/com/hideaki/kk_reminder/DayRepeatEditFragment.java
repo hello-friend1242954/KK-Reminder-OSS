@@ -2,15 +2,18 @@ package com.hideaki.kk_reminder;
 
 import android.content.Context;
 import android.os.Bundle;
-import android.support.annotation.Nullable;
-import android.support.transition.Fade;
-import android.support.transition.Transition;
-import android.support.v4.app.FragmentManager;
-import android.support.v4.content.ContextCompat;
-import android.support.v7.app.ActionBar;
-import android.support.v7.preference.CheckBoxPreference;
-import android.support.v7.preference.PreferenceScreen;
-import android.support.v7.widget.Toolbar;
+
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.transition.Fade;
+import androidx.transition.Transition;
+import androidx.fragment.app.FragmentManager;
+import androidx.core.content.ContextCompat;
+import androidx.appcompat.app.ActionBar;
+import androidx.preference.CheckBoxPreference;
+import androidx.preference.PreferenceScreen;
+import androidx.appcompat.widget.Toolbar;
+
 import android.text.format.DateFormat;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
@@ -28,16 +31,18 @@ import static com.hideaki.kk_reminder.UtilClass.LOCALE;
 public class DayRepeatEditFragment extends BasePreferenceFragmentCompat
     implements MyCheckBoxPreference.MyCheckBoxPreferenceCheckedChangeListener {
 
-  private static final String[] MONTH_LIST_EN = {"Jan.", "Feb.", "Mar.", "Apr.", "May", "Jun.", "Jul.",
-      "Aug.", "Sep.", "Oct.", "Nov.", "Dec."};
-  static CheckBoxPreference never;
-  static CheckBoxPreference everyday;
-  static CheckBoxPreference everyweekday;
-  static CheckBoxPreference everyweek;
-  static CheckBoxPreference everymonth;
-  static CheckBoxPreference everyyear;
-  static CheckBoxPreference custom;
-  static PreferenceScreen label;
+  private static final String[] MONTH_LIST_EN = {
+      "Jan.", "Feb.", "Mar.", "Apr.", "May", "Jun.", "Jul.",
+      "Aug.", "Sep.", "Oct.", "Nov.", "Dec."
+  };
+  private CheckBoxPreference never;
+  CheckBoxPreference everyday;
+  CheckBoxPreference everyweekday;
+  CheckBoxPreference everyweek;
+  CheckBoxPreference everymonth;
+  CheckBoxPreference everyyear;
+  CheckBoxPreference custom;
+  PreferenceScreen label;
   static String label_str_everyweek;
   static String label_str_everymonth;
   static String label_str_everyyear;
@@ -51,7 +56,7 @@ public class DayRepeatEditFragment extends BasePreferenceFragmentCompat
   }
 
   @Override
-  public void onAttach(Context context) {
+  public void onAttach(@NonNull Context context) {
 
     super.onAttach(context);
     activity = (MainActivity)context;
@@ -82,7 +87,11 @@ public class DayRepeatEditFragment extends BasePreferenceFragmentCompat
   }
 
   @Override
-  public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
+  public View onCreateView(
+      LayoutInflater inflater,
+      @Nullable ViewGroup container,
+      @Nullable Bundle savedInstanceState
+  ) {
 
     View view = super.onCreateView(inflater, container, savedInstanceState);
     checkNotNull(view);
@@ -115,10 +124,18 @@ public class DayRepeatEditFragment extends BasePreferenceFragmentCompat
     else {
       int day_of_month = MainEditFragment.final_cal.get(Calendar.DAY_OF_MONTH);
       label_str_everymonth += " on the " + day_of_month;
-      if(day_of_month == 1) label_str_everymonth += "st";
-      else if(day_of_month == 2) label_str_everymonth += "nd";
-      else if(day_of_month == 3) label_str_everymonth += "rd";
-      else label_str_everymonth += "th";
+      if(day_of_month == 1) {
+        label_str_everymonth += "st";
+      }
+      else if(day_of_month == 2) {
+        label_str_everymonth += "nd";
+      }
+      else if(day_of_month == 3) {
+        label_str_everymonth += "rd";
+      }
+      else {
+        label_str_everymonth += "th";
+      }
     }
     everymonth.setTitle(label_str_everymonth);
 
@@ -129,17 +146,25 @@ public class DayRepeatEditFragment extends BasePreferenceFragmentCompat
     else {
       int day_of_month = MainEditFragment.final_cal.get(Calendar.DAY_OF_MONTH);
       label_str_everyyear += " on the " + day_of_month;
-      if(day_of_month == 1) label_str_everyyear += "st";
-      else if(day_of_month == 2) label_str_everyyear += "nd";
-      else if(day_of_month == 3) label_str_everyyear += "rd";
-      else label_str_everyyear += "th";
+      if(day_of_month == 1) {
+        label_str_everyyear += "st";
+      }
+      else if(day_of_month == 2) {
+        label_str_everyyear += "nd";
+      }
+      else if(day_of_month == 3) {
+        label_str_everyyear += "rd";
+      }
+      else {
+        label_str_everyyear += "th";
+      }
 
       label_str_everyyear += " of " + MONTH_LIST_EN[MainEditFragment.final_cal.get(Calendar.MONTH)];
     }
 
     everyyear.setTitle(label_str_everyyear);
 
-    //チェック状態の初期化
+    // チェック状態の初期化
     never.setChecked(false);
     everyday.setChecked(false);
     everyweekday.setChecked(false);
@@ -192,7 +217,7 @@ public class DayRepeatEditFragment extends BasePreferenceFragmentCompat
       }
     }
 
-    //ラベルの初期化
+    // ラベルの初期化
     String label_str = MainEditFragment.dayRepeat.getLabel();
     if(label_str == null || label_str.equals(getString(R.string.none))) {
       label.setSummary(R.string.non_repeat);
@@ -205,7 +230,7 @@ public class DayRepeatEditFragment extends BasePreferenceFragmentCompat
   }
 
   @Override
-  public boolean onOptionsItemSelected(MenuItem item) {
+  public boolean onOptionsItemSelected(@NonNull MenuItem item) {
 
     FragmentManager manager = getFragmentManager();
     checkNotNull(manager);
@@ -321,7 +346,9 @@ public class DayRepeatEditFragment extends BasePreferenceFragmentCompat
       }
       case "custom": {
         custom.setChecked(true);
-        transitionFragment(DayRepeatCustomPickerFragment.newInstance());
+        DayRepeatCustomPickerFragment fragment = DayRepeatCustomPickerFragment.newInstance();
+        fragment.setDayRepeatEditFragment(this);
+        transitionFragment(fragment);
 
         break;
       }

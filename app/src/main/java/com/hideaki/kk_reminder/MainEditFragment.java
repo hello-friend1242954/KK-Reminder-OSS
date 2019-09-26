@@ -5,6 +5,7 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Color;
 import android.graphics.PorterDuff;
+import android.graphics.PorterDuffColorFilter;
 import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
 import android.media.Ringtone;
@@ -12,17 +13,19 @@ import android.media.RingtoneManager;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
-import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
-import android.support.transition.Fade;
-import android.support.transition.Transition;
-import android.support.v4.app.FragmentManager;
-import android.support.v4.content.ContextCompat;
-import android.support.v7.app.ActionBar;
-import android.support.v7.app.AlertDialog;
-import android.support.v7.preference.Preference;
-import android.support.v7.preference.PreferenceScreen;
-import android.support.v7.widget.Toolbar;
+
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.transition.Fade;
+import androidx.transition.Transition;
+import androidx.fragment.app.FragmentManager;
+import androidx.core.content.ContextCompat;
+import androidx.appcompat.app.ActionBar;
+import androidx.appcompat.app.AlertDialog;
+import androidx.preference.Preference;
+import androidx.preference.PreferenceScreen;
+import androidx.appcompat.widget.Toolbar;
+
 import android.text.format.DateFormat;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
@@ -58,8 +61,8 @@ public class MainEditFragment extends BasePreferenceFragmentCompat
   static final String TAG = MainEditFragment.class.getSimpleName();
 
   private EditTextPreference detail;
-  static PreferenceScreen datePicker;
-  static PreferenceScreen timePicker;
+  PreferenceScreen datePicker;
+  PreferenceScreen timePicker;
   private PreferenceScreen tag;
   private PreferenceScreen intervalItem;
   private PreferenceScreen dayRepeatItem;
@@ -67,12 +70,12 @@ public class MainEditFragment extends BasePreferenceFragmentCompat
   private Preference pickAlarm;
   private PreferenceScreen notes;
   static Item item;
-  static String detail_str;
+  private static String detail_str;
   static Calendar final_cal;
   static NotifyInterval notifyInterval;
   static DayRepeat dayRepeat;
   static MinuteRepeat minuteRepeat;
-  static boolean is_edit;
+  private static boolean is_edit;
   static int color;
   static int order;
   static NonScheduledList list;
@@ -82,7 +85,7 @@ public class MainEditFragment extends BasePreferenceFragmentCompat
   private static boolean is_moving_task;
   static boolean is_cloning_task;
   private Item nextItem;
-  static boolean is_notes_popping; //Notesフラグメントで戻るボタンを押したときに一気にもとの画面に戻るために使う
+  static boolean is_notes_popping; // Notesフラグメントで戻るボタンを押したときに一気にもとの画面に戻るために使う
   static boolean is_main_popping;
   private boolean next_edit_exists;
   private boolean is_destroyed;
@@ -98,6 +101,7 @@ public class MainEditFragment extends BasePreferenceFragmentCompat
     dayRepeat = new DayRepeat();
     minuteRepeat = new MinuteRepeat();
     final_cal = Calendar.getInstance();
+    final_cal.add(Calendar.MINUTE, 1);
     final_cal.set(Calendar.SECOND, 0);
     final_cal.set(Calendar.MILLISECOND, 0);
     Bundle args = new Bundle();
@@ -118,6 +122,7 @@ public class MainEditFragment extends BasePreferenceFragmentCompat
     dayRepeat = new DayRepeat();
     minuteRepeat = new MinuteRepeat();
     final_cal = Calendar.getInstance();
+    final_cal.add(Calendar.MINUTE, 1);
     final_cal.set(Calendar.SECOND, 0);
     final_cal.set(Calendar.MILLISECOND, 0);
     Bundle args = new Bundle();
@@ -127,7 +132,7 @@ public class MainEditFragment extends BasePreferenceFragmentCompat
     return fragment;
   }
 
-  public static MainEditFragment newInstance(Item item) {
+  static MainEditFragment newInstance(Item item) {
 
     MainEditFragment fragment = new MainEditFragment();
 
@@ -144,7 +149,7 @@ public class MainEditFragment extends BasePreferenceFragmentCompat
     return fragment;
   }
 
-  public static MainEditFragment newInstanceForList() {
+  static MainEditFragment newInstanceForList() {
 
     MainEditFragment fragment = new MainEditFragment();
 
@@ -157,8 +162,8 @@ public class MainEditFragment extends BasePreferenceFragmentCompat
 
     return fragment;
   }
-  
-  public static MainEditFragment newInstanceForList(NonScheduledList list) {
+
+  static MainEditFragment newInstanceForList(NonScheduledList list) {
 
     MainEditFragment fragment = new MainEditFragment();
 
@@ -172,7 +177,7 @@ public class MainEditFragment extends BasePreferenceFragmentCompat
   }
 
   @Override
-  public void onAttach(Context context) {
+  public void onAttach(@NonNull Context context) {
 
     super.onAttach(context);
     activity = (MainActivity)context;
@@ -221,7 +226,7 @@ public class MainEditFragment extends BasePreferenceFragmentCompat
         checkNotNull(item);
       }
 
-      //GeneralSettingsに影響を受ける部分の設定の初期化
+      // GeneralSettingsに影響を受ける部分の設定の初期化
       if(!is_edit && order == 0) {
         Item defaultItem = activity.generalSettings.getItem();
         item.setWhich_tag_belongs(defaultItem.getWhich_tag_belongs());
@@ -235,40 +240,41 @@ public class MainEditFragment extends BasePreferenceFragmentCompat
         item.setWhich_tag_belongs(defaultItem.getWhich_tag_belongs());
       }
 
-      //各プリファレンスの初期化
+      // 各プリファレンスの初期化
       PreferenceScreen rootPreferenceScreen = getPreferenceScreen();
 
-      //titleセクション
+      // titleセクション
       PreferenceCategory title = (PreferenceCategory)findPreference("title");
 
-      //detailセクション
+      // detailセクション
       detail = (EditTextPreference)findPreference("detail");
       detail.setText(detail_str);
       detail.setTitle(detail_str);
       detail.setOnPreferenceClickListener(this);
       detail.setOnPreferenceChangeListener(this);
 
-      //scheduleセクション
+      // scheduleセクション
       PreferenceCategory schedule = (PreferenceCategory)findPreference("schedule");
       datePicker = (PreferenceScreen)findPreference("date_picker");
       datePicker.setOnPreferenceClickListener(this);
       timePicker = (PreferenceScreen)findPreference("time_picker");
       timePicker.setOnPreferenceClickListener(this);
 
-      //colorセクション
+      // colorセクション
       PreferenceCategory colorCategory = (PreferenceCategory)findPreference("color");
       PreferenceScreen primaryColor = (PreferenceScreen)findPreference("primary_color");
       primaryColor.setOnPreferenceClickListener(this);
       PreferenceScreen secondaryColor = (PreferenceScreen)findPreference("secondary_color");
       secondaryColor.setOnPreferenceClickListener(this);
 
-      //tagセクション
+      // tagセクション
       PreferenceCategory tagCategory = (PreferenceCategory)findPreference("tag_category");
       tag = (PreferenceScreen)findPreference("tag");
       tag.setOnPreferenceClickListener(this);
 
-      //notificationセクション
-      PreferenceCategory notificationCategory = (PreferenceCategory)findPreference("notification_category");
+      // notificationセクション
+      PreferenceCategory notificationCategory =
+          (PreferenceCategory)findPreference("notification_category");
       intervalItem = (PreferenceScreen)findPreference("interval");
       intervalItem.setOnPreferenceClickListener(this);
       pickAlarm = findPreference("pick_alarm");
@@ -277,13 +283,13 @@ public class MainEditFragment extends BasePreferenceFragmentCompat
         notificationCategory.removePreference(pickAlarm);
       }
 
-      //repeatセクション
+      // repeatセクション
       dayRepeatItem = (PreferenceScreen)findPreference("repeat_day_unit");
       dayRepeatItem.setOnPreferenceClickListener(this);
       minuteRepeatItem = (PreferenceScreen)findPreference("repeat_minute_unit");
       minuteRepeatItem.setOnPreferenceClickListener(this);
 
-      //notesセクション
+      // notesセクション
       PreferenceCategory notes_category = (PreferenceCategory)findPreference("notes_category");
       notes = (PreferenceScreen)findPreference("notes");
       notes.setOnPreferenceClickListener(this);
@@ -326,13 +332,17 @@ public class MainEditFragment extends BasePreferenceFragmentCompat
 
     super.onViewCreated(view, savedInstanceState);
 
-    //設定項目間の区切り線の非表示
+    // 設定項目間の区切り線の非表示
     setDivider(new ColorDrawable(Color.TRANSPARENT));
     setDividerHeight(0);
   }
 
   @Override
-  public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
+  public View onCreateView(
+      LayoutInflater inflater,
+      @Nullable ViewGroup container,
+      @Nullable Bundle savedInstanceState
+  ) {
 
     if(!is_destroyed) {
       if(MainEditFragment.is_main_popping) {
@@ -379,12 +389,12 @@ public class MainEditFragment extends BasePreferenceFragmentCompat
       actionBar.setDisplayHomeAsUpEnabled(true);
       actionBar.setTitle(R.string.edit);
 
-      //タイトルが未入力の場合、ヒントを表示
+      // タイトルが未入力の場合、ヒントを表示
       if(detail_str == null || detail_str.equals("")) {
         detail.setSummary(R.string.detail_hint);
       }
 
-      //タスクの期限のラベルの初期化
+      // タスクの期限のラベルの初期化
       if(order == 0 || is_moving_task) {
         if(LOCALE.equals(Locale.JAPAN)) {
           datePicker.setTitle(DateFormat.format("yyyy年M月d日(E)", final_cal));
@@ -395,21 +405,25 @@ public class MainEditFragment extends BasePreferenceFragmentCompat
         timePicker.setTitle(DateFormat.format("kk:mm", final_cal));
       }
 
-      //メモのラベルの初期化
+      // メモのラベルの初期化
       if(order == 0 || order == 1 || is_moving_task) {
         if(item.getNotesList().size() == 0) {
           notes.setSummary(R.string.none);
         }
-        else notes.setSummary(item.getNotesString());
+        else {
+          notes.setSummary(item.getNotesString());
+        }
       }
 
-      //Tagのラベルの初期化
+      // Tagのラベルの初期化
       if(order == 0 || order == 1 || order == 4 || is_moving_task) {
         if(item.getWhich_tag_belongs() == 0) {
           tag.setSummary(getString(R.string.none));
         }
         else {
-          tag.setSummary(activity.generalSettings.getTagById(item.getWhich_tag_belongs()).getName());
+          tag.setSummary(activity.generalSettings
+              .getTagById(item.getWhich_tag_belongs())
+              .getName());
         }
       }
       else if(order == 3) {
@@ -417,23 +431,39 @@ public class MainEditFragment extends BasePreferenceFragmentCompat
           tag.setSummary(getString(R.string.none));
         }
         else {
-          tag.setSummary(activity.generalSettings.getTagById(list.getWhich_tag_belongs()).getName());
+          tag.setSummary(activity.generalSettings
+              .getTagById(list.getWhich_tag_belongs())
+              .getName());
         }
       }
 
-      //Repeat、NotifyInterval、AlarmSoundのラベルの初期化
+      // Repeat、NotifyInterval、AlarmSoundのラベルの初期化
       if(order == 0 || order == 4 || is_moving_task) {
-        if(notifyInterval.getLabel() == null) intervalItem.setSummary(R.string.none);
-        else intervalItem.setSummary(notifyInterval.getLabel());
+        if(notifyInterval.getLabel() == null) {
+          intervalItem.setSummary(R.string.none);
+        }
+        else {
+          intervalItem.setSummary(notifyInterval.getLabel());
+        }
 
-        if(dayRepeat.getLabel() == null) dayRepeatItem.setSummary(R.string.none);
-        else dayRepeatItem.setSummary(dayRepeat.getLabel());
+        if(dayRepeat.getLabel() == null) {
+          dayRepeatItem.setSummary(R.string.none);
+        }
+        else {
+          dayRepeatItem.setSummary(dayRepeat.getLabel());
+        }
 
-        if(minuteRepeat.getLabel() == null) minuteRepeatItem.setSummary(R.string.none);
-        else minuteRepeatItem.setSummary(minuteRepeat.getLabel());
+        if(minuteRepeat.getLabel() == null) {
+          minuteRepeatItem.setSummary(R.string.none);
+        }
+        else {
+          minuteRepeatItem.setSummary(minuteRepeat.getLabel());
+        }
 
         String uriString = item.getSoundUri();
-        if(uriString == null) pickAlarm.setSummary(R.string.none);
+        if(uriString == null) {
+          pickAlarm.setSummary(R.string.none);
+        }
         else {
           Ringtone ringtone = RingtoneManager.getRingtone(activity, Uri.parse(uriString));
           pickAlarm.setSummary(ringtone.getTitle(activity));
@@ -442,34 +472,44 @@ public class MainEditFragment extends BasePreferenceFragmentCompat
 
       return view;
     }
-    else return null;
+    else {
+      return null;
+    }
   }
 
   @Override
-  public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
+  public void onCreateOptionsMenu(@NonNull Menu menu, @NonNull MenuInflater inflater) {
 
     super.onCreateOptionsMenu(menu, inflater);
     inflater.inflate(R.menu.main_edit_menu, menu);
 
-    //完了メニューの実装
+    // 完了メニューの実装
     MenuItem done_item = menu.findItem(R.id.done);
     Drawable drawable = ContextCompat.getDrawable(activity, R.drawable.ic_check_circle_24dp);
     checkNotNull(drawable);
     drawable = drawable.mutate();
-    drawable.setColorFilter(activity.menu_item_color, PorterDuff.Mode.SRC_IN);
+    drawable.setColorFilter(new PorterDuffColorFilter(
+        activity.menu_item_color,
+        PorterDuff.Mode.SRC_IN
+    ));
     done_item.setIcon(drawable);
 
-    //削除メニューの実装
+    // 削除メニューの実装
     MenuItem delete_item = menu.findItem(R.id.delete);
     if(is_edit && !is_moving_task && !is_cloning_task && order != 4) {
       drawable = ContextCompat.getDrawable(activity, R.drawable.ic_delete_24dp);
       checkNotNull(drawable);
       drawable = drawable.mutate();
-      drawable.setColorFilter(activity.menu_item_color, PorterDuff.Mode.SRC_IN);
+      drawable.setColorFilter(new PorterDuffColorFilter(
+          activity.menu_item_color,
+          PorterDuff.Mode.SRC_IN
+      ));
       delete_item.setIcon(drawable);
       delete_item.setVisible(true);
     }
-    else delete_item.setVisible(false);
+    else {
+      delete_item.setVisible(false);
+    }
   }
 
   @Override
@@ -479,7 +519,8 @@ public class MainEditFragment extends BasePreferenceFragmentCompat
       case R.id.done: {
         if((order == 0 || is_moving_task) && is_edit
             && MainEditFragment.item.getDate().getTimeInMillis() != final_cal.getTimeInMillis()
-            && (MainEditFragment.dayRepeat.getSetted() != 0 || MainEditFragment.minuteRepeat.getWhich_setted() != 0)) {
+            && (MainEditFragment.dayRepeat.getSetted() != 0 ||
+            MainEditFragment.minuteRepeat.getWhich_setted() != 0)) {
 
           final AlertDialog dialog = new AlertDialog.Builder(activity)
               .setMessage(R.string.repeat_conflict_dialog_message)
@@ -488,9 +529,12 @@ public class MainEditFragment extends BasePreferenceFragmentCompat
                 public void onClick(DialogInterface dialog, int which) {
 
                   if(MainEditFragment.item.getTime_altered() == 0) {
-                    MainEditFragment.item.setOrg_date((Calendar)MainEditFragment.item.getDate().clone());
+                    MainEditFragment.item.setOrg_date((Calendar)MainEditFragment.item
+                        .getDate()
+                        .clone());
                   }
-                  long altered_time = final_cal.getTimeInMillis() - MainEditFragment.item.getDate().getTimeInMillis();
+                  long altered_time = final_cal.getTimeInMillis() -
+                      MainEditFragment.item.getDate().getTimeInMillis();
                   MainEditFragment.item.addTime_altered(altered_time);
 
                   registerItem();
@@ -509,6 +553,7 @@ public class MainEditFragment extends BasePreferenceFragmentCompat
               .setNeutralButton(R.string.cancel, new DialogInterface.OnClickListener() {
                 @Override
                 public void onClick(DialogInterface dialog, int which) {
+
                 }
               })
               .create();
@@ -525,7 +570,9 @@ public class MainEditFragment extends BasePreferenceFragmentCompat
 
           dialog.show();
         }
-        else registerItem();
+        else {
+          registerItem();
+        }
         return true;
       }
       case R.id.delete: {
@@ -540,23 +587,26 @@ public class MainEditFragment extends BasePreferenceFragmentCompat
                 if(order == 0) {
 
                   activity.deleteDB(MainEditFragment.item, MyDatabaseHelper.TODO_TABLE);
-                  MyExpandableListAdapter.children = activity.getChildren(MyDatabaseHelper.TODO_TABLE);
+                  MyExpandableListAdapter.children =
+                      activity.getChildren(MyDatabaseHelper.TODO_TABLE);
                   activity.deleteAlarm(MainEditFragment.item);
                   activity.expandableListAdapter.notifyDataSetChanged();
                 }
                 else if(order == 1) {
                   activity.deleteDB(MainEditFragment.item, MyDatabaseHelper.TODO_TABLE);
-                  MyListAdapter.itemList = activity.getNonScheduledItem(MyDatabaseHelper.TODO_TABLE);
+                  MyListAdapter.itemList =
+                      activity.getNonScheduledItem(MyDatabaseHelper.TODO_TABLE);
                   activity.listAdapter.notifyDataSetChanged();
                 }
                 else if(order == 3) {
-                  //GeneralSettingsとManageListAdapterへの反映
+                  // GeneralSettingsとManageListAdapterへの反映
                   activity.generalSettings.getNonScheduledLists().remove(list.getOrder());
                   int size = activity.generalSettings.getNonScheduledLists().size();
                   for(int i = 0; i < size; i++) {
                     activity.generalSettings.getNonScheduledLists().get(i).setOrder(i);
                   }
-                  ManageListAdapter.nonScheduledLists = new ArrayList<>(activity.generalSettings.getNonScheduledLists());
+                  ManageListAdapter.nonScheduledLists =
+                      new ArrayList<>(activity.generalSettings.getNonScheduledLists());
                   activity.manageListAdapter.notifyDataSetChanged();
 
                   long id = list.getId();
@@ -566,40 +616,49 @@ public class MainEditFragment extends BasePreferenceFragmentCompat
                     }
                   }
 
-                  //一旦reminder_listグループ内のアイテムをすべて消してから元に戻すことで新しく追加したリストの順番を追加した順に並び替える
+                  // 一旦reminder_listグループ内のアイテムをすべて消してから元に戻すことで新しく追加したリストの順番を追加した順に並び替える
 
-                  //デフォルトアイテムのリストア
+                  // デフォルトアイテムのリストア
                   activity.menu.removeGroup(R.id.reminder_list);
-                  activity.menu.add(R.id.reminder_list, R.id.scheduled_list, 0, R.string.nav_scheduled_item)
+                  activity.menu
+                      .add(R.id.reminder_list, R.id.scheduled_list, 0, R.string.nav_scheduled_item)
                       .setIcon(R.drawable.ic_time)
                       .setCheckable(true);
                   activity.menu.add(R.id.reminder_list, R.id.add_list, 2, R.string.add_list)
                       .setIcon(R.drawable.ic_add_24dp)
                       .setCheckable(false);
 
-                  //新しく追加したリストのリストア
+                  // 新しく追加したリストのリストア
                   for(NonScheduledList list : activity.generalSettings.getNonScheduledLists()) {
-                    Drawable drawable = ContextCompat.getDrawable(activity, R.drawable.ic_my_list_24dp);
+                    Drawable drawable =
+                        ContextCompat.getDrawable(activity, R.drawable.ic_my_list_24dp);
                     checkNotNull(drawable);
                     drawable = drawable.mutate();
                     if(list.getColor() != 0) {
-                      drawable.setColorFilter(list.getColor(), PorterDuff.Mode.SRC_IN);
+                      drawable.setColorFilter(new PorterDuffColorFilter(
+                          list.getColor(),
+                          PorterDuff.Mode.SRC_IN
+                      ));
                     }
                     else {
-                      drawable.setColorFilter(ContextCompat.getColor(activity, R.color.icon_gray), PorterDuff.Mode.SRC_IN);
+                      drawable.setColorFilter(new PorterDuffColorFilter(
+                          ContextCompat.getColor(activity, R.color.icon_gray),
+                          PorterDuff.Mode.SRC_IN
+                      ));
                     }
                     activity.menu.add(R.id.reminder_list, generateUniqueId(), 1, list.getTitle())
                         .setIcon(drawable)
                         .setCheckable(true);
                   }
 
-                  if(order != 0) {
-                    activity.setIntGeneralInSharedPreferences(MENU_POSITION, activity.whichMenuOpen - 1);
-                    activity.menuItem = activity.menu.getItem(activity.whichMenuOpen);
-                  }
+                  activity.setIntGeneralInSharedPreferences(
+                      MENU_POSITION,
+                      activity.whichMenuOpen - 1
+                  );
+                  activity.menuItem = activity.menu.getItem(activity.whichMenuOpen);
                   activity.navigationView.setCheckedItem(activity.menuItem);
 
-                  //データベースへの反映
+                  // データベースへの反映
                   activity.updateSettingsDB();
                 }
 
@@ -611,6 +670,7 @@ public class MainEditFragment extends BasePreferenceFragmentCompat
             .setNeutralButton(R.string.cancel, new DialogInterface.OnClickListener() {
               @Override
               public void onClick(DialogInterface dialog, int which) {
+
               }
             })
             .create();
@@ -690,13 +750,13 @@ public class MainEditFragment extends BasePreferenceFragmentCompat
       }
       case "date_picker": {
 
-        DatePickerDialogFragment dialog = new DatePickerDialogFragment();
+        DatePickerDialogFragment dialog = new DatePickerDialogFragment(this);
         dialog.show(activity.getSupportFragmentManager(), "date_picker");
         return true;
       }
       case "time_picker": {
 
-        TimePickerDialogFragment dialog = new TimePickerDialogFragment();
+        TimePickerDialogFragment dialog = new TimePickerDialogFragment(this);
         dialog.show(activity.getSupportFragmentManager(), "time_picker");
         return true;
       }
@@ -713,7 +773,9 @@ public class MainEditFragment extends BasePreferenceFragmentCompat
       }
       case "tag": {
 
-        if(order == 3) ColorPickerListAdapter.from_list_tag_edit = true;
+        if(order == 3) {
+          ColorPickerListAdapter.from_list_tag_edit = true;
+        }
         activity.showTagEditListViewFragment();
         return true;
       }
@@ -739,7 +801,10 @@ public class MainEditFragment extends BasePreferenceFragmentCompat
         intent.putExtra(RingtoneManager.EXTRA_RINGTONE_TYPE, RingtoneManager.TYPE_ALL);
         intent.putExtra(RingtoneManager.EXTRA_RINGTONE_SHOW_DEFAULT, true);
         intent.putExtra(RingtoneManager.EXTRA_RINGTONE_SHOW_SILENT, true);
-        intent.putExtra(RingtoneManager.EXTRA_RINGTONE_DEFAULT_URI, Uri.parse(activity.generalSettings.getItem().getSoundUri()));
+        intent.putExtra(
+            RingtoneManager.EXTRA_RINGTONE_DEFAULT_URI,
+            Uri.parse(activity.generalSettings.getItem().getSoundUri())
+        );
         String uriString = item.getSoundUri();
         if(uriString != null) {
           intent.putExtra(RingtoneManager.EXTRA_RINGTONE_EXISTING_URI, Uri.parse(uriString));
@@ -765,11 +830,13 @@ public class MainEditFragment extends BasePreferenceFragmentCompat
       case "detail": {
         detail_str = (String)newValue;
 
-        //タイトルが未入力の場合、ヒントを表示
+        // タイトルが未入力の場合、ヒントを表示
         if(detail_str == null || detail_str.equals("")) {
           detail.setSummary(R.string.detail_hint);
         }
-        else detail.setSummary(null);
+        else {
+          detail.setSummary(null);
+        }
         detail.setTitle(detail_str);
 
         return true;
@@ -808,24 +875,36 @@ public class MainEditFragment extends BasePreferenceFragmentCompat
 
         item.setDate((Calendar)final_cal.clone());
 
-        //notifyIntervalの登録
+        // notifyIntervalの登録
         notifyInterval.setTime(notifyInterval.getOrg_time());
         item.setNotify_interval(notifyInterval.clone());
 
-        //dayRepeatの登録
+        // dayRepeatの登録
         if(dayRepeat.getSetted() != 0) {
-          if(dayRepeat.getSetted() == 1) dayRepeat.dayClear();
-          else if(dayRepeat.getSetted() == (1 << 1)) dayRepeat.weekClear();
-          else if(dayRepeat.getSetted() == (1 << 2)) {
-            if(dayRepeat.isDays_of_month_setted()) dayRepeat.daysOfMonthClear();
-            else dayRepeat.onTheMonthClear();
+          if(dayRepeat.getSetted() == 1) {
+            dayRepeat.dayClear();
           }
-          else if(dayRepeat.getSetted() == (1 << 3)) dayRepeat.yearClear();
+          else if(dayRepeat.getSetted() == (1 << 1)) {
+            dayRepeat.weekClear();
+          }
+          else if(dayRepeat.getSetted() == (1 << 2)) {
+            if(dayRepeat.isDays_of_month_setted()) {
+              dayRepeat.daysOfMonthClear();
+            }
+            else {
+              dayRepeat.onTheMonthClear();
+            }
+          }
+          else if(dayRepeat.getSetted() == (1 << 3)) {
+            dayRepeat.yearClear();
+          }
         }
-        else dayRepeat.clear();
+        else {
+          dayRepeat.clear();
+        }
         item.setDayRepeat(dayRepeat.clone());
 
-        //minuteRepeatの登録
+        // minuteRepeatの登録
         if(minuteRepeat.getWhich_setted() != 0) {
           if(minuteRepeat.getWhich_setted() == 1) {
             minuteRepeat.setCount(minuteRepeat.getOrg_count());
@@ -836,12 +915,16 @@ public class MainEditFragment extends BasePreferenceFragmentCompat
             minuteRepeat.durationClear();
           }
         }
-        else minuteRepeat.clear();
+        else {
+          minuteRepeat.clear();
+        }
         item.setMinuteRepeat(minuteRepeat.clone());
 
         item.setAlarm_stopped(false);
 
-        if(is_moving_task) item.setWhich_list_belongs(0);
+        if(is_moving_task) {
+          item.setWhich_list_belongs(0);
+        }
 
         if(order != 4) {
           if(is_edit && !is_cloning_task) {
@@ -854,7 +937,9 @@ public class MainEditFragment extends BasePreferenceFragmentCompat
             }
             activity.expandableListAdapter.notifyDataSetChanged();
           }
-          else activity.addChildren(item, MyDatabaseHelper.TODO_TABLE);
+          else {
+            activity.addChildren(item, MyDatabaseHelper.TODO_TABLE);
+          }
 
           ExpandableListViewFragment.updatedItemId = item.getId();
 
@@ -868,7 +953,7 @@ public class MainEditFragment extends BasePreferenceFragmentCompat
       }
       else if(order == 1) {
 
-        //リストのIDをitemに登録する
+        // リストのIDをitemに登録する
         item.setWhich_list_belongs(
             activity.generalSettings.getNonScheduledLists().get(activity.whichMenuOpen - 1).getId()
         );
@@ -885,8 +970,12 @@ public class MainEditFragment extends BasePreferenceFragmentCompat
           for(int i = 0; i < size; i++) {
             Item item = MyListAdapter.itemList.get(i);
             item.setOrder(i);
-            if(i == 0) activity.insertDB(item, MyDatabaseHelper.TODO_TABLE);
-            else activity.updateDB(item, MyDatabaseHelper.TODO_TABLE);
+            if(i == 0) {
+              activity.insertDB(item, MyDatabaseHelper.TODO_TABLE);
+            }
+            else {
+              activity.updateDB(item, MyDatabaseHelper.TODO_TABLE);
+            }
           }
 
           activity.listAdapter.notifyDataSetChanged();
@@ -901,7 +990,7 @@ public class MainEditFragment extends BasePreferenceFragmentCompat
       list.setTitle(detail_str);
 
       if(!is_edit) {
-        //GeneralSettingsとManageListAdapterへの反映
+        // GeneralSettingsとManageListAdapterへの反映
         activity.generalSettings.getNonScheduledLists().add(0, list);
         int size = activity.generalSettings.getNonScheduledLists().size();
         for(int i = 0; i < size; i++) {
@@ -911,12 +1000,14 @@ public class MainEditFragment extends BasePreferenceFragmentCompat
       else {
         activity.generalSettings.setNonScheduledList(list);
       }
-      ManageListAdapter.nonScheduledLists = new ArrayList<>(activity.generalSettings.getNonScheduledLists());
+      ManageListAdapter.nonScheduledLists =
+          new ArrayList<>(activity.generalSettings.getNonScheduledLists());
       activity.manageListAdapter.notifyDataSetChanged();
 
-      //一旦reminder_listグループ内のアイテムをすべて消してから元に戻すことで新しく追加したリストの順番を追加した順に並び替える
+      // 一旦reminder_listグループ内のアイテムをすべて消してから元に戻すことで
+      // 新しく追加したリストの順番を追加した順に並び替える
 
-      //デフォルトアイテムのリストア
+      // デフォルトアイテムのリストア
       activity.menu.removeGroup(R.id.reminder_list);
       activity.menu.add(R.id.reminder_list, R.id.scheduled_list, 0, R.string.nav_scheduled_item)
           .setIcon(R.drawable.ic_time)
@@ -925,29 +1016,35 @@ public class MainEditFragment extends BasePreferenceFragmentCompat
           .setIcon(R.drawable.ic_add_24dp)
           .setCheckable(false);
 
-      //新しく追加したリストのリストア
+      // 新しく追加したリストのリストア
       for(NonScheduledList list : activity.generalSettings.getNonScheduledLists()) {
         Drawable drawable = ContextCompat.getDrawable(activity, R.drawable.ic_my_list_24dp);
         checkNotNull(drawable);
         drawable = drawable.mutate();
         if(list.getColor() != 0) {
-          drawable.setColorFilter(list.getColor(), PorterDuff.Mode.SRC_IN);
+          drawable.setColorFilter(new PorterDuffColorFilter(
+              list.getColor(),
+              PorterDuff.Mode.SRC_IN
+          ));
         }
         else {
-          drawable.setColorFilter(ContextCompat.getColor(activity, R.color.icon_gray), PorterDuff.Mode.SRC_IN);
+          drawable.setColorFilter(new PorterDuffColorFilter(
+              ContextCompat.getColor(activity, R.color.icon_gray),
+              PorterDuff.Mode.SRC_IN
+          ));
         }
         activity.menu.add(R.id.reminder_list, generateUniqueId(), 1, list.getTitle())
             .setIcon(drawable)
             .setCheckable(true);
       }
 
-      if(order != 0) {
+      if(!is_edit) {
         activity.setIntGeneralInSharedPreferences(MENU_POSITION, activity.whichMenuOpen + 1);
         activity.menuItem = activity.menu.getItem(activity.whichMenuOpen);
       }
       activity.navigationView.setCheckedItem(activity.menuItem);
 
-      //データベースへの反映
+      // データベースへの反映
       activity.updateSettingsDB();
     }
 

@@ -3,14 +3,17 @@ package com.hideaki.kk_reminder;
 import android.content.Context;
 import android.content.res.Resources;
 import android.os.Bundle;
-import android.support.annotation.Nullable;
-import android.support.v4.app.FragmentManager;
-import android.support.v4.content.ContextCompat;
-import android.support.v7.app.ActionBar;
-import android.support.v7.preference.CheckBoxPreference;
-import android.support.v7.preference.Preference;
-import android.support.v7.preference.PreferenceScreen;
-import android.support.v7.widget.Toolbar;
+
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.fragment.app.FragmentManager;
+import androidx.core.content.ContextCompat;
+import androidx.appcompat.app.ActionBar;
+import androidx.preference.CheckBoxPreference;
+import androidx.preference.Preference;
+import androidx.preference.PreferenceScreen;
+import androidx.appcompat.widget.Toolbar;
+
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
@@ -24,22 +27,32 @@ import static com.google.common.base.Preconditions.checkNotNull;
 import static com.hideaki.kk_reminder.UtilClass.LOCALE;
 
 public class DayRepeatCustomPickerFragment extends BasePreferenceFragmentCompat
-    implements Preference.OnPreferenceClickListener, MyCheckBoxPreference.MyCheckBoxPreferenceCheckedChangeListener {
+    implements
+    Preference.OnPreferenceClickListener,
+    MyCheckBoxPreference.MyCheckBoxPreferenceCheckedChangeListener {
 
   static final String[] DAY_OF_WEEK_LIST_JA = {"月", "火", "水", "木", "金", "土", "日"};
   static final String[] DAY_OF_WEEK_LIST_EN = {"Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"};
-  static final String[] MONTH_LIST_EN = {"Jan.", "Feb.", "Mar.", "Apr.", "May", "Jun.", "Jul.",
-      "Aug.", "Sep.", "Oct.", "Nov.", "Dec."};
+  private static final String[] MONTH_LIST_EN = {
+      "Jan.", "Feb.", "Mar.", "Apr.", "May", "Jun.",
+      "Jul.", "Aug.", "Sep.", "Oct.", "Nov.", "Dec."
+  };
 
-  static PreferenceScreen rootPreferenceScreen;
-  static PreferenceScreen picker;
-  static Preference week;
-  static CheckBoxPreference days_of_month;
-  static Preference days_of_month_picker;
-  static CheckBoxPreference on_the_month;
-  static PreferenceScreen onTheMonthPicker;
-  static Preference year;
+  PreferenceScreen rootPreferenceScreen;
+  PreferenceScreen picker;
+  Preference week;
+  CheckBoxPreference days_of_month;
+  Preference days_of_month_picker;
+  CheckBoxPreference on_the_month;
+  PreferenceScreen onTheMonthPicker;
+  Preference year;
   private MainActivity activity;
+  private DayRepeatEditFragment dayRepeatEditFragment;
+
+  void setDayRepeatEditFragment(DayRepeatEditFragment dayRepeatEditFragment) {
+
+    this.dayRepeatEditFragment = dayRepeatEditFragment;
+  }
 
   public static DayRepeatCustomPickerFragment newInstance() {
 
@@ -47,7 +60,7 @@ public class DayRepeatCustomPickerFragment extends BasePreferenceFragmentCompat
   }
 
   @Override
-  public void onAttach(Context context) {
+  public void onAttach(@NonNull Context context) {
 
     super.onAttach(context);
     activity = (MainActivity)context;
@@ -80,7 +93,11 @@ public class DayRepeatCustomPickerFragment extends BasePreferenceFragmentCompat
   }
 
   @Override
-  public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
+  public View onCreateView(
+      LayoutInflater inflater,
+      @Nullable ViewGroup container,
+      @Nullable Bundle savedInstanceState
+  ) {
 
     View view = super.onCreateView(inflater, container, savedInstanceState);
     checkNotNull(view);
@@ -112,30 +129,30 @@ public class DayRepeatCustomPickerFragment extends BasePreferenceFragmentCompat
     int interval = MainEditFragment.dayRepeat.getInterval();
     int scale = MainEditFragment.dayRepeat.getScale();
 
-    //Intervalの初期化
+    // Intervalの初期化
     if(interval == 0) {
       interval = 1;
       MainEditFragment.dayRepeat.setInterval(1);
     }
 
-    //Scaleの初期化
+    // Scaleの初期化
     if(scale == 0) {
       scale = 1;
       MainEditFragment.dayRepeat.setScale(1);
       MainEditFragment.dayRepeat.setDay(true);
     }
 
-    //Ordinal Numberの初期化
+    // Ordinal Numberの初期化
     if(MainEditFragment.dayRepeat.getOrdinal_number() == 0) {
       MainEditFragment.dayRepeat.setOrdinal_number(1);
     }
 
-    //On the monthの初期化
+    // On the monthの初期化
     if(MainEditFragment.dayRepeat.getOn_the_month() == null) {
       MainEditFragment.dayRepeat.setOn_the_month(Week.MON);
     }
 
-    //Scaleの表示処理
+    // Scaleの表示処理
     String intervalLabel = "";
     Resources res = getResources();
     rootPreferenceScreen.removeAll();
@@ -173,7 +190,9 @@ public class DayRepeatCustomPickerFragment extends BasePreferenceFragmentCompat
         if(MainEditFragment.dayRepeat.isDays_of_month_setted()) {
           rootPreferenceScreen.addPreference(days_of_month_picker);
         }
-        else rootPreferenceScreen.addPreference(onTheMonthPicker);
+        else {
+          rootPreferenceScreen.addPreference(onTheMonthPicker);
+        }
 
         if(LOCALE.equals(Locale.JAPAN) && interval == 1) {
           intervalLabel = getString(R.string.everymonth);
@@ -182,7 +201,7 @@ public class DayRepeatCustomPickerFragment extends BasePreferenceFragmentCompat
           intervalLabel = res.getQuantityString(R.plurals.per_month, interval, interval);
         }
 
-        //onTheMonthPickerのラベルを初期化
+        // onTheMonthPickerのラベルを初期化
         String label = "";
         if(!MainEditFragment.dayRepeat.isDays_of_month_setted()) {
           if(MainEditFragment.dayRepeat.getOrdinal_number() < 5) {
@@ -192,36 +211,57 @@ public class DayRepeatCustomPickerFragment extends BasePreferenceFragmentCompat
             else {
               int ordinal_num = MainEditFragment.dayRepeat.getOrdinal_number();
               String ordinal_str = ordinal_num + "";
-              if(ordinal_num == 1) ordinal_str += "st";
-              else if(ordinal_num == 2) ordinal_str += "nd";
-              else if(ordinal_num == 3) ordinal_str += "rd";
-              else ordinal_str += "th";
+              if(ordinal_num == 1) {
+                ordinal_str += "st";
+              }
+              else if(ordinal_num == 2) {
+                ordinal_str += "nd";
+              }
+              else if(ordinal_num == 3) {
+                ordinal_str += "rd";
+              }
+              else {
+                ordinal_str += "th";
+              }
               label += ordinal_str + " ";
             }
           }
           else {
-            if(LOCALE.equals(Locale.JAPAN)) label += "最終週の";
-            else label += "Last ";
+            if(LOCALE.equals(Locale.JAPAN)) {
+              label += "最終週の";
+            }
+            else {
+              label += "Last ";
+            }
           }
 
           if(MainEditFragment.dayRepeat.getOn_the_month().ordinal() < 7) {
             if(LOCALE.equals(Locale.JAPAN)) {
-              label += DAY_OF_WEEK_LIST_JA[MainEditFragment.dayRepeat.getOn_the_month().ordinal()] + "曜日";
+              label += DAY_OF_WEEK_LIST_JA[MainEditFragment.dayRepeat.getOn_the_month().ordinal()] +
+                  "曜日";
             }
             else {
               label += DAY_OF_WEEK_LIST_EN[MainEditFragment.dayRepeat.getOn_the_month().ordinal()];
             }
           }
           else if(MainEditFragment.dayRepeat.getOn_the_month().ordinal() == 7) {
-            if(LOCALE.equals(Locale.JAPAN)) label += "平日";
-            else label += "Weekday";
+            if(LOCALE.equals(Locale.JAPAN)) {
+              label += "平日";
+            }
+            else {
+              label += "Weekday";
+            }
           }
           else if(MainEditFragment.dayRepeat.getOn_the_month().ordinal() == 8) {
-            if(LOCALE.equals(Locale.JAPAN)) label += "週末";
-            else label += "Weekend day";
+            if(LOCALE.equals(Locale.JAPAN)) {
+              label += "週末";
+            }
+            else {
+              label += "Weekend day";
+            }
           }
 
-          DayRepeatCustomPickerFragment.onTheMonthPicker.setTitle(label);
+          onTheMonthPicker.setTitle(label);
         }
 
         break;
@@ -241,14 +281,14 @@ public class DayRepeatCustomPickerFragment extends BasePreferenceFragmentCompat
       }
     }
 
-    //Pickerのラベルの初期化
+    // Pickerのラベルの初期化
     picker.setTitle(intervalLabel);
 
     return view;
   }
 
   @Override
-  public boolean onOptionsItemSelected(MenuItem item) {
+  public boolean onOptionsItemSelected(@NonNull MenuItem item) {
 
     registerCustomRepeat();
 
@@ -269,12 +309,12 @@ public class DayRepeatCustomPickerFragment extends BasePreferenceFragmentCompat
         case 1: {
 
           match_to_template = true;
-          DayRepeatEditFragment.everyday.setChecked(true);
-          DayRepeatEditFragment.custom.setChecked(false);
+          dayRepeatEditFragment.everyday.setChecked(true);
+          dayRepeatEditFragment.custom.setChecked(false);
           MainEditFragment.dayRepeat.setSetted(1);
           MainEditFragment.dayRepeat.setWhich_template(1);
           MainEditFragment.dayRepeat.setLabel(getString(R.string.everyday));
-          DayRepeatEditFragment.label.setSummary(R.string.everyday);
+          dayRepeatEditFragment.label.setSummary(R.string.everyday);
 
           break;
         }
@@ -284,8 +324,8 @@ public class DayRepeatCustomPickerFragment extends BasePreferenceFragmentCompat
           if(DayRepeatCustomWeekPickerPreference.week == (1 << (cal_day_of_week - 2)) ||
               DayRepeatCustomWeekPickerPreference.week == (1 << (cal_day_of_week + 5))) {
             match_to_template = true;
-            DayRepeatEditFragment.everyweek.setChecked(true);
-            DayRepeatEditFragment.custom.setChecked(false);
+            dayRepeatEditFragment.everyweek.setChecked(true);
+            dayRepeatEditFragment.custom.setChecked(false);
             MainEditFragment.dayRepeat.setSetted(1 << 1);
             MainEditFragment.dayRepeat.setWhich_template(1 << 2);
             MainEditFragment.dayRepeat.setLabel(DayRepeatEditFragment.label_str_everyweek);
@@ -293,12 +333,12 @@ public class DayRepeatCustomPickerFragment extends BasePreferenceFragmentCompat
 
           if(DayRepeatCustomWeekPickerPreference.week == Integer.parseInt("11111", 2)) {
             match_to_template = true;
-            DayRepeatEditFragment.everyweekday.setChecked(true);
-            DayRepeatEditFragment.custom.setChecked(false);
+            dayRepeatEditFragment.everyweekday.setChecked(true);
+            dayRepeatEditFragment.custom.setChecked(false);
             MainEditFragment.dayRepeat.setSetted(1 << 1);
             MainEditFragment.dayRepeat.setWhich_template(1 << 1);
             MainEditFragment.dayRepeat.setLabel(getString(R.string.everyweekday));
-            DayRepeatEditFragment.label.setSummary(R.string.everyweekday);
+            dayRepeatEditFragment.label.setSummary(R.string.everyweekday);
           }
 
           break;
@@ -307,10 +347,11 @@ public class DayRepeatCustomPickerFragment extends BasePreferenceFragmentCompat
 
           if(MainEditFragment.dayRepeat.isDays_of_month_setted()) {
             int cal_day_of_month = MainEditFragment.final_cal.get(Calendar.DAY_OF_MONTH);
-            if(DayRepeatCustomDaysOfMonthPickerPreference.days_of_month == (1 << (cal_day_of_month - 1))) {
+            if(DayRepeatCustomDaysOfMonthPickerPreference.days_of_month ==
+                (1 << (cal_day_of_month - 1))) {
               match_to_template = true;
-              DayRepeatEditFragment.everymonth.setChecked(true);
-              DayRepeatEditFragment.custom.setChecked(false);
+              dayRepeatEditFragment.everymonth.setChecked(true);
+              dayRepeatEditFragment.custom.setChecked(false);
               MainEditFragment.dayRepeat.setSetted(1 << 2);
               MainEditFragment.dayRepeat.setWhich_template(1 << 3);
               MainEditFragment.dayRepeat.setLabel(DayRepeatEditFragment.label_str_everymonth);
@@ -324,12 +365,13 @@ public class DayRepeatCustomPickerFragment extends BasePreferenceFragmentCompat
           int cal_month = MainEditFragment.final_cal.get(Calendar.MONTH);
           if(DayRepeatCustomYearPickerPreference.year == (1 << cal_month)) {
             match_to_template = true;
-            DayRepeatEditFragment.everyyear.setChecked(true);
-            DayRepeatEditFragment.custom.setChecked(false);
+            dayRepeatEditFragment.everyyear.setChecked(true);
+            dayRepeatEditFragment.custom.setChecked(false);
             MainEditFragment.dayRepeat.setSetted(1 << 3);
             MainEditFragment.dayRepeat.setWhich_template(1 << 4);
             MainEditFragment.dayRepeat.setLabel(DayRepeatEditFragment.label_str_everyyear);
-            MainEditFragment.dayRepeat.setDay_of_month_of_year(MainEditFragment.final_cal.get(Calendar.DAY_OF_MONTH));
+            MainEditFragment.dayRepeat.setDay_of_month_of_year(MainEditFragment.final_cal.get(
+                Calendar.DAY_OF_MONTH));
           }
 
           break;
@@ -339,12 +381,24 @@ public class DayRepeatCustomPickerFragment extends BasePreferenceFragmentCompat
 
     if(!match_to_template) {
       MainEditFragment.dayRepeat.setWhich_template(1 << 5);
-      if(DayRepeatEditFragment.everyday.isChecked()) DayRepeatEditFragment.everyday.setChecked(false);
-      if(DayRepeatEditFragment.everyweekday.isChecked()) DayRepeatEditFragment.everyweekday.setChecked(false);
-      if(DayRepeatEditFragment.everyweek.isChecked()) DayRepeatEditFragment.everyweek.setChecked(false);
-      if(DayRepeatEditFragment.everymonth.isChecked()) DayRepeatEditFragment.everymonth.setChecked(false);
-      if(DayRepeatEditFragment.everyyear.isChecked()) DayRepeatEditFragment.everyyear.setChecked(false);
-      if(!DayRepeatEditFragment.custom.isChecked()) DayRepeatEditFragment.custom.setChecked(true);
+      if(dayRepeatEditFragment.everyday.isChecked()) {
+        dayRepeatEditFragment.everyday.setChecked(false);
+      }
+      if(dayRepeatEditFragment.everyweekday.isChecked()) {
+        dayRepeatEditFragment.everyweekday.setChecked(false);
+      }
+      if(dayRepeatEditFragment.everyweek.isChecked()) {
+        dayRepeatEditFragment.everyweek.setChecked(false);
+      }
+      if(dayRepeatEditFragment.everymonth.isChecked()) {
+        dayRepeatEditFragment.everymonth.setChecked(false);
+      }
+      if(dayRepeatEditFragment.everyyear.isChecked()) {
+        dayRepeatEditFragment.everyyear.setChecked(false);
+      }
+      if(!dayRepeatEditFragment.custom.isChecked()) {
+        dayRepeatEditFragment.custom.setChecked(true);
+      }
 
       Resources res = getResources();
       String label = "";
@@ -364,11 +418,17 @@ public class DayRepeatCustomPickerFragment extends BasePreferenceFragmentCompat
         case 2: {
 
           MainEditFragment.dayRepeat.setSetted(1 << 1);
-          if(interval == 1 && LOCALE.equals(Locale.JAPAN)) label = "毎週";
+          if(interval == 1 && LOCALE.equals(Locale.JAPAN)) {
+            label = "毎週";
+          }
           else {
             label = res.getQuantityString(R.plurals.per_week, interval, interval);
-            if(LOCALE.equals(Locale.JAPAN)) label += "、";
-            else label += " on ";
+            if(LOCALE.equals(Locale.JAPAN)) {
+              label += "、";
+            }
+            else {
+              label += " on ";
+            }
           }
 
           stringBuilder = new StringBuilder(tmp);
@@ -378,23 +438,35 @@ public class DayRepeatCustomPickerFragment extends BasePreferenceFragmentCompat
               if(LOCALE.equals(Locale.JAPAN)) {
                 stringBuilder.append(DAY_OF_WEEK_LIST_JA[i]).append(", ");
               }
-              else stringBuilder.append(DAY_OF_WEEK_LIST_EN[i]).append(", ");
+              else {
+                stringBuilder.append(DAY_OF_WEEK_LIST_EN[i]).append(", ");
+              }
             }
           }
           tmp = stringBuilder.substring(0, stringBuilder.length() - 2);
-          if(LOCALE.equals(Locale.JAPAN)) label += tmp + "曜日";
-          else label += tmp;
+          if(LOCALE.equals(Locale.JAPAN)) {
+            label += tmp + "曜日";
+          }
+          else {
+            label += tmp;
+          }
 
           break;
         }
         case 3: {
 
           MainEditFragment.dayRepeat.setSetted(1 << 2);
-          if(interval == 1 && LOCALE.equals(Locale.JAPAN)) label = "毎月";
+          if(interval == 1 && LOCALE.equals(Locale.JAPAN)) {
+            label = "毎月";
+          }
           else {
             label = res.getQuantityString(R.plurals.per_month, interval, interval);
-            if(LOCALE.equals(Locale.JAPAN)) label += "、";
-            else label += " on the ";
+            if(LOCALE.equals(Locale.JAPAN)) {
+              label += "、";
+            }
+            else {
+              label += " on the ";
+            }
           }
 
           if(MainEditFragment.dayRepeat.isDays_of_month_setted()) {
@@ -410,11 +482,17 @@ public class DayRepeatCustomPickerFragment extends BasePreferenceFragmentCompat
               if(LOCALE.equals(Locale.JAPAN)) {
                 stringBuilder.append("最終, ");
               }
-              else stringBuilder.append("Last, ");
+              else {
+                stringBuilder.append("Last, ");
+              }
             }
             tmp = stringBuilder.substring(0, stringBuilder.length() - 2);
-            if(LOCALE.equals(Locale.JAPAN)) label += tmp + "日";
-            else label += tmp;
+            if(LOCALE.equals(Locale.JAPAN)) {
+              label += tmp + "日";
+            }
+            else {
+              label += tmp;
+            }
           }
           else if(!MainEditFragment.dayRepeat.isDays_of_month_setted()) {
             if(MainEditFragment.dayRepeat.getOrdinal_number() < 5) {
@@ -424,33 +502,56 @@ public class DayRepeatCustomPickerFragment extends BasePreferenceFragmentCompat
               else {
                 int ordinal_num = MainEditFragment.dayRepeat.getOrdinal_number();
                 String ordinal_str = ordinal_num + "";
-                if(ordinal_num == 1) ordinal_str += "st";
-                else if(ordinal_num == 2) ordinal_str += "nd";
-                else if(ordinal_num == 3) ordinal_str += "rd";
-                else ordinal_str += "th";
+                if(ordinal_num == 1) {
+                  ordinal_str += "st";
+                }
+                else if(ordinal_num == 2) {
+                  ordinal_str += "nd";
+                }
+                else if(ordinal_num == 3) {
+                  ordinal_str += "rd";
+                }
+                else {
+                  ordinal_str += "th";
+                }
                 label += ordinal_str + " ";
               }
             }
             else {
-              if(LOCALE.equals(Locale.JAPAN)) label += "最終週の";
-              else label += "Last ";
+              if(LOCALE.equals(Locale.JAPAN)) {
+                label += "最終週の";
+              }
+              else {
+                label += "Last ";
+              }
             }
 
             if(MainEditFragment.dayRepeat.getOn_the_month().ordinal() < 7) {
               if(LOCALE.equals(Locale.JAPAN)) {
-                label += DAY_OF_WEEK_LIST_JA[MainEditFragment.dayRepeat.getOn_the_month().ordinal()] + "曜日";
+                label +=
+                    DAY_OF_WEEK_LIST_JA[MainEditFragment.dayRepeat.getOn_the_month().ordinal()] +
+                        "曜日";
               }
               else {
-                label += DAY_OF_WEEK_LIST_EN[MainEditFragment.dayRepeat.getOn_the_month().ordinal()];
+                label +=
+                    DAY_OF_WEEK_LIST_EN[MainEditFragment.dayRepeat.getOn_the_month().ordinal()];
               }
             }
             else if(MainEditFragment.dayRepeat.getOn_the_month().ordinal() == 7) {
-              if(LOCALE.equals(Locale.JAPAN)) label += "平日";
-              else label += "Weekday";
+              if(LOCALE.equals(Locale.JAPAN)) {
+                label += "平日";
+              }
+              else {
+                label += "Weekday";
+              }
             }
             else if(MainEditFragment.dayRepeat.getOn_the_month().ordinal() == 8) {
-              if(LOCALE.equals(Locale.JAPAN)) label += "週末";
-              else label += "Weekend day";
+              if(LOCALE.equals(Locale.JAPAN)) {
+                label += "週末";
+              }
+              else {
+                label += "Weekend day";
+              }
             }
           }
 
@@ -460,18 +561,30 @@ public class DayRepeatCustomPickerFragment extends BasePreferenceFragmentCompat
 
           MainEditFragment.dayRepeat.setSetted(1 << 3);
           MainEditFragment.dayRepeat.setDay_of_month_of_year(MainEditFragment.final_cal.get(Calendar.DAY_OF_MONTH));
-          if(interval == 1 && LOCALE.equals(Locale.JAPAN)) label = "毎年";
+          if(interval == 1 && LOCALE.equals(Locale.JAPAN)) {
+            label = "毎年";
+          }
           else {
             label = res.getQuantityString(R.plurals.per_year, interval, interval);
-            if(LOCALE.equals(Locale.JAPAN)) label += "、";
+            if(LOCALE.equals(Locale.JAPAN)) {
+              label += "、";
+            }
             else {
               label += " on the ";
               int day_of_month = MainEditFragment.final_cal.get(Calendar.DAY_OF_MONTH);
               label += day_of_month + "";
-              if(day_of_month == 1) label += "st";
-              else if(day_of_month == 2) label += "nd";
-              else if(day_of_month == 3) label += "rd";
-              else label += "th";
+              if(day_of_month == 1) {
+                label += "st";
+              }
+              else if(day_of_month == 2) {
+                label += "nd";
+              }
+              else if(day_of_month == 3) {
+                label += "rd";
+              }
+              else {
+                label += "th";
+              }
               label += " of ";
             }
           }
@@ -483,7 +596,9 @@ public class DayRepeatCustomPickerFragment extends BasePreferenceFragmentCompat
               if(LOCALE.equals(Locale.JAPAN)) {
                 stringBuilder.append(i + 1).append(", ");
               }
-              else stringBuilder.append(MONTH_LIST_EN[i]).append(", ");
+              else {
+                stringBuilder.append(MONTH_LIST_EN[i]).append(", ");
+              }
             }
           }
           tmp = stringBuilder.substring(0, stringBuilder.length() - 2);
@@ -491,7 +606,9 @@ public class DayRepeatCustomPickerFragment extends BasePreferenceFragmentCompat
           if(LOCALE.equals(Locale.JAPAN)) {
             label += tmp + "月の" + MainEditFragment.final_cal.get(Calendar.DAY_OF_MONTH) + "日";
           }
-          else label += tmp;
+          else {
+            label += tmp;
+          }
 
           break;
         }
@@ -508,14 +625,16 @@ public class DayRepeatCustomPickerFragment extends BasePreferenceFragmentCompat
     switch(preference.getKey()) {
       case "picker": {
 
-        DayRepeatCustomPickerDialogFragment dialog = new DayRepeatCustomPickerDialogFragment();
+        DayRepeatCustomPickerDialogFragment dialog =
+            new DayRepeatCustomPickerDialogFragment(this);
         dialog.show(activity.getSupportFragmentManager(), "day_repeat_custom_picker");
 
         return true;
       }
       case "on_the_month_picker": {
 
-        DayRepeatCustomOnTheMonthPickerDialogFragment dialog = new DayRepeatCustomOnTheMonthPickerDialogFragment();
+        DayRepeatCustomOnTheMonthPickerDialogFragment dialog =
+            new DayRepeatCustomOnTheMonthPickerDialogFragment(this);
         dialog.show(activity.getSupportFragmentManager(), "day_repeat_custom_on_the_month_picker");
 
         return true;
@@ -536,7 +655,9 @@ public class DayRepeatCustomPickerFragment extends BasePreferenceFragmentCompat
           rootPreferenceScreen.addPreference(days_of_month_picker);
           rootPreferenceScreen.removePreference(onTheMonthPicker);
         }
-        else days_of_month.setChecked(true);
+        else {
+          days_of_month.setChecked(true);
+        }
 
         break;
       }
@@ -547,7 +668,7 @@ public class DayRepeatCustomPickerFragment extends BasePreferenceFragmentCompat
           rootPreferenceScreen.addPreference(onTheMonthPicker);
           rootPreferenceScreen.removePreference(days_of_month_picker);
 
-          //onTheMonthPickerのラベルを初期化
+          // onTheMonthPickerのラベルを初期化
           String label = "";
           if(MainEditFragment.dayRepeat.getOrdinal_number() < 5) {
             if(LOCALE.equals(Locale.JAPAN)) {
@@ -556,38 +677,61 @@ public class DayRepeatCustomPickerFragment extends BasePreferenceFragmentCompat
             else {
               int ordinal_num = MainEditFragment.dayRepeat.getOrdinal_number();
               String ordinal_str = ordinal_num + "";
-              if(ordinal_num == 1) ordinal_str += "st";
-              else if(ordinal_num == 2) ordinal_str += "nd";
-              else if(ordinal_num == 3) ordinal_str += "rd";
-              else ordinal_str += "th";
+              if(ordinal_num == 1) {
+                ordinal_str += "st";
+              }
+              else if(ordinal_num == 2) {
+                ordinal_str += "nd";
+              }
+              else if(ordinal_num == 3) {
+                ordinal_str += "rd";
+              }
+              else {
+                ordinal_str += "th";
+              }
               label += ordinal_str + " ";
             }
           }
           else {
-            if(LOCALE.equals(Locale.JAPAN)) label += "最終週の";
-            else label += "Last ";
+            if(LOCALE.equals(Locale.JAPAN)) {
+              label += "最終週の";
+            }
+            else {
+              label += "Last ";
+            }
           }
 
           if(MainEditFragment.dayRepeat.getOn_the_month().ordinal() < 7) {
             if(LOCALE.equals(Locale.JAPAN)) {
-              label += DAY_OF_WEEK_LIST_JA[MainEditFragment.dayRepeat.getOn_the_month().ordinal()] + "曜日";
+              label += DAY_OF_WEEK_LIST_JA[MainEditFragment.dayRepeat.getOn_the_month().ordinal()] +
+                  "曜日";
             }
             else {
               label += DAY_OF_WEEK_LIST_EN[MainEditFragment.dayRepeat.getOn_the_month().ordinal()];
             }
           }
           else if(MainEditFragment.dayRepeat.getOn_the_month().ordinal() == 7) {
-            if(LOCALE.equals(Locale.JAPAN)) label += "平日";
-            else label += "Weekday";
+            if(LOCALE.equals(Locale.JAPAN)) {
+              label += "平日";
+            }
+            else {
+              label += "Weekday";
+            }
           }
           else if(MainEditFragment.dayRepeat.getOn_the_month().ordinal() == 8) {
-            if(LOCALE.equals(Locale.JAPAN)) label += "週末";
-            else label += "Weekend day";
+            if(LOCALE.equals(Locale.JAPAN)) {
+              label += "週末";
+            }
+            else {
+              label += "Weekend day";
+            }
           }
 
-          DayRepeatCustomPickerFragment.onTheMonthPicker.setTitle(label);
+          onTheMonthPicker.setTitle(label);
         }
-        else on_the_month.setChecked(true);
+        else {
+          on_the_month.setChecked(true);
+        }
 
         break;
       }

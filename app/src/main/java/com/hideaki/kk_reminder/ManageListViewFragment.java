@@ -2,13 +2,15 @@ package com.hideaki.kk_reminder;
 
 import android.content.Context;
 import android.os.Bundle;
-import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
-import android.support.v4.app.Fragment;
-import android.support.v4.app.FragmentManager;
-import android.support.v4.content.ContextCompat;
-import android.support.v4.view.GravityCompat;
-import android.support.v7.app.AlertDialog;
+
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentManager;
+import androidx.core.content.ContextCompat;
+import androidx.core.view.GravityCompat;
+import androidx.appcompat.app.AlertDialog;
+
 import android.view.Gravity;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
@@ -30,7 +32,7 @@ public class ManageListViewFragment extends Fragment {
   private MainActivity activity;
   private ListView oldListView;
   static int position;
-  static int offset;
+  private static int offset;
 
   public static ManageListViewFragment newInstance() {
 
@@ -38,7 +40,7 @@ public class ManageListViewFragment extends Fragment {
   }
 
   @Override
-  public void onAttach(Context context) {
+  public void onAttach(@NonNull Context context) {
 
     super.onAttach(context);
     activity = (MainActivity)context;
@@ -61,12 +63,18 @@ public class ManageListViewFragment extends Fragment {
     super.onDestroyView();
     position = oldListView.getFirstVisiblePosition();
     View child = oldListView.getChildAt(0);
-    if(child != null) offset = child.getTop();
+    if(child != null) {
+      offset = child.getTop();
+    }
   }
 
   @Nullable
   @Override
-  public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, Bundle savedInstanceState) {
+  public View onCreateView(
+      @NonNull LayoutInflater inflater,
+      @Nullable ViewGroup container,
+      Bundle savedInstanceState
+  ) {
 
     View view = inflater.inflate(R.layout.listview, container, false);
     view.setBackgroundColor(ContextCompat.getColor(activity, android.R.color.background_light));
@@ -97,7 +105,10 @@ public class ManageListViewFragment extends Fragment {
     LinearLayout linearLayout = new LinearLayout(activity);
     linearLayout.setOrientation(LinearLayout.VERTICAL);
     LinearLayout.LayoutParams layoutParams =
-        new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.MATCH_PARENT);
+        new LinearLayout.LayoutParams(
+            LinearLayout.LayoutParams.MATCH_PARENT,
+            LinearLayout.LayoutParams.MATCH_PARENT
+        );
     layoutParams.gravity = Gravity.CENTER;
     layoutParams.weight = 1;
     layoutParams.height = 0;
@@ -140,11 +151,20 @@ public class ManageListViewFragment extends Fragment {
       }
 
       @Override
-      public void onScroll(AbsListView view, int firstVisibleItem, int visibleItemCount, int totalItemCount) {}
+      public void onScroll(
+          AbsListView view,
+          int firstVisibleItem,
+          int visibleItemCount,
+          int totalItemCount
+      ) {
+
+      }
     });
 
     AdView adView = view.findViewById(R.id.adView);
-    if(activity.is_premium) adView.setVisibility(View.GONE);
+    if(activity.is_premium) {
+      adView.setVisibility(View.GONE);
+    }
     else {
       AdRequest adRequest = new AdRequest.Builder().build();
       adView.loadAd(adRequest);

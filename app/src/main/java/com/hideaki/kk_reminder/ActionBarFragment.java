@@ -4,19 +4,10 @@ import android.annotation.SuppressLint;
 import android.content.Context;
 import android.graphics.Color;
 import android.graphics.PorterDuff;
+import android.graphics.PorterDuffColorFilter;
 import android.graphics.drawable.Drawable;
 import android.graphics.drawable.GradientDrawable;
 import android.os.Bundle;
-import android.support.annotation.NonNull;
-import android.support.constraint.ConstraintLayout;
-import android.support.v4.app.Fragment;
-import android.support.v4.content.ContextCompat;
-import android.support.v7.app.ActionBar;
-import android.support.v7.view.menu.MenuBuilder;
-import android.support.v7.view.menu.MenuPopupHelper;
-import android.support.v7.widget.PopupMenu;
-import android.support.v7.widget.SearchView;
-import android.support.v7.widget.Toolbar;
 import android.text.Html;
 import android.text.SpannableString;
 import android.text.Spanned;
@@ -34,6 +25,17 @@ import android.widget.TextView;
 import java.util.ArrayList;
 import java.util.List;
 
+import androidx.annotation.NonNull;
+import androidx.appcompat.app.ActionBar;
+import androidx.appcompat.view.menu.MenuBuilder;
+import androidx.appcompat.view.menu.MenuPopupHelper;
+import androidx.appcompat.widget.PopupMenu;
+import androidx.appcompat.widget.SearchView;
+import androidx.appcompat.widget.Toolbar;
+import androidx.constraintlayout.widget.ConstraintLayout;
+import androidx.core.content.ContextCompat;
+import androidx.fragment.app.Fragment;
+
 import static com.google.common.base.Preconditions.checkNotNull;
 import static com.hideaki.kk_reminder.UtilClass.IS_EXPANDABLE_TODO;
 import static com.hideaki.kk_reminder.UtilClass.generateUniqueId;
@@ -49,9 +51,9 @@ public class ActionBarFragment extends Fragment {
   private ActionBar actionBar;
   private MenuItem alignTop;
   private MenuItem addItem;
-  MenuItem searchItem;
+  private MenuItem searchItem;
   private MenuItem tagSearchItem;
-  MenuItem sortItem;
+  private MenuItem sortItem;
   long checkedTag;
   List<List<Item>> filteredLists;
   List<Item> filteredList;
@@ -69,7 +71,7 @@ public class ActionBarFragment extends Fragment {
   }
 
   @Override
-  public void onAttach(Context context) {
+  public void onAttach(@NonNull Context context) {
 
     super.onAttach(context);
     activity = (MainActivity)context;
@@ -84,8 +86,11 @@ public class ActionBarFragment extends Fragment {
   }
 
   @Override
-  public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container,
-                           Bundle savedInstanceState) {
+  public View onCreateView(
+      @NonNull LayoutInflater inflater,
+      ViewGroup container,
+      Bundle savedInstanceState
+  ) {
 
     Toolbar toolbar = activity.findViewById(R.id.toolbar_layout);
     activity.setSupportActionBar(toolbar);
@@ -96,42 +101,44 @@ public class ActionBarFragment extends Fragment {
     if(order == 3) {
       actionBar.setTitle(R.string.manage_lists_title);
     }
-    else actionBar.setTitle(null);
+    else {
+      actionBar.setTitle(null);
+    }
     return inflater.inflate(R.layout.fragment_search, container, false);
   }
 
   @Override
-  public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
+  public void onCreateOptionsMenu(@NonNull Menu menu, @NonNull MenuInflater inflater) {
 
     super.onCreateOptionsMenu(menu, inflater);
     inflater.inflate(R.menu.reminder_menu, menu);
 
-    //リストの先頭までジャンプするメニューボタンの実装
+    // リストの先頭までジャンプするメニューボタンの実装
     alignTop = menu.findItem(R.id.align_top);
     initAlignTopItem();
 
-    //未完了と完了済みを切り替えるタグルボタンの実装
+    // 未完了と完了済みを切り替えるタグルボタンの実装
     toggleItem = menu.findItem(R.id.todo_done_toggle);
     initToggleItem();
 
-    //タグ検索を行うメニューボタンの実装
+    // タグ検索を行うメニューボタンの実装
     tagSearchItem = menu.findItem(R.id.tag_search);
     initTagSearchItem();
 
-    //タスクの並び替えを行うメニューボタンの実装
+    // タスクの並び替えを行うメニューボタンの実装
     sortItem = menu.findItem(R.id.sort);
     initSortItem();
 
-    //新しくアイテムを追加するメニューボタンの実装
+    // 新しくアイテムを追加するメニューボタンの実装
     addItem = menu.findItem(R.id.add_item);
     initAddItem();
 
-    //検索メニューの実装
+    // 検索メニューの実装
     searchItem = menu.findItem(R.id.search_item);
     searchView = (SearchView)searchItem.getActionView();
     initSearchItem();
 
-    //各アイテムの表示処理
+    // 各アイテムの表示処理
     alignTop.setVisible(false);
     searchItem.setVisible(false);
     toggleItem.setVisible(false);
@@ -184,10 +191,16 @@ public class ActionBarFragment extends Fragment {
           checkNotNull(drawable);
           drawable = drawable.mutate();
           if(tag.getPrimary_color() != 0) {
-            drawable.setColorFilter(tag.getPrimary_color(), PorterDuff.Mode.SRC_IN);
+            drawable.setColorFilter(new PorterDuffColorFilter(
+                tag.getPrimary_color(),
+                PorterDuff.Mode.SRC_IN
+            ));
           }
           else {
-            drawable.setColorFilter(ContextCompat.getColor(activity, R.color.icon_gray), PorterDuff.Mode.SRC_IN);
+            drawable.setColorFilter(new PorterDuffColorFilter(
+                ContextCompat.getColor(activity, R.color.icon_gray),
+                PorterDuff.Mode.SRC_IN
+            ));
           }
 
           MenuItem tagItem = menu.add(Menu.NONE, Menu.NONE, tag.getOrder(), tag.getName())
@@ -200,7 +213,9 @@ public class ActionBarFragment extends Fragment {
                     int size = menu.size();
                     for(int i = 0; i < size; i++) {
                       MenuItem menuItem = menu.getItem(i);
-                      if(menuItem.isChecked()) menuItem.setChecked(false);
+                      if(menuItem.isChecked()) {
+                        menuItem.setChecked(false);
+                      }
                     }
                     item.setChecked(true);
                     checkedTag = tag.getId();
@@ -208,7 +223,8 @@ public class ActionBarFragment extends Fragment {
                     if(order == 0) {
 
                       if(activity.isExpandableTodo) {
-                        MyExpandableListAdapter.children = activity.getChildren(MyDatabaseHelper.TODO_TABLE);
+                        MyExpandableListAdapter.children =
+                            activity.getChildren(MyDatabaseHelper.TODO_TABLE);
 
                         filteredLists = new ArrayList<>();
                         for(List<Item> itemList : MyExpandableListAdapter.children) {
@@ -249,8 +265,14 @@ public class ActionBarFragment extends Fragment {
                     }
                     else if(order == 1) {
 
-                      if(activity.generalSettings.getNonScheduledLists().get(activity.whichMenuOpen - 1).isTodo()) {
-                        MyListAdapter.itemList = activity.getNonScheduledItem(MyDatabaseHelper.TODO_TABLE);
+                      if(
+                          activity.generalSettings
+                          .getNonScheduledLists()
+                          .get(activity.whichMenuOpen - 1)
+                          .isTodo()
+                      ) {
+                        MyListAdapter.itemList =
+                            activity.getNonScheduledItem(MyDatabaseHelper.TODO_TABLE);
 
                         filteredList = new ArrayList<>();
                         for(Item filteredItem : MyListAdapter.itemList) {
@@ -312,14 +334,19 @@ public class ActionBarFragment extends Fragment {
 
           if(tag.getId() == checkedTag) {
             SpannableString spannable = new SpannableString(tag.getName());
-            spannable.setSpan(new ForegroundColorSpan(Color.RED), 0, tag.getName().length(),
-                Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+            spannable.setSpan(
+                new ForegroundColorSpan(Color.RED),
+                0,
+                tag.getName().length(),
+                Spanned.SPAN_EXCLUSIVE_EXCLUSIVE
+            );
             tagItem.setTitle(spannable);
 //            tagItem.setChecked(true);
           }
         }
 
-        MenuPopupHelper popupHelper = new MenuPopupHelper(activity, (MenuBuilder)popupMenu.getMenu(), tagSearchView);
+        MenuPopupHelper popupHelper =
+            new MenuPopupHelper(activity, (MenuBuilder)popupMenu.getMenu(), tagSearchView);
         popupHelper.setForceShowIcon(true);
         popupHelper.show();
 
@@ -327,9 +354,15 @@ public class ActionBarFragment extends Fragment {
       }
       case R.id.add_item: {
 
-        if(order == 0) activity.showMainEditFragment();
-        else if(order == 1) activity.showMainEditFragment();
-        else if(order == 3) activity.showMainEditFragmentForList();
+        if(order == 0) {
+          activity.showMainEditFragment();
+        }
+        else if(order == 1) {
+          activity.showMainEditFragment();
+        }
+        else if(order == 3) {
+          activity.showMainEditFragmentForList();
+        }
         return true;
       }
       case R.id.sort: {
@@ -385,27 +418,34 @@ public class ActionBarFragment extends Fragment {
 
             if(is_updated) {
 
-              //一旦reminder_listグループ内のアイテムをすべて消してから元に戻すことで新しく追加したリストの順番を追加した順に並び替える
+              // 一旦reminder_listグループ内のアイテムをすべて消してから元に戻すことで新しく追加したリストの順番を追加した順に並び替える
 
-              //デフォルトアイテムのリストア
+              // デフォルトアイテムのリストア
               activity.menu.removeGroup(R.id.reminder_list);
-              activity.menu.add(R.id.reminder_list, R.id.scheduled_list, 0, R.string.nav_scheduled_item)
+              activity.menu
+                  .add(R.id.reminder_list, R.id.scheduled_list, 0, R.string.nav_scheduled_item)
                   .setIcon(R.drawable.ic_time)
                   .setCheckable(true);
               activity.menu.add(R.id.reminder_list, R.id.add_list, 2, R.string.add_list)
                   .setIcon(R.drawable.ic_add_24dp)
                   .setCheckable(false);
 
-              //新しく追加したリストのリストア
+              // 新しく追加したリストのリストア
               for(NonScheduledList list : activity.generalSettings.getNonScheduledLists()) {
                 Drawable drawable = ContextCompat.getDrawable(activity, R.drawable.ic_my_list_24dp);
                 checkNotNull(drawable);
                 drawable = drawable.mutate();
                 if(list.getColor() != 0) {
-                  drawable.setColorFilter(list.getColor(), PorterDuff.Mode.SRC_IN);
+                  drawable.setColorFilter(new PorterDuffColorFilter(
+                      list.getColor(),
+                      PorterDuff.Mode.SRC_IN
+                  ));
                 }
                 else {
-                  drawable.setColorFilter(ContextCompat.getColor(activity, R.color.icon_gray), PorterDuff.Mode.SRC_IN);
+                  drawable.setColorFilter(new PorterDuffColorFilter(
+                      ContextCompat.getColor(activity, R.color.icon_gray),
+                      PorterDuff.Mode.SRC_IN
+                  ));
                 }
                 activity.menu.add(R.id.reminder_list, generateUniqueId(), 1, list.getTitle())
                     .setIcon(drawable)
@@ -441,13 +481,17 @@ public class ActionBarFragment extends Fragment {
       if(activity.isExpandableTodo) {
         setTodoPushedColor();
       }
-      else setDonePushedColor();
+      else {
+        setDonePushedColor();
+      }
     }
     else if(order == 1) {
       if(activity.generalSettings.getNonScheduledLists().get(activity.whichMenuOpen - 1).isTodo()) {
         setTodoPushedColor();
       }
-      else setDonePushedColor();
+      else {
+        setDonePushedColor();
+      }
     }
     todoDrawable.setCornerRadius(8.0f);
     doneDrawable.setCornerRadius(8.0f);
@@ -467,10 +511,18 @@ public class ActionBarFragment extends Fragment {
           }
         }
         else if(order == 1) {
-          if(!activity.generalSettings.getNonScheduledLists().get(activity.whichMenuOpen - 1).isTodo()) {
+          if(
+              !activity.generalSettings
+              .getNonScheduledLists()
+              .get(activity.whichMenuOpen - 1)
+              .isTodo()
+          ) {
             addItem.setVisible(true);
             sortItem.setVisible(true);
-            activity.generalSettings.getNonScheduledLists().get(activity.whichMenuOpen - 1).setTodo(true);
+            activity.generalSettings
+                .getNonScheduledLists()
+                .get(activity.whichMenuOpen - 1)
+                .setTodo(true);
             activity.updateSettingsDB();
             activity.showListViewFragment();
 
@@ -495,10 +547,18 @@ public class ActionBarFragment extends Fragment {
           }
         }
         else if(order == 1) {
-          if(activity.generalSettings.getNonScheduledLists().get(activity.whichMenuOpen - 1).isTodo()) {
+          if(
+              activity.generalSettings
+              .getNonScheduledLists()
+              .get(activity.whichMenuOpen - 1)
+              .isTodo()
+          ) {
             addItem.setVisible(false);
             sortItem.setVisible(false);
-            activity.generalSettings.getNonScheduledLists().get(activity.whichMenuOpen - 1).setTodo(false);
+            activity.generalSettings
+                .getNonScheduledLists()
+                .get(activity.whichMenuOpen - 1)
+                .setTodo(false);
             activity.updateSettingsDB();
             activity.showDoneListViewFragment();
 
@@ -534,7 +594,10 @@ public class ActionBarFragment extends Fragment {
     Drawable drawable = ContextCompat.getDrawable(activity, R.drawable.ic_pallet_24dp);
     checkNotNull(drawable);
     drawable = drawable.mutate();
-    drawable.setColorFilter(activity.menu_item_color, PorterDuff.Mode.SRC_IN);
+    drawable.setColorFilter(new PorterDuffColorFilter(
+        activity.menu_item_color,
+        PorterDuff.Mode.SRC_IN
+    ));
     tagSearchItem.setIcon(drawable);
   }
 
@@ -543,7 +606,10 @@ public class ActionBarFragment extends Fragment {
     Drawable drawable = ContextCompat.getDrawable(activity, R.drawable.ic_sort_24dp);
     checkNotNull(drawable);
     drawable = drawable.mutate();
-    drawable.setColorFilter(activity.menu_item_color, PorterDuff.Mode.SRC_IN);
+    drawable.setColorFilter(new PorterDuffColorFilter(
+        activity.menu_item_color,
+        PorterDuff.Mode.SRC_IN
+    ));
     sortItem.setIcon(drawable);
   }
 
@@ -552,7 +618,10 @@ public class ActionBarFragment extends Fragment {
     Drawable drawable = ContextCompat.getDrawable(activity, R.drawable.ic_add_circle_24dp);
     checkNotNull(drawable);
     drawable = drawable.mutate();
-    drawable.setColorFilter(activity.menu_item_color, PorterDuff.Mode.SRC_IN);
+    drawable.setColorFilter(new PorterDuffColorFilter(
+        activity.menu_item_color,
+        PorterDuff.Mode.SRC_IN
+    ));
     addItem.setIcon(drawable);
   }
 
@@ -561,7 +630,10 @@ public class ActionBarFragment extends Fragment {
     Drawable drawable = ContextCompat.getDrawable(activity, R.drawable.ic_vertical_align_top_24dp);
     checkNotNull(drawable);
     drawable = drawable.mutate();
-    drawable.setColorFilter(activity.menu_item_color, PorterDuff.Mode.SRC_IN);
+    drawable.setColorFilter(new PorterDuffColorFilter(
+        activity.menu_item_color,
+        PorterDuff.Mode.SRC_IN
+    ));
     alignTop.setIcon(drawable);
   }
 
@@ -574,32 +646,42 @@ public class ActionBarFragment extends Fragment {
     else if(activity.menu_item_color == Color.parseColor("#FFFFFF")) {
       search_color = Color.parseColor("#C9CACA");
     }
-    else search_color = activity.menu_item_color;
+    else {
+      search_color = activity.menu_item_color;
+    }
 
-    //アイコンの色
+    // アイコンの色
     Drawable drawable = ContextCompat.getDrawable(activity, R.drawable.ic_search_white_24dp);
     checkNotNull(drawable);
     drawable = drawable.mutate();
-    drawable.setColorFilter(activity.menu_item_color, PorterDuff.Mode.SRC_IN);
-    ImageView searchIcon = searchView.findViewById(android.support.v7.appcompat.R.id.search_button);
+    drawable.setColorFilter(new PorterDuffColorFilter(
+        activity.menu_item_color,
+        PorterDuff.Mode.SRC_IN
+    ));
+    ImageView searchIcon = searchView.findViewById(androidx.appcompat.R.id.search_button);
     searchIcon.setImageDrawable(drawable);
 
-    EditText searchTextView = searchView.findViewById(android.support.v7.appcompat.R.id.search_src_text);
-    //カーソルの色
+    EditText searchTextView = searchView.findViewById(androidx.appcompat.R.id.search_src_text);
+    // カーソルの色
     setCursorDrawableColor(searchTextView);
-    //検索中文字の色
+    // 検索中文字の色
     searchTextView.setTextColor(activity.menu_item_color);
-    //閉じるボタンの色
-    ImageView searchClose = searchView.findViewById(android.support.v7.appcompat.R.id.search_close_btn);
+    // 閉じるボタンの色
+    ImageView searchClose = searchView.findViewById(androidx.appcompat.R.id.search_close_btn);
     searchClose.setColorFilter(search_color);
-    //ヒントの色
+    // ヒントの色
     String strColor = String.format("#%06X", 0xFFFFFF & search_color);
     searchView.setQueryHint(Html.fromHtml(
-        "<font color = " + strColor + ">" + getResources().getString(R.string.search_hint) + "</font>"));
+        "<font color = " +
+        strColor +
+        ">" +
+        getResources().getString(R.string.search_hint) +
+        "</font>"
+    ));
     searchView.setIconifiedByDefault(true);
     searchView.setSubmitButtonEnabled(false);
 
-    //検索アイコン押下時の処理
+    // 検索アイコン押下時の処理
     searchView.setOnSearchClickListener(new View.OnClickListener() {
       @Override
       public void onClick(View v) {
@@ -619,7 +701,7 @@ public class ActionBarFragment extends Fragment {
       @Override
       public boolean onClose() {
 
-        //各アイテムの表示処理
+        // 各アイテムの表示処理
         if(order == 0) {
           toggleItem.setVisible(true);
           if(activity.isExpandableTodo) {
@@ -629,7 +711,12 @@ public class ActionBarFragment extends Fragment {
         }
         else if(order == 1) {
           toggleItem.setVisible(true);
-          if(activity.generalSettings.getNonScheduledLists().get(activity.whichMenuOpen - 1).isTodo()) {
+          if(
+              activity.generalSettings
+              .getNonScheduledLists()
+              .get(activity.whichMenuOpen - 1)
+              .isTodo()
+          ) {
             addItem.setVisible(true);
             sortItem.setVisible(true);
           }
@@ -652,7 +739,12 @@ public class ActionBarFragment extends Fragment {
             }
           }
           else if(order == 1) {
-            if(activity.generalSettings.getNonScheduledLists().get(activity.whichMenuOpen - 1).isTodo()) {
+            if(
+                activity.generalSettings
+                .getNonScheduledLists()
+                .get(activity.whichMenuOpen - 1)
+                .isTodo()
+            ) {
               MyListAdapter.itemList = activity.getNonScheduledItem(MyDatabaseHelper.TODO_TABLE);
               activity.listAdapter.notifyDataSetChanged();
             }
@@ -662,7 +754,8 @@ public class ActionBarFragment extends Fragment {
             }
           }
           else if(order == 3) {
-            ManageListAdapter.nonScheduledLists = new ArrayList<>(activity.generalSettings.getNonScheduledLists());
+            ManageListAdapter.nonScheduledLists =
+                new ArrayList<>(activity.generalSettings.getNonScheduledLists());
             activity.manageListAdapter.notifyDataSetChanged();
           }
         }
@@ -674,6 +767,7 @@ public class ActionBarFragment extends Fragment {
     searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
       @Override
       public boolean onQueryTextSubmit(String query) {
+
         return false;
       }
 
@@ -685,7 +779,9 @@ public class ActionBarFragment extends Fragment {
             activity.expandableListView.clearTextFilter();
             activity.expandableListAdapter.getFilter().filter("");
           }
-          else activity.listView.clearTextFilter();
+          else {
+            activity.listView.clearTextFilter();
+          }
 
           checkedTag = -1;
           filteredText = null;
@@ -695,7 +791,9 @@ public class ActionBarFragment extends Fragment {
 //            activity.expandableListView.setFilterText(text);
             activity.expandableListAdapter.getFilter().filter(text);
           }
-          else activity.listView.setFilterText(text);
+          else {
+            activity.listView.setFilterText(text);
+          }
 
           filteredText = text;
         }

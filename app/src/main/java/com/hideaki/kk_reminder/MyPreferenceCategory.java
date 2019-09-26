@@ -2,7 +2,9 @@ package com.hideaki.kk_reminder;
 
 import android.content.Context;
 import android.content.ContextWrapper;
-import android.support.v7.preference.PreferenceViewHolder;
+
+import androidx.preference.PreferenceViewHolder;
+
 import android.util.AttributeSet;
 import android.widget.TextView;
 
@@ -35,6 +37,8 @@ public class MyPreferenceCategory extends PreferenceCategory {
 
     super.onBindViewHolder(holder);
     TextView titleView = (TextView)holder.findViewById(android.R.id.title);
-    if(titleView != null) titleView.setTextColor(activity.accent_color);
+    if(titleView != null) {
+      titleView.setTextColor(activity.accent_color);
+    }
   }
 }

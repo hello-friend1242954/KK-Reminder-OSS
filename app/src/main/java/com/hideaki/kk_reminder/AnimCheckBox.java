@@ -360,7 +360,7 @@ public class AnimCheckBox extends View implements Checkable {
   @Deprecated
   @Override
   public void setOnClickListener(OnClickListener l) {
-    //Empty!
+    // Empty!
   }
 
   private void setCheckedViewInner(boolean checked, boolean animation) {

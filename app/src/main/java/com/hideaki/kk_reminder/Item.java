@@ -13,9 +13,9 @@ public class Item implements Serializable, Cloneable {
   private final long id = Calendar.getInstance().getTimeInMillis();
   private String detail;
   private Calendar date = Calendar.getInstance();
-  //子ビューのコントロールパネルで時間を変えたときだけ時間を元に戻すのに用いる
+  // 子ビューのコントロールパネルで時間を変えたときだけ時間を元に戻すのに用いる
   private Calendar org_date = (Calendar)date.clone();
-  private Calendar org_date2 = (Calendar)date.clone(); //MinuteRepeatで元の時間を保持しておくのに用いる
+  private Calendar org_date2 = (Calendar)date.clone(); // MinuteRepeatで元の時間を保持しておくのに用いる
   private long which_tag_belongs;
   private NotifyInterval notify_interval = new NotifyInterval();
   private DayRepeat dayRepeat = new DayRepeat();
@@ -23,10 +23,10 @@ public class Item implements Serializable, Cloneable {
   private String soundUri;
   private List<Notes> notesList = new ArrayList<>();
   private boolean checklist_mode;
-  private long time_altered; //子ビューのコントロールパネルで時間を変えたとき、変えた総時間を保持する
-  private long org_time_altered; //リピート設定による変更をスナックバーから元に戻すのに用いる
+  private long time_altered; // 子ビューのコントロールパネルで時間を変えたとき、変えた総時間を保持する
+  private long org_time_altered; // リピート設定による変更をスナックバーから元に戻すのに用いる
   private boolean alarm_stopped;
-  private boolean org_alarm_stopped; //リピート設定による変更をスナックバーから元に戻すのに用いる
+  private boolean org_alarm_stopped; // リピート設定による変更をスナックバーから元に戻すのに用いる
   private long which_list_belongs;
   private int order = -1;
   private boolean selected;
