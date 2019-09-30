@@ -104,10 +104,15 @@ public class DayRepeatCustomDaysOfMonthPickerPreference extends Preference
         day.setChecked(true);
       }
       else {
-        day.setBackgroundColor(ContextCompat.getColor(
-            getContext(),
-            android.R.color.background_light
-        ));
+        if(activity.isDarkMode) {
+          day.setBackgroundColor(activity.backgroundMaterialDarkColor);
+        }
+        else {
+          day.setBackgroundColor(ContextCompat.getColor(
+              getContext(),
+              android.R.color.background_light
+          ));
+        }
       }
     }
 

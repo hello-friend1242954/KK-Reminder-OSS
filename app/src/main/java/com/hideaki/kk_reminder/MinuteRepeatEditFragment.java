@@ -87,7 +87,12 @@ public class MinuteRepeatEditFragment extends BasePreferenceFragmentCompat
     View view = super.onCreateView(inflater, container, savedInstanceState);
     checkNotNull(view);
 
-    view.setBackgroundColor(ContextCompat.getColor(activity, android.R.color.background_light));
+    if(activity.isDarkMode) {
+      view.setBackgroundColor(activity.backgroundMaterialDarkColor);
+    }
+    else {
+      view.setBackgroundColor(ContextCompat.getColor(activity, android.R.color.background_light));
+    }
     view.setFocusableInTouchMode(true);
     view.requestFocus();
     view.setOnKeyListener(new View.OnKeyListener() {

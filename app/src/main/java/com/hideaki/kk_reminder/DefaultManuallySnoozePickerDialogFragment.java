@@ -41,7 +41,19 @@ public class DefaultManuallySnoozePickerDialogFragment extends DialogFragment
     int hour = activity.snooze_default_hour;
     int minute = activity.snooze_default_minute;
 
-    return new TimePickerDialog(activity, activity.dialog_style_id, this, hour, minute, true);
+    if(activity.isDarkMode) {
+      return new TimePickerDialog(activity, this, hour, minute, true);
+    }
+    else {
+      return new TimePickerDialog(
+          activity,
+          activity.dialog_style_id,
+          this,
+          hour,
+          minute,
+          true
+      );
+    }
   }
 
   @Override

@@ -85,6 +85,8 @@ class UtilClass {
 //  static final String STOPPED = "STOPPED";
   static final String BOOLEAN_GENERAL = "BOOLEAN_GENERAL";
   static final String BOOLEAN_GENERAL_COPY = "BOOLEAN_GENERAL_COPY";
+  static final String IS_DARK_MODE = "IS_DARK_MODE";
+  static final String IS_DARK_THEME_FOLLOW_SYSTEM = "IS_DARK_THEME_FOLLOW_SYSTEM";
   static final String PLAY_SLIDE_ANIMATION = "PLAY_SLIDE_ANIMATION";
   static final String IS_EXPANDABLE_TODO = "IS_EXPANDABLE_TODO";
   static final String IS_PREMIUM = "IS_PREMIUM";
@@ -100,20 +102,30 @@ class UtilClass {
   static long HOUR = 60 * 60 * 1000;
   static Locale LOCALE = Locale.getDefault();
 
-  static void setCursorDrawableColor(EditText editText) {
+  static void setCursorDrawableColor(MainActivity activity, EditText editText) {
 
     if(Build.VERSION.SDK_INT <= Build.VERSION_CODES.P) {
       try {
         Field f = TextView.class.getDeclaredField("mCursorDrawableRes");
         f.setAccessible(true);
-        f.set(editText, R.drawable.cursor);
+        if(activity.isDarkMode) {
+          f.set(editText, R.drawable.cursor_dark);
+        }
+        else {
+          f.set(editText, R.drawable.cursor);
+        }
       }
       catch(Exception ignored) {}
     }
     else {
       // mCursorDrawableResへのアクセスは非SDKインターフェースなのでAndroid10以降は無効となる
       // 代わりにAPI29で追加されたEditText#setTextCursorDrawable()を使う
-      editText.setTextCursorDrawable(R.drawable.cursor);
+      if(activity.isDarkMode) {
+        editText.setTextCursorDrawable(R.drawable.cursor_dark);
+      }
+      else {
+        editText.setTextCursorDrawable(R.drawable.cursor);
+      }
     }
   }
 

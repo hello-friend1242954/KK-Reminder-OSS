@@ -92,7 +92,12 @@ public class NotesEditModeFragment extends Fragment {
     }
 
     View view = inflater.inflate(R.layout.notes_edit_layout, container, false);
-    view.setBackgroundColor(ContextCompat.getColor(activity, android.R.color.background_light));
+    if(activity.isDarkMode) {
+      view.setBackgroundColor(activity.backgroundMaterialDarkColor);
+    }
+    else {
+      view.setBackgroundColor(ContextCompat.getColor(activity, android.R.color.background_light));
+    }
     view.setFocusableInTouchMode(true);
     view.requestFocus();
     view.setOnKeyListener(new View.OnKeyListener() {
@@ -128,7 +133,7 @@ public class NotesEditModeFragment extends Fragment {
     actionBar.setTitle(R.string.notes);
 
     memo = view.findViewById(R.id.notes);
-    setCursorDrawableColor(memo);
+    setCursorDrawableColor(activity, memo);
     memo.getBackground().mutate().setColorFilter(new PorterDuffColorFilter(
         activity.accent_color,
         PorterDuff.Mode.SRC_IN

@@ -57,6 +57,7 @@ import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.ActionBarDrawerToggle;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.app.AppCompatDelegate;
 import androidx.appcompat.widget.Toolbar;
 import androidx.core.content.ContextCompat;
 import androidx.core.view.GravityCompat;
@@ -93,6 +94,8 @@ import static com.hideaki.kk_reminder.UtilClass.DONE_ITEM_COMPARATOR;
 import static com.hideaki.kk_reminder.UtilClass.HOUR;
 import static com.hideaki.kk_reminder.UtilClass.INT_GENERAL;
 import static com.hideaki.kk_reminder.UtilClass.INT_GENERAL_COPY;
+import static com.hideaki.kk_reminder.UtilClass.IS_DARK_MODE;
+import static com.hideaki.kk_reminder.UtilClass.IS_DARK_THEME_FOLLOW_SYSTEM;
 import static com.hideaki.kk_reminder.UtilClass.IS_EXPANDABLE_TODO;
 import static com.hideaki.kk_reminder.UtilClass.IS_PREMIUM;
 import static com.hideaki.kk_reminder.UtilClass.ITEM;
@@ -184,6 +187,14 @@ public class MainActivity extends AppCompatActivity
   int which_text_size;
   boolean play_slide_animation;
   static boolean isScreenOn = false;
+  boolean isDarkMode;
+  boolean isDarkThemeFollowSystem;
+  int primaryMaterialDarkColor;
+  int primaryDarkMaterialDarkColor;
+  int backgroundMaterialDarkColor;
+  int backgroundFloatingMaterialDarkColor;
+  int primaryTextMaterialDarkColor;
+  int secondaryTextMaterialDarkColor;
 
   @Override
   protected void onCreate(Bundle savedInstanceState) {
@@ -229,6 +240,8 @@ public class MainActivity extends AppCompatActivity
             getIsDirectBootContext(this) ? BOOLEAN_GENERAL_COPY : BOOLEAN_GENERAL,
             MODE_PRIVATE
         );
+    isDarkMode = booleanPreferences.getBoolean(IS_DARK_MODE, false);
+    isDarkThemeFollowSystem = booleanPreferences.getBoolean(IS_DARK_THEME_FOLLOW_SYSTEM, true);
     play_slide_animation = booleanPreferences.getBoolean(PLAY_SLIDE_ANIMATION, true);
     isExpandableTodo = booleanPreferences.getBoolean(IS_EXPANDABLE_TODO, true);
     is_premium = booleanPreferences.getBoolean(IS_PREMIUM, false);
@@ -243,6 +256,18 @@ public class MainActivity extends AppCompatActivity
 
       // プロモーション用ダイアログのセットアップ
       createPromotionDialog();
+    }
+
+    // ダークモードの設定
+    int currentNightMode =
+        getResources().getConfiguration().uiMode & Configuration.UI_MODE_NIGHT_MASK;
+    if(!isDarkThemeFollowSystem) {
+      if(isDarkMode && currentNightMode != Configuration.UI_MODE_NIGHT_YES) {
+        AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_YES);
+      }
+      else if(!isDarkMode && currentNightMode == Configuration.UI_MODE_NIGHT_YES) {
+        AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO);
+      }
     }
 
     // テーマの設定
@@ -324,7 +349,7 @@ public class MainActivity extends AppCompatActivity
       }
       else {
         drawable.setColorFilter(new PorterDuffColorFilter(
-            ContextCompat.getColor(this, R.color.icon_gray),
+            ContextCompat.getColor(this, R.color.iconGray),
             PorterDuff.Mode.SRC_IN
         ));
       }
@@ -433,8 +458,7 @@ public class MainActivity extends AppCompatActivity
               Toast.LENGTH_LONG
           ).show();
           setBooleanGeneralInSharedPreferences(IS_PREMIUM, true);
-          finish();
-          startActivity(new Intent(this, MainActivity.class));
+          recreate();
         }
       }
     }
@@ -448,8 +472,7 @@ public class MainActivity extends AppCompatActivity
         if(PRODUCT_ID_PREMIUM.equals(purchase.getSku())) {
           Toast.makeText(this, getString(R.string.succeed_to_upgrade), Toast.LENGTH_LONG).show();
           setBooleanGeneralInSharedPreferences(IS_PREMIUM, true);
-          finish();
-          startActivity(new Intent(this, MainActivity.class));
+          recreate();
         }
       }
     }
@@ -662,6 +685,21 @@ public class MainActivity extends AppCompatActivity
 
     super.onResume();
 
+    int currentNightMode =
+        getResources().getConfiguration().uiMode & Configuration.UI_MODE_NIGHT_MASK;
+    if(isDarkThemeFollowSystem) {
+      if(isDarkMode && currentNightMode != Configuration.UI_MODE_NIGHT_YES) {
+        setBooleanGeneralInSharedPreferences(IS_DARK_MODE, false);
+        AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM);
+        recreate();
+      }
+      else if(!isDarkMode && currentNightMode == Configuration.UI_MODE_NIGHT_YES) {
+        setBooleanGeneralInSharedPreferences(IS_DARK_MODE, true);
+        AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM);
+        recreate();
+      }
+    }
+
     // すべての通知を既読する
     NotificationManager manager = (NotificationManager)getSystemService(NOTIFICATION_SERVICE);
     checkNotNull(manager);
@@ -814,7 +852,7 @@ public class MainActivity extends AppCompatActivity
       LinearLayout linearLayout = new LinearLayout(MainActivity.this);
       linearLayout.setOrientation(LinearLayout.VERTICAL);
       final EditText editText = new EditText(MainActivity.this);
-      setCursorDrawableColor(editText);
+      setCursorDrawableColor(this, editText);
       editText.getBackground().mutate().setColorFilter(new PorterDuffColorFilter(
           accent_color,
           PorterDuff.Mode.SRC_IN
@@ -875,7 +913,7 @@ public class MainActivity extends AppCompatActivity
                 }
                 else {
                   drawable.setColorFilter(new PorterDuffColorFilter(
-                      ContextCompat.getColor(MainActivity.this, R.color.icon_gray),
+                      ContextCompat.getColor(MainActivity.this, R.color.iconGray),
                       PorterDuff.Mode.SRC_IN
                   ));
                 }
@@ -1679,6 +1717,14 @@ public class MainActivity extends AppCompatActivity
   public void setBooleanGeneralInSharedPreferences(String TAG, boolean value) {
 
     switch(TAG) {
+      case IS_DARK_MODE: {
+        isDarkMode = value;
+        break;
+      }
+      case IS_DARK_THEME_FOLLOW_SYSTEM: {
+        isDarkThemeFollowSystem = value;
+        break;
+      }
       case PLAY_SLIDE_ANIMATION: {
         play_slide_animation = value;
         break;
@@ -1818,6 +1864,24 @@ public class MainActivity extends AppCompatActivity
     }
     else {
       setDefaultColor();
+    }
+
+    if(isDarkMode) {
+      primaryMaterialDarkColor =
+          ContextCompat.getColor(this, R.color.primaryMaterialDark);
+      primaryDarkMaterialDarkColor =
+          ContextCompat.getColor(this, R.color.primaryDarkMaterialDark);
+      backgroundMaterialDarkColor =
+          ContextCompat.getColor(this, R.color.backgroundMaterialDark);
+      backgroundFloatingMaterialDarkColor =
+          ContextCompat.getColor(this, R.color.backgroundFloatingMaterialDark);
+      primaryTextMaterialDarkColor =
+          ContextCompat.getColor(this, R.color.primaryTextMaterialDark);
+      secondaryTextMaterialDarkColor =
+          ContextCompat.getColor(this, R.color.secondaryTextMaterialDark);
+      menu_item_color = primaryTextMaterialDarkColor;
+      menu_background_color = primaryMaterialDarkColor;
+      status_bar_color = primaryDarkMaterialDarkColor;
     }
 
     // ハンバーガーアイコンの色を指定

@@ -7,6 +7,8 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.content.res.Configuration;
+import android.database.sqlite.SQLiteCantOpenDatabaseException;
 import android.graphics.BitmapFactory;
 import android.graphics.Color;
 import android.net.Uri;
@@ -17,6 +19,7 @@ import java.util.Set;
 import java.util.TreeSet;
 
 import androidx.core.app.NotificationCompat;
+import androidx.core.content.ContextCompat;
 
 import static android.content.Context.MODE_PRIVATE;
 import static com.google.common.base.Preconditions.checkNotNull;
@@ -44,14 +47,38 @@ import static com.hideaki.kk_reminder.UtilClass.serialize;
 public class AlarmReceiver extends BroadcastReceiver {
 
   DBAccessor accessor = null;
+  Context context;
 
   @Override
   public void onReceive(Context context, Intent intent) {
 
+    this.context = context;
     Item item = (Item)deserialize(intent.getByteArrayExtra(ITEM));
     checkNotNull(item);
 
     accessor = new DBAccessor(getDynamicContext(context), getIsDirectBootContext(context));
+
+    int currentNightMode =
+        context.getResources().getConfiguration().uiMode & Configuration.UI_MODE_NIGHT_MASK;
+
+    // 通知の文字色に使うアクセントカラーの取得
+    GeneralSettings generalSettings = querySettingsDB();
+    MyTheme theme = generalSettings.getTheme();
+    int accent_color;
+    theme.setColor_primary(false);
+    if(theme.getColor() == 0) {
+      if(currentNightMode == Configuration.UI_MODE_NIGHT_YES) {
+        accent_color = ContextCompat.getColor(context, R.color.red6PrimaryColor);
+      }
+      else {
+        accent_color = ContextCompat.getColor(context, R.color.red13PrimaryDarkColor);
+      }
+    }
+    else {
+      accent_color = theme.getColor();
+    }
+    theme.setColor_primary(true);
+
     int time = item.getNotify_interval().getTime();
 
     // Notification IDの生成
@@ -105,7 +132,7 @@ public class AlarmReceiver extends BroadcastReceiver {
         .setPriority(NotificationCompat.PRIORITY_MAX)
         .setLights(Color.GREEN, 2000, 1000)
         .setVibrate(new long[]{0, 500})
-        .setColor(Color.parseColor("#FF9b0000"))
+        .setColor(accent_color)
         .setColorized(true);
 
     // 通知音の設定
@@ -216,5 +243,28 @@ public class AlarmReceiver extends BroadcastReceiver {
   public void updateDB(Item item, String table) {
 
     accessor.executeUpdate(item.getId(), serialize(item), table);
+  }
+
+  public GeneralSettings querySettingsDB() {
+
+    GeneralSettings generalSettings = null;
+    do {
+      try {
+        generalSettings = (GeneralSettings)deserialize(
+            accessor.executeQueryById(1, MyDatabaseHelper.SETTINGS_TABLE)
+        );
+      }
+      catch(SQLiteCantOpenDatabaseException e) {
+        try {
+          Thread.sleep(10);
+        }
+        catch(InterruptedException ex) {
+          ex.printStackTrace();
+        }
+      }
+    }
+    while(getIsDirectBootContext(context) && generalSettings == null);
+
+    return generalSettings;
   }
 }

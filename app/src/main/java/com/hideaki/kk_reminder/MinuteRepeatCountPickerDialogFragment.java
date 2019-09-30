@@ -43,7 +43,7 @@ public class MinuteRepeatCountPickerDialogFragment extends DialogFragment {
     checkNotNull(activity);
 
     count = view.findViewById(R.id.count);
-    setCursorDrawableColor(count);
+    setCursorDrawableColor(activity, count);
     count.getBackground().mutate().setColorFilter(new PorterDuffColorFilter(
         activity.accent_color,
         PorterDuff.Mode.SRC_IN
@@ -55,6 +55,7 @@ public class MinuteRepeatCountPickerDialogFragment extends DialogFragment {
     plus.setColorFilter(activity.accent_color);
     GradientDrawable drawable = (GradientDrawable)plus.getBackground();
     drawable = (GradientDrawable)drawable.mutate();
+    drawable.setColor(activity.backgroundFloatingMaterialDarkColor);
     drawable.setStroke(3, activity.accent_color);
     drawable.setCornerRadius(8.0f);
 
@@ -76,6 +77,7 @@ public class MinuteRepeatCountPickerDialogFragment extends DialogFragment {
     minus.setColorFilter(activity.accent_color);
     drawable = (GradientDrawable)minus.getBackground();
     drawable = (GradientDrawable)drawable.mutate();
+    drawable.setColor(activity.backgroundFloatingMaterialDarkColor);
     drawable.setStroke(3, activity.accent_color);
     drawable.setCornerRadius(8.0f);
 

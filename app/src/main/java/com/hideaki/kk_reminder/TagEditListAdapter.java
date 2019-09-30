@@ -91,7 +91,7 @@ public class TagEditListAdapter extends BaseAdapter {
             LinearLayout linearLayout = new LinearLayout(activity);
             linearLayout.setOrientation(LinearLayout.VERTICAL);
             final EditText editText = new EditText(activity);
-            setCursorDrawableColor(editText);
+            setCursorDrawableColor(activity, editText);
             editText.getBackground().mutate().setColorFilter(new PorterDuffColorFilter(
                 activity.accent_color,
                 PorterDuff.Mode.SRC_IN
@@ -353,6 +353,10 @@ public class TagEditListAdapter extends BaseAdapter {
     manually_checked = true;
 
     // 各種表示処理
+    if(activity.isDarkMode) {
+      viewHolder.tagItem.setBackgroundColor(activity.backgroundFloatingMaterialDarkColor);
+      viewHolder.tagName.setTextColor(activity.secondaryTextMaterialDarkColor);
+    }
     viewHolder.tagName.setText(tag.getName());
 
     // パレットの色を設定
@@ -361,7 +365,7 @@ public class TagEditListAdapter extends BaseAdapter {
     }
     else if(tag.getPrimary_color() == 0) {
       viewHolder.pallet.setVisibility(View.VISIBLE);
-      viewHolder.pallet.setColorFilter(ContextCompat.getColor(activity, R.color.icon_gray));
+      viewHolder.pallet.setColorFilter(ContextCompat.getColor(activity, R.color.iconGray));
     }
     else {
       viewHolder.pallet.setVisibility(View.VISIBLE);

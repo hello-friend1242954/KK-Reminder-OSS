@@ -233,7 +233,7 @@ public class DoneListAdapter extends BaseAdapter implements Filterable {
       Window window = activity.getWindow();
       window.clearFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS);
       window.addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS);
-      window.setStatusBarColor(ContextCompat.getColor(activity, R.color.darker_grey));
+      window.setStatusBarColor(ContextCompat.getColor(activity, R.color.darkerGrey));
 
       return true;
     }
@@ -593,6 +593,9 @@ public class DoneListAdapter extends BaseAdapter implements Filterable {
     viewHolder.checkBox.setOnLongClickListener(listener);
 
     // 各種表示処理
+    if(activity.isDarkMode) {
+      viewHolder.item_card.setBackgroundColor(activity.backgroundFloatingMaterialDarkColor);
+    }
     viewHolder.detail.setText(item.getDetail());
     viewHolder.detail.setTextSize(activity.text_size);
     viewHolder.detail.setTextColor(Color.GRAY);

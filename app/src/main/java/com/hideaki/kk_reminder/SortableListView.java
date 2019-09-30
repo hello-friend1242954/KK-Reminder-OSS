@@ -192,8 +192,13 @@ public class SortableListView extends ListView {
     // ImageViewを生成しWindowManagerにaddViewする
     dragImageView = new ImageView(getContext());
     dragImageView.setBackgroundColor(bitmapBackgroundColor);
-    GradientDrawable drawable =
-        (GradientDrawable)ContextCompat.getDrawable(activity, R.drawable.my_frame);
+    GradientDrawable drawable;
+    if(activity.isDarkMode) {
+      drawable = (GradientDrawable)ContextCompat.getDrawable(activity, R.drawable.my_frame_dark);
+    }
+    else {
+      drawable = (GradientDrawable)ContextCompat.getDrawable(activity, R.drawable.my_frame);
+    }
     checkNotNull(drawable);
     drawable = (GradientDrawable)drawable.mutate();
     drawable.setStroke(3, activity.accent_color);

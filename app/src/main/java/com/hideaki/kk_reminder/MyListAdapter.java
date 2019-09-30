@@ -73,6 +73,7 @@ public class MyListAdapter extends BaseAdapter implements Filterable {
     TextView detail;
     AnimCheckBox checkBox;
     ImageView tagPallet;
+    CardView controlCard;
     TableLayout control_panel;
     TextView notes;
   }
@@ -314,7 +315,7 @@ public class MyListAdapter extends BaseAdapter implements Filterable {
       Window window = activity.getWindow();
       window.clearFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS);
       window.addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS);
-      window.setStatusBarColor(ContextCompat.getColor(activity, R.color.darker_grey));
+      window.setStatusBarColor(ContextCompat.getColor(activity, R.color.darkerGrey));
 
       return true;
     }
@@ -755,6 +756,7 @@ public class MyListAdapter extends BaseAdapter implements Filterable {
       viewHolder.detail = convertView.findViewById(R.id.detail);
       viewHolder.checkBox = convertView.findViewById(R.id.checkBox);
       viewHolder.tagPallet = convertView.findViewById(R.id.tag_pallet);
+      viewHolder.controlCard = convertView.findViewById(R.id.control_card);
       viewHolder.control_panel = convertView.findViewById(R.id.control_panel);
       viewHolder.notes = convertView.findViewById(R.id.notes);
       defaultColorStateList = viewHolder.notes.getTextColors();
@@ -783,11 +785,19 @@ public class MyListAdapter extends BaseAdapter implements Filterable {
       int table_row_size = tableRow.getChildCount();
       for(int j = 0; j < table_row_size; j++) {
         TextView panel_item = (TextView)tableRow.getChildAt(j);
+        if(activity.isDarkMode) {
+          panel_item.setTextColor(activity.secondaryTextMaterialDarkColor);
+        }
         panel_item.setOnClickListener(listener);
       }
     }
 
     // 各種表示処理
+    if(activity.isDarkMode) {
+      viewHolder.item_card.setBackgroundColor(activity.backgroundFloatingMaterialDarkColor);
+      viewHolder.controlCard.setBackgroundColor(activity.backgroundFloatingMaterialDarkColor);
+      viewHolder.detail.setTextColor(activity.secondaryTextMaterialDarkColor);
+    }
     viewHolder.detail.setText(item.getDetail());
     viewHolder.detail.setTextSize(activity.text_size);
     if(item.getWhich_tag_belongs() == 0) {
@@ -801,11 +811,13 @@ public class MyListAdapter extends BaseAdapter implements Filterable {
         viewHolder.tagPallet.setColorFilter(color);
       }
       else {
-        viewHolder.tagPallet.setColorFilter(ContextCompat.getColor(activity, R.color.icon_gray));
+        viewHolder.tagPallet.setColorFilter(ContextCompat.getColor(activity, R.color.iconGray));
       }
     }
     if(item.getNotesList().size() == 0) {
-      viewHolder.notes.setTextColor(defaultColorStateList);
+      if(!activity.isDarkMode) {
+        viewHolder.notes.setTextColor(defaultColorStateList);
+      }
     }
     else {
       viewHolder.notes.setTextColor(activity.accent_color);

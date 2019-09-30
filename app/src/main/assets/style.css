@@ -1,14 +1,22 @@
-h2 {font-weight:normal;
-  font-size:20px;}
+h2 {
+  font-weight: normal;
+  font-size: 20px;
+}
 
-h3 {font-weight:normal;
-  font-size:18px}
+h3 {
+  font-weight: normal;
+  font-size: 18px
+}
 
-article {background-color:#fff3e0;
-  border:solid 1px #cbae82;
-  padding-top:5px;
-  padding-left:30px;
-  padding-right:30px;
-  padding-bottom:5px;}
+article {
+  background-color: #fff3e0;
+  border: solid 1px #cbae82;
+  padding-top: 5px;
+  padding-left: 30px;
+  padding-right: 30px;
+  padding-bottom: 5px;
+}
 
-p {line-height:1.5}
+p {
+  line-height: 1.5
+}

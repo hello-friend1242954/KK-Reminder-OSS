@@ -1,7 +1,15 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <color name="icon_gray">#7f7f7f</color>
-    <color name="darker_grey">#6C6C6C</color>
+    <color name="iconGray">#7f7f7f</color>
+    <color name="darkerGrey">#6C6C6C</color>
+    <color name="primaryMaterialDark">#212121</color>
+    <color name="primaryDarkMaterialDark">#000000</color>
+    <color name="backgroundMaterialDark">#303030</color>
+    <color name="backgroundFloatingMaterialDark">#424242</color>
+    <color name="primaryTextMaterialDark">#ffffffff</color>
+    <color name="secondaryTextMaterialDark">#b3ffffff</color>
+    <color name="transparent">#000000</color>
+    <drawable name="transparameter">#cf000000</drawable>
 
     <color name="colorPrimary">#3F51B5</color>
     <color name="colorPrimaryDark">#303F9F</color>

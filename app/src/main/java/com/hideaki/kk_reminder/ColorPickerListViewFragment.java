@@ -1,17 +1,7 @@
 package com.hideaki.kk_reminder;
 
 import android.content.Context;
-import android.content.Intent;
 import android.os.Bundle;
-
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
-import androidx.fragment.app.Fragment;
-import androidx.fragment.app.FragmentManager;
-import androidx.core.content.ContextCompat;
-import androidx.appcompat.app.ActionBar;
-import androidx.appcompat.widget.Toolbar;
-
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
@@ -20,6 +10,14 @@ import android.view.ViewGroup;
 import android.widget.AbsListView;
 
 import com.google.android.gms.ads.AdView;
+
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.appcompat.app.ActionBar;
+import androidx.appcompat.widget.Toolbar;
+import androidx.core.content.ContextCompat;
+import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentManager;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
@@ -87,7 +85,12 @@ public class ColorPickerListViewFragment extends Fragment {
   ) {
 
     View view = inflater.inflate(R.layout.listview, container, false);
-    view.setBackgroundColor(ContextCompat.getColor(activity, android.R.color.background_light));
+    if(activity.isDarkMode) {
+      view.setBackgroundColor(activity.backgroundMaterialDarkColor);
+    }
+    else {
+      view.setBackgroundColor(ContextCompat.getColor(activity, android.R.color.background_light));
+    }
     view.setFocusableInTouchMode(true);
     view.requestFocus();
     view.setOnKeyListener(new View.OnKeyListener() {
@@ -104,8 +107,7 @@ public class ColorPickerListViewFragment extends Fragment {
               activity.generalSettings.getTheme().setColor_primary(true);
               activity.updateSettingsDB();
             }
-            activity.finish();
-            startActivity(new Intent(activity, MainActivity.class));
+            activity.recreate();
           }
         }
 
@@ -178,8 +180,7 @@ public class ColorPickerListViewFragment extends Fragment {
             activity.generalSettings.getTheme().setColor_primary(true);
             activity.updateSettingsDB();
           }
-          activity.finish();
-          startActivity(new Intent(activity, MainActivity.class));
+          activity.recreate();
         }
         FragmentManager manager = getFragmentManager();
         checkNotNull(manager);

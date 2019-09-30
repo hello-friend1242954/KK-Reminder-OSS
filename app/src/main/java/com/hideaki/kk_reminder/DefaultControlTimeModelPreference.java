@@ -3,6 +3,8 @@ package com.hideaki.kk_reminder;
 import android.content.Context;
 import android.content.ContextWrapper;
 
+import androidx.cardview.widget.CardView;
+import androidx.core.content.ContextCompat;
 import androidx.preference.Preference;
 import androidx.preference.PreferenceViewHolder;
 
@@ -33,10 +35,13 @@ public class DefaultControlTimeModelPreference extends Preference {
   public void onBindViewHolder(PreferenceViewHolder holder) {
 
     super.onBindViewHolder(holder);
+    CardView childCard = (CardView)holder.findViewById(R.id.child_card);
+    ImageView clockImage = (ImageView)holder.findViewById(R.id.clock_image);
     TextView date = (TextView)holder.findViewById(R.id.date);
     TextView detail = (TextView)holder.findViewById(R.id.detail);
     TextView repeat = (TextView)holder.findViewById(R.id.repeat);
     ImageView tag = (ImageView)holder.findViewById(R.id.tag_pallet);
+    CardView controlCard = (CardView)holder.findViewById(R.id.control_card);
     TableLayout controlPanel = (TableLayout)holder.findViewById(R.id.control_panel);
     TextView minusTime1 = (TextView)holder.findViewById(R.id.minus_time1);
     TextView minusTime2 = (TextView)holder.findViewById(R.id.minus_time2);
@@ -66,6 +71,20 @@ public class DefaultControlTimeModelPreference extends Preference {
     set_time += ")";
 
     // 各種初期設定
+    if(activity.isDarkMode) {
+      childCard.setBackgroundColor(activity.backgroundFloatingMaterialDarkColor);
+      controlCard.setBackgroundColor(activity.backgroundFloatingMaterialDarkColor);
+      clockImage.setColorFilter(ContextCompat.getColor(
+          activity,
+          R.color.green5PrimaryColor
+      ));
+      TextView[] textViews = {
+          date, detail, repeat, minusTime1, minusTime2, minusTime3, plusTime1, plusTime2, plusTime3
+      };
+      for(TextView textView : textViews) {
+        textView.setTextColor(activity.secondaryTextMaterialDarkColor);
+      }
+    }
     date.setText(set_time);
     detail.setText(R.string.default_detail);
     detail.setTextSize(activity.text_size);

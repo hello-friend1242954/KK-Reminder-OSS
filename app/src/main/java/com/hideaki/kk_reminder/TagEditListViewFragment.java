@@ -93,7 +93,12 @@ public class TagEditListViewFragment extends Fragment implements View.OnClickLis
   ) {
 
     View view = inflater.inflate(R.layout.listview, container, false);
-    view.setBackgroundColor(ContextCompat.getColor(activity, android.R.color.background_light));
+    if(activity.isDarkMode) {
+      view.setBackgroundColor(activity.backgroundMaterialDarkColor);
+    }
+    else {
+      view.setBackgroundColor(ContextCompat.getColor(activity, android.R.color.background_light));
+    }
     view.setFocusableInTouchMode(true);
     view.requestFocus();
     view.setOnKeyListener(new View.OnKeyListener() {
@@ -273,7 +278,7 @@ public class TagEditListViewFragment extends Fragment implements View.OnClickLis
     LinearLayout linearLayout = new LinearLayout(activity);
     linearLayout.setOrientation(LinearLayout.VERTICAL);
     final EditText editText = new EditText(activity);
-    setCursorDrawableColor(editText);
+    setCursorDrawableColor(activity, editText);
     editText.getBackground().mutate().setColorFilter(new PorterDuffColorFilter(
         activity.accent_color,
         PorterDuff.Mode.SRC_IN

@@ -44,7 +44,7 @@ public class NotifyIntervalTimePickerDialogFragment extends DialogFragment {
     checkNotNull(activity);
 
     time = view.findViewById(R.id.time);
-    setCursorDrawableColor(time);
+    setCursorDrawableColor(activity, time);
     time.getBackground().mutate().setColorFilter(new PorterDuffColorFilter(
         activity.accent_color,
         PorterDuff.Mode.SRC_IN
@@ -56,6 +56,7 @@ public class NotifyIntervalTimePickerDialogFragment extends DialogFragment {
     plus.setColorFilter(activity.accent_color);
     GradientDrawable drawable = (GradientDrawable)plus.getBackground();
     drawable = (GradientDrawable)drawable.mutate();
+    drawable.setColor(activity.backgroundFloatingMaterialDarkColor);
     drawable.setStroke(3, activity.accent_color);
     drawable.setCornerRadius(8.0f);
 
@@ -77,6 +78,7 @@ public class NotifyIntervalTimePickerDialogFragment extends DialogFragment {
     minus.setColorFilter(activity.accent_color);
     drawable = (GradientDrawable)minus.getBackground();
     drawable = (GradientDrawable)drawable.mutate();
+    drawable.setColor(activity.backgroundFloatingMaterialDarkColor);
     drawable.setStroke(3, activity.accent_color);
     drawable.setCornerRadius(8.0f);
 

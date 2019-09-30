@@ -38,7 +38,19 @@ public class DatePickerDialogFragment extends DialogFragment
     MainActivity activity = (MainActivity)getActivity();
     checkNotNull(activity);
 
-    return new DatePickerDialog(activity, activity.dialog_style_id, this, year, month, day);
+    if(activity.isDarkMode) {
+      return new DatePickerDialog(activity, this, year, month, day);
+    }
+    else {
+      return new DatePickerDialog(
+          activity,
+          activity.dialog_style_id,
+          this,
+          year,
+          month,
+          day
+      );
+    }
   }
 
   @Override

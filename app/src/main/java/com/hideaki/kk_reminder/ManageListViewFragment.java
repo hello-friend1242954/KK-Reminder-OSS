@@ -77,7 +77,12 @@ public class ManageListViewFragment extends Fragment {
   ) {
 
     View view = inflater.inflate(R.layout.listview, container, false);
-    view.setBackgroundColor(ContextCompat.getColor(activity, android.R.color.background_light));
+    if(activity.isDarkMode) {
+      view.setBackgroundColor(activity.backgroundMaterialDarkColor);
+    }
+    else {
+      view.setBackgroundColor(ContextCompat.getColor(activity, android.R.color.background_light));
+    }
     view.setFocusableInTouchMode(true);
     view.requestFocus();
     view.setOnKeyListener(new View.OnKeyListener() {

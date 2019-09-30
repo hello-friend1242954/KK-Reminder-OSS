@@ -353,7 +353,12 @@ public class MainEditFragment extends BasePreferenceFragmentCompat
       View view = super.onCreateView(inflater, container, savedInstanceState);
       checkNotNull(view);
 
-      view.setBackgroundColor(ContextCompat.getColor(activity, android.R.color.background_light));
+      if(activity.isDarkMode) {
+        view.setBackgroundColor(activity.backgroundMaterialDarkColor);
+      }
+      else {
+        view.setBackgroundColor(ContextCompat.getColor(activity, android.R.color.background_light));
+      }
       view.setFocusableInTouchMode(true);
       view.requestFocus();
       view.setOnKeyListener(new View.OnKeyListener() {
@@ -642,7 +647,7 @@ public class MainEditFragment extends BasePreferenceFragmentCompat
                     }
                     else {
                       drawable.setColorFilter(new PorterDuffColorFilter(
-                          ContextCompat.getColor(activity, R.color.icon_gray),
+                          ContextCompat.getColor(activity, R.color.iconGray),
                           PorterDuff.Mode.SRC_IN
                       ));
                     }
@@ -1029,7 +1034,7 @@ public class MainEditFragment extends BasePreferenceFragmentCompat
         }
         else {
           drawable.setColorFilter(new PorterDuffColorFilter(
-              ContextCompat.getColor(activity, R.color.icon_gray),
+              ContextCompat.getColor(activity, R.color.iconGray),
               PorterDuff.Mode.SRC_IN
           ));
         }

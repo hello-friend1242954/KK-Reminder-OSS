@@ -17,12 +17,12 @@
         <item name="android:windowBackground">@drawable/manually_snooze_activity_background</item>
         <item name="colorPrimary">@color/red13PrimaryColor</item>
         <item name="colorPrimaryDark">@color/red13PrimaryDarkColor</item>
-        <item name="colorAccent">@color/red13PrimaryLightColor</item>
-        <item name="android:textColorPrimary">@color/red13PrimaryTextColor</item>
+        <item name="colorAccent">@color/red13PrimaryColor</item>
+<!--        <item name="android:textColorPrimary">@color/red13PrimaryTextColor</item>-->
     </style>
 
     <style name="BaseTheme" parent="@style/PreferenceFixTheme.Light.NoActionBar">
-        <item name="actionModeBackground">@color/icon_gray</item>
+        <item name="actionModeBackground">@color/iconGray</item>
         <item name="windowActionModeOverlay">true</item>
     </style>
 

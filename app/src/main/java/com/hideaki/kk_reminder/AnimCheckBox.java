@@ -41,7 +41,7 @@ public class AnimCheckBox extends View implements Checkable {
   private int mInnerCircleAlpha = 0XFF;
   private int mStrokeWidth = 2;
   private int mStrokeColor = Color.BLUE;
-  private int mCircleColor = Color.WHITE;
+//  private int mCircleColor = Color.WHITE;
   private OnCheckedChangeListener mOnCheckedChangeListener;
   private MainActivity activity;
   private ManuallySnoozeActivity manuallySnoozeActivity;
@@ -83,21 +83,46 @@ public class AnimCheckBox extends View implements Checkable {
     boolean checked = mChecked;
     if(attrs != null) {
       TypedArray array = getContext().obtainStyledAttributes(attrs, R.styleable.AnimCheckBox);
-      mStrokeWidth = (int)array.getDimension(R.styleable.AnimCheckBox_stroke_width, dip(mStrokeWidth));
+      mStrokeWidth =
+          (int)array.getDimension(R.styleable.AnimCheckBox_stroke_width, dip(mStrokeWidth));
       if(activity != null) {
         int order = activity.order;
-        if((order == 0 && !activity.isExpandableTodo)
-            || (order == 1 && !activity.generalSettings.getNonScheduledLists().get(activity.whichMenuOpen - 1).isTodo())) {
+        if(
+            (order == 0 && !activity.isExpandableTodo) ||
+            (order == 1 && !activity
+                .generalSettings
+                .getNonScheduledLists()
+                .get(activity.whichMenuOpen - 1)
+                .isTodo())
+        ) {
           mStrokeColor = Color.GRAY;
         }
         else {
-          mStrokeColor = array.getColor(R.styleable.AnimCheckBox_stroke_color, activity.accent_color);
+          mStrokeColor =
+              array.getColor(R.styleable.AnimCheckBox_stroke_color, activity.accent_color);
         }
-        mCircleColor = array.getColor(R.styleable.AnimCheckBox_circle_color, Color.WHITE);
+//        mCircleColor = array.getColor(R.styleable.AnimCheckBox_circle_color, Color.WHITE);
+      }
+      else if(manuallySnoozeActivity != null) {
+        if(manuallySnoozeActivity.isDarkMode) {
+          mStrokeColor = manuallySnoozeActivity.secondaryTextMaterialDarkColor;
+        }
+        else {
+          mStrokeColor = array.getColor(
+              R.styleable.AnimCheckBox_stroke_color,
+              Color.parseColor("#b0002171")
+          );
+        }
       }
       else {
-        mStrokeColor = array.getColor(R.styleable.AnimCheckBox_stroke_color, Color.parseColor("#80002171"));
-        mCircleColor = array.getColor(R.styleable.AnimCheckBox_circle_color, Color.parseColor("#FF9b0000"));
+        mStrokeColor = array.getColor(
+            R.styleable.AnimCheckBox_stroke_color,
+            Color.parseColor("#b0002171")
+        );
+//        mCircleColor = array.getColor(
+//            R.styleable.AnimCheckBox_circle_color,
+//            Color.parseColor("#FF9b0000")
+//        );
       }
       checked = array.getBoolean(R.styleable.AnimCheckBox_checked, false);
       array.recycle();
@@ -179,8 +204,8 @@ public class AnimCheckBox extends View implements Checkable {
     canvas.drawArc(mRectF, 202, mSweepAngle, false, mPaint);
     initDrawAlphaStrokeCirclePaint();
     canvas.drawArc(mRectF, 202, mSweepAngle - 360, false, mPaint);
-    initDrawInnerCirclePaint();
-    canvas.drawArc(mInnerRectF, 0, 360, false, mPaint);
+//    initDrawInnerCirclePaint();
+//    canvas.drawArc(mInnerRectF, 0, 360, false, mPaint);
   }
 
   private void drawHook(Canvas canvas) {
@@ -235,12 +260,12 @@ public class AnimCheckBox extends View implements Checkable {
     mPaint.setAlpha(0x40);
   }
 
-  private void initDrawInnerCirclePaint() {
-
-    mPaint.setStyle(Paint.Style.FILL);
-    mPaint.setColor(mCircleColor);
-    mPaint.setAlpha(mInnerCircleAlpha);
-  }
+//  private void initDrawInnerCirclePaint() {
+//
+//    mPaint.setStyle(Paint.Style.FILL);
+//    mPaint.setColor(mCircleColor);
+//    mPaint.setAlpha(mInnerCircleAlpha);
+//  }
 
   private void startCheckedAnim() {
 

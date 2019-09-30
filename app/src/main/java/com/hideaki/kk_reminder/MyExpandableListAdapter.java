@@ -40,6 +40,7 @@ import java.util.regex.Pattern;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.view.ActionMode;
 import androidx.cardview.widget.CardView;
+import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.core.content.ContextCompat;
 
 import static android.content.Context.MODE_PRIVATE;
@@ -126,6 +127,7 @@ public class MyExpandableListAdapter extends BaseExpandableListAdapter implement
     TextView repeat;
     AnimCheckBox checkBox;
     ImageView tagPallet;
+    CardView controlCard;
     TableLayout control_panel;
     TextView minusTime1;
     TextView minusTime2;
@@ -1429,7 +1431,7 @@ public class MyExpandableListAdapter extends BaseExpandableListAdapter implement
       Window window = activity.getWindow();
       window.clearFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS);
       window.addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS);
-      window.setStatusBarColor(ContextCompat.getColor(activity, R.color.darker_grey));
+      window.setStatusBarColor(ContextCompat.getColor(activity, R.color.darkerGrey));
 
       return true;
     }
@@ -1884,13 +1886,27 @@ public class MyExpandableListAdapter extends BaseExpandableListAdapter implement
     for(int j = 0; j < size; j++) {
       if(display_groups[j]) {
         if(count == i) {
-          return children.get(j).get(i1);
+          try {
+            return children.get(j).get(i1);
+          }
+          catch(IndexOutOfBoundsException e) {
+            e.printStackTrace();
+            notifyDataSetChanged();
+            return children.get(j).get(i1 - 1);
+          }
         }
         count++;
       }
     }
 
-    return children.get(i).get(i1);
+    try {
+      return children.get(i).get(i1);
+    }
+    catch(IndexOutOfBoundsException e) {
+      e.printStackTrace();
+      notifyDataSetChanged();
+      return children.get(i).get(i1 - 1);
+    }
   }
 
   @Override
@@ -1989,7 +2005,16 @@ public class MyExpandableListAdapter extends BaseExpandableListAdapter implement
       }
     }
 
-    ((TextView)convertView.findViewById(R.id.day)).setText(getGroup(i).toString());
+    TextView day = convertView.findViewById(R.id.day);
+    if(activity.isDarkMode) {
+      ConstraintLayout groupView = convertView.findViewById(R.id.group_view);
+      groupView.setBackground(ContextCompat.getDrawable(
+          activity,
+          R.drawable.expandable_group_view_dark
+      ));
+      day.setTextColor(activity.secondaryTextMaterialDarkColor);
+    }
+    day.setText(getGroup(i).toString());
 
     return convertView;
   }
@@ -2020,6 +2045,7 @@ public class MyExpandableListAdapter extends BaseExpandableListAdapter implement
       viewHolder.repeat = convertView.findViewById(R.id.repeat);
       viewHolder.checkBox = convertView.findViewById(R.id.checkBox);
       viewHolder.tagPallet = convertView.findViewById(R.id.tag_pallet);
+      viewHolder.controlCard = convertView.findViewById(R.id.control_card);
       viewHolder.control_panel = convertView.findViewById(R.id.control_panel);
       viewHolder.minusTime1 = convertView.findViewById(R.id.minus_time1);
       viewHolder.minusTime2 = convertView.findViewById(R.id.minus_time2);
@@ -2066,11 +2092,24 @@ public class MyExpandableListAdapter extends BaseExpandableListAdapter implement
       int table_row_size = tableRow.getChildCount();
       for(int k = 0; k < table_row_size; k++) {
         TextView panel_item = (TextView)tableRow.getChildAt(k);
+        if(activity.isDarkMode) {
+          panel_item.setTextColor(activity.secondaryTextMaterialDarkColor);
+        }
         panel_item.setOnClickListener(listener);
       }
     }
 
     // 各種表示処理
+    if(activity.isDarkMode) {
+      viewHolder.child_card.setBackgroundColor(activity.backgroundFloatingMaterialDarkColor);
+      viewHolder.controlCard.setBackgroundColor(activity.backgroundFloatingMaterialDarkColor);
+      TextView[] textViews = {
+          viewHolder.detail, viewHolder.repeat
+      };
+      for(TextView textView : textViews) {
+        textView.setTextColor(activity.secondaryTextMaterialDarkColor);
+      }
+    }
     displayDate(viewHolder, item);
     viewHolder.detail.setText(item.getDetail());
     viewHolder.detail.setTextSize(activity.text_size);
@@ -2086,11 +2125,13 @@ public class MyExpandableListAdapter extends BaseExpandableListAdapter implement
         viewHolder.tagPallet.setColorFilter(color);
       }
       else {
-        viewHolder.tagPallet.setColorFilter(ContextCompat.getColor(activity, R.color.icon_gray));
+        viewHolder.tagPallet.setColorFilter(ContextCompat.getColor(activity, R.color.iconGray));
       }
     }
     if(item.getNotesList().size() == 0) {
-      viewHolder.notes.setTextColor(defaultColorStateList);
+      if(!activity.isDarkMode) {
+        viewHolder.notes.setTextColor(defaultColorStateList);
+      }
     }
     else {
       viewHolder.notes.setTextColor(activity.accent_color);
@@ -2361,20 +2402,49 @@ public class MyExpandableListAdapter extends BaseExpandableListAdapter implement
       viewHolder.time.setTextColor(Color.GRAY);
     }
     else if(date_is_minus) {
-      viewHolder.time.setTextColor(Color.RED);
+      if(activity.isDarkMode) {
+        viewHolder.time.setTextColor(ContextCompat.getColor(
+            activity,
+            R.color.red6PrimaryColor
+        ));
+      }
+      else {
+        viewHolder.time.setTextColor(Color.RED);
+      }
     }
     else {
-      viewHolder.time.setTextColor(Color.BLACK);
+      if(activity.isDarkMode) {
+        viewHolder.time.setTextColor(activity.secondaryTextMaterialDarkColor);
+      }
+      else {
+        viewHolder.time.setTextColor(Color.BLACK);
+      }
     }
 
     if(item.isAlarm_stopped()) {
       viewHolder.clock_image.setColorFilter(Color.GRAY);
     }
     else if(item.getTime_altered() != 0) {
-      viewHolder.clock_image.setColorFilter(Color.BLUE);
+      if(activity.isDarkMode) {
+        viewHolder.clock_image.setColorFilter(ContextCompat.getColor(
+            activity,
+            R.color.blue6PrimaryColor
+        ));
+      }
+      else {
+        viewHolder.clock_image.setColorFilter(Color.BLUE);
+      }
     }
     else {
-      viewHolder.clock_image.setColorFilter(0xFF09C858);
+      if(activity.isDarkMode) {
+        viewHolder.clock_image.setColorFilter(ContextCompat.getColor(
+            activity,
+            R.color.green5PrimaryColor
+        ));
+      }
+      else {
+        viewHolder.clock_image.setColorFilter(0xFF09C858);
+      }
     }
   }
 

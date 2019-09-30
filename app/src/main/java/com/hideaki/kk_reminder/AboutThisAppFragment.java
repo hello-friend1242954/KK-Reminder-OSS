@@ -55,14 +55,29 @@ public class AboutThisAppFragment extends Fragment {
   ) {
 
     View view = inflater.inflate(R.layout.about_this_app_layout, container, false);
-    view.setBackgroundColor(ContextCompat.getColor(activity, android.R.color.background_light));
+    if(activity.isDarkMode) {
+      view.setBackgroundColor(activity.backgroundMaterialDarkColor);
+    }
+    else {
+      view.setBackgroundColor(ContextCompat.getColor(activity, android.R.color.background_light));
+    }
 
     webView = view.findViewById(R.id.webView);
     if(LOCALE.equals(Locale.JAPAN)) {
-      webView.loadUrl("file:///android_asset/about_this_app_ja.html");
+      if(activity.isDarkMode) {
+        webView.loadUrl("file:///android_asset/about_this_app_ja_dark.html");
+      }
+      else {
+        webView.loadUrl("file:///android_asset/about_this_app_ja.html");
+      }
     }
     else {
-      webView.loadUrl("file:///android_asset/about_this_app_en.html");
+      if(activity.isDarkMode) {
+        webView.loadUrl("file:///android_asset/about_this_app_en_dark.html");
+      }
+      else {
+        webView.loadUrl("file:///android_asset/about_this_app_en.html");
+      }
     }
 
     Toolbar toolbar = activity.findViewById(R.id.toolbar_layout);

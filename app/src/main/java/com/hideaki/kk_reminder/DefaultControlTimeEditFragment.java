@@ -49,7 +49,12 @@ public class DefaultControlTimeEditFragment extends BasePreferenceFragmentCompat
     View view = super.onCreateView(inflater, container, savedInstanceState);
     checkNotNull(view);
 
-    view.setBackgroundColor(ContextCompat.getColor(activity, android.R.color.background_light));
+    if(activity.isDarkMode) {
+      view.setBackgroundColor(activity.backgroundMaterialDarkColor);
+    }
+    else {
+      view.setBackgroundColor(ContextCompat.getColor(activity, android.R.color.background_light));
+    }
 
     Toolbar toolbar = activity.findViewById(R.id.toolbar_layout);
     activity.setSupportActionBar(toolbar);

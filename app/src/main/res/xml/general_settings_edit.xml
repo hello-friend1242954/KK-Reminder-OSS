@@ -51,6 +51,14 @@
             android:title="@string/pick_secondary_color"
             android:key="secondary_color"/>
 
+        <com.hideaki.kk_reminder.MyCheckBoxPreference
+            android:title="@string/dark_theme"
+            android:key="dark_theme"/>
+
+        <com.hideaki.kk_reminder.MyCheckBoxPreference
+            android:title="@string/dark_theme_follow_system"
+            android:key="dark_theme_follow_system"/>
+
         <PreferenceScreen
             android:summary="@string/after_theme_set_message"/>
     </com.hideaki.kk_reminder.MyPreferenceCategory>

@@ -3,9 +3,6 @@ package com.hideaki.kk_reminder;
 import android.annotation.SuppressLint;
 import android.content.res.Resources;
 import android.content.res.TypedArray;
-
-import androidx.cardview.widget.CardView;
-
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.animation.Animation;
@@ -18,6 +15,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+import androidx.cardview.widget.CardView;
 import petrov.kristiyan.colorpicker.ColorPicker;
 
 import static com.google.common.base.Preconditions.checkArgument;
@@ -317,6 +315,10 @@ public class ColorPickerListAdapter extends BaseAdapter {
     viewHolder.checkBox.setOnCheckedChangeListener(listener);
 
     // 各種表示処理
+    if(activity.isDarkMode) {
+      viewHolder.color_list_card.setBackgroundColor(activity.backgroundFloatingMaterialDarkColor);
+      viewHolder.color_name.setTextColor(activity.secondaryTextMaterialDarkColor);
+    }
     viewHolder.color_name.setText(color_name);
     viewHolder.color_name.setTextSize(activity.text_size);
 

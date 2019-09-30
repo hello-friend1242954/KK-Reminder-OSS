@@ -3,6 +3,8 @@ package com.hideaki.kk_reminder;
 import android.content.Context;
 import android.content.ContextWrapper;
 
+import androidx.cardview.widget.CardView;
+import androidx.core.content.ContextCompat;
 import androidx.preference.Preference;
 import androidx.preference.PreferenceViewHolder;
 
@@ -32,6 +34,8 @@ public class DefaultTextSizeModelPreference extends Preference {
   public void onBindViewHolder(PreferenceViewHolder holder) {
 
     super.onBindViewHolder(holder);
+    CardView childCard = (CardView)holder.findViewById(R.id.child_card);
+    ImageView clockImage = (ImageView)holder.findViewById(R.id.clock_image);
     TextView date = (TextView)holder.findViewById(R.id.date);
     TextView detail = (TextView)holder.findViewById(R.id.detail);
     TextView repeat = (TextView)holder.findViewById(R.id.repeat);
@@ -57,6 +61,19 @@ public class DefaultTextSizeModelPreference extends Preference {
     }
     set_time += ")";
 
+    if(activity.isDarkMode) {
+      childCard.setBackgroundColor(activity.backgroundFloatingMaterialDarkColor);
+      clockImage.setColorFilter(ContextCompat.getColor(
+          activity,
+          R.color.green5PrimaryColor
+      ));
+      TextView[] textViews = {
+          date, detail, repeat
+      };
+      for(TextView textView : textViews) {
+        textView.setTextColor(activity.secondaryTextMaterialDarkColor);
+      }
+    }
     date.setText(set_time);
     detail.setText(R.string.default_detail);
     detail.setTextSize(activity.text_size);

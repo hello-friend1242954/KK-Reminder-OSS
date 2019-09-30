@@ -13,7 +13,6 @@ import android.widget.AbsListView;
 import android.widget.ExpandableListView;
 import android.widget.LinearLayout;
 
-import com.diegocarloslima.fgelv.lib.FloatingGroupExpandableListView;
 import com.google.android.gms.ads.AdRequest;
 import com.google.android.gms.ads.AdView;
 
@@ -114,7 +113,13 @@ public class ExpandableListViewFragment extends Fragment {
     else {
       view = inflater.inflate(R.layout.expandable_listview, container, false);
     }
-    view.setBackgroundColor(ContextCompat.getColor(activity, android.R.color.background_light));
+
+    if(activity.isDarkMode) {
+      view.setBackgroundColor(activity.backgroundMaterialDarkColor);
+    }
+    else {
+      view.setBackgroundColor(ContextCompat.getColor(activity, android.R.color.background_light));
+    }
     view.setFocusableInTouchMode(true);
     view.requestFocus();
     view.setOnKeyListener(new View.OnKeyListener() {

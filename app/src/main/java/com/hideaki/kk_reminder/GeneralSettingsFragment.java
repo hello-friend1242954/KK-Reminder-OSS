@@ -1,23 +1,10 @@
 package com.hideaki.kk_reminder;
 
 import android.content.Context;
+import android.content.res.Configuration;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
-
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
-import androidx.transition.Fade;
-import androidx.transition.Transition;
-import androidx.fragment.app.FragmentManager;
-import androidx.core.content.ContextCompat;
-import androidx.core.view.GravityCompat;
-import androidx.appcompat.app.ActionBar;
-import androidx.preference.CheckBoxPreference;
-import androidx.preference.Preference;
-import androidx.preference.PreferenceScreen;
-import androidx.appcompat.widget.Toolbar;
-
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -25,7 +12,23 @@ import android.view.ViewGroup;
 import com.takisoft.fix.support.v7.preference.PreferenceCategory;
 import com.takisoft.fix.support.v7.preference.PreferenceFragmentCompat;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.appcompat.app.ActionBar;
+import androidx.appcompat.app.AppCompatDelegate;
+import androidx.appcompat.widget.Toolbar;
+import androidx.core.content.ContextCompat;
+import androidx.core.view.GravityCompat;
+import androidx.fragment.app.FragmentManager;
+import androidx.preference.CheckBoxPreference;
+import androidx.preference.Preference;
+import androidx.preference.PreferenceScreen;
+import androidx.transition.Fade;
+import androidx.transition.Transition;
+
 import static com.google.common.base.Preconditions.checkNotNull;
+import static com.hideaki.kk_reminder.UtilClass.IS_DARK_MODE;
+import static com.hideaki.kk_reminder.UtilClass.IS_DARK_THEME_FOLLOW_SYSTEM;
 import static com.hideaki.kk_reminder.UtilClass.PLAY_SLIDE_ANIMATION;
 
 public class GeneralSettingsFragment extends BasePreferenceFragmentCompat
@@ -36,6 +39,8 @@ public class GeneralSettingsFragment extends BasePreferenceFragmentCompat
 
   private MainActivity activity;
   private CheckBoxPreference animation;
+  private CheckBoxPreference darkTheme;
+  private CheckBoxPreference darkThemeFollowSystem;
 
   public static GeneralSettingsFragment newInstance() {
 
@@ -74,6 +79,8 @@ public class GeneralSettingsFragment extends BasePreferenceFragmentCompat
     PreferenceScreen disableAds = (PreferenceScreen)findPreference("disable_ads");
     PreferenceScreen primaryColor = (PreferenceScreen)findPreference("primary_color");
     PreferenceScreen secondaryColor = (PreferenceScreen)findPreference("secondary_color");
+    darkTheme = (CheckBoxPreference)findPreference("dark_theme");
+    darkThemeFollowSystem = (CheckBoxPreference)findPreference("dark_theme_follow_system");
     PreferenceScreen backup = (PreferenceScreen)findPreference("backup");
     PreferenceScreen about = (PreferenceScreen)findPreference("this_app");
 
@@ -85,6 +92,9 @@ public class GeneralSettingsFragment extends BasePreferenceFragmentCompat
     disableAds.setOnPreferenceClickListener(this);
     primaryColor.setOnPreferenceClickListener(this);
     secondaryColor.setOnPreferenceClickListener(this);
+    ((MyCheckBoxPreference)darkTheme).setOnMyCheckBoxPreferenceCheckedChangeListener(this);
+    ((MyCheckBoxPreference)darkThemeFollowSystem)
+        .setOnMyCheckBoxPreferenceCheckedChangeListener(this);
     backup.setOnPreferenceClickListener(this);
     about.setOnPreferenceClickListener(this);
 
@@ -113,7 +123,12 @@ public class GeneralSettingsFragment extends BasePreferenceFragmentCompat
     View view = super.onCreateView(inflater, container, savedInstanceState);
     checkNotNull(view);
 
-    view.setBackgroundColor(ContextCompat.getColor(activity, android.R.color.background_light));
+    if(activity.isDarkMode) {
+      view.setBackgroundColor(activity.backgroundMaterialDarkColor);
+    }
+    else {
+      view.setBackgroundColor(ContextCompat.getColor(activity, android.R.color.background_light));
+    }
 
     Toolbar toolbar = activity.findViewById(R.id.toolbar_layout);
     activity.setSupportActionBar(toolbar);
@@ -129,6 +144,20 @@ public class GeneralSettingsFragment extends BasePreferenceFragmentCompat
     }
     else {
       animation.setChecked(false);
+    }
+
+    if(activity.isDarkMode) {
+      darkTheme.setChecked(true);
+    }
+    else {
+      darkTheme.setChecked(false);
+    }
+
+    if(activity.isDarkThemeFollowSystem) {
+      darkThemeFollowSystem.setChecked(true);
+    }
+    else {
+      darkThemeFollowSystem.setChecked(false);
     }
 
     return view;
@@ -203,9 +232,63 @@ public class GeneralSettingsFragment extends BasePreferenceFragmentCompat
   @Override
   public void onCheckedChange(String key, boolean checked) {
 
-    animation.setChecked(checked);
-    if(activity.play_slide_animation != checked) {
-      activity.setBooleanGeneralInSharedPreferences(PLAY_SLIDE_ANIMATION, checked);
+    switch(key) {
+      case "animation": {
+        animation.setChecked(checked);
+        if(activity.play_slide_animation != checked) {
+          activity.setBooleanGeneralInSharedPreferences(PLAY_SLIDE_ANIMATION, checked);
+        }
+        break;
+      }
+      case "dark_theme": {
+        darkTheme.setChecked(checked);
+        if(activity.isDarkMode != checked) {
+          activity.setBooleanGeneralInSharedPreferences(IS_DARK_MODE, checked);
+        }
+        initDarkMode();
+        break;
+      }
+      case "dark_theme_follow_system": {
+        darkThemeFollowSystem.setChecked(checked);
+        if(activity.isDarkThemeFollowSystem != checked) {
+          activity.setBooleanGeneralInSharedPreferences(IS_DARK_THEME_FOLLOW_SYSTEM, checked);
+        }
+        initDarkMode();
+        break;
+      }
+      default: {
+        throw new IllegalStateException("Such a key not exist!: " + key);
+      }
+    }
+  }
+
+  private void initDarkMode() {
+
+    int currentNightMode =
+        getResources().getConfiguration().uiMode & Configuration.UI_MODE_NIGHT_MASK;
+    if(!activity.isDarkThemeFollowSystem) {
+      if(activity.isDarkMode && currentNightMode != Configuration.UI_MODE_NIGHT_YES) {
+        AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_YES);
+      }
+      else if(!activity.isDarkMode && currentNightMode == Configuration.UI_MODE_NIGHT_YES) {
+        AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO);
+      }
+    }
+    else {
+      if(activity.isDarkMode && currentNightMode != Configuration.UI_MODE_NIGHT_YES) {
+        activity.setBooleanGeneralInSharedPreferences(IS_DARK_MODE, false);
+        AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM);
+        activity.recreate();
+      }
+      else if(!activity.isDarkMode && currentNightMode == Configuration.UI_MODE_NIGHT_YES) {
+        activity.setBooleanGeneralInSharedPreferences(IS_DARK_MODE, true);
+        AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM);
+        activity.recreate();
+      }
+      else {
+        AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM);
+        activity.recreate();
+      }
     }
   }
 }

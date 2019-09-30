@@ -198,7 +198,7 @@ public class ActionBarFragment extends Fragment {
           }
           else {
             drawable.setColorFilter(new PorterDuffColorFilter(
-                ContextCompat.getColor(activity, R.color.icon_gray),
+                ContextCompat.getColor(activity, R.color.iconGray),
                 PorterDuff.Mode.SRC_IN
             ));
           }
@@ -443,7 +443,7 @@ public class ActionBarFragment extends Fragment {
                 }
                 else {
                   drawable.setColorFilter(new PorterDuffColorFilter(
-                      ContextCompat.getColor(activity, R.color.icon_gray),
+                      ContextCompat.getColor(activity, R.color.iconGray),
                       PorterDuff.Mode.SRC_IN
                   ));
                 }
@@ -663,7 +663,7 @@ public class ActionBarFragment extends Fragment {
 
     EditText searchTextView = searchView.findViewById(androidx.appcompat.R.id.search_src_text);
     // カーソルの色
-    setCursorDrawableColor(searchTextView);
+    setCursorDrawableColor(activity, searchTextView);
     // 検索中文字の色
     searchTextView.setTextColor(activity.menu_item_color);
     // 閉じるボタンの色

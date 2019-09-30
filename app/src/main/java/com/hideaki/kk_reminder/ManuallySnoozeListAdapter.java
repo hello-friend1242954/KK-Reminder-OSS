@@ -1,7 +1,5 @@
 package com.hideaki.kk_reminder;
 
-import androidx.constraintlayout.widget.ConstraintLayout;
-
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
@@ -11,6 +9,8 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Locale;
+
+import androidx.constraintlayout.widget.ConstraintLayout;
 
 import static com.hideaki.kk_reminder.UtilClass.LOCALE;
 
@@ -207,6 +207,9 @@ public class ManuallySnoozeListAdapter extends BaseAdapter {
     viewHolder.checkBox.setOnCheckedChangeListener(listener);
 
     // 各種表示処理
+    // ダークモードでないときも背景が濃い色で白色が最も見やすかったため、
+    // ダークモード時のテキストカラーと同じ色を設定した。
+    viewHolder.howLong.setTextColor(activity.primaryTextMaterialDarkColor);
     viewHolder.howLong.setText(snoozeItem);
 
     // チェック状態の初期化

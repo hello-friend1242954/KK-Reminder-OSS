@@ -6,4 +6,7 @@
     <PreferenceScreen
         android:summary="@string/default_control_time_model_summary"/>
 
+    <PreferenceScreen
+        android:summary="@string/default_control_time_description"/>
+
 </PreferenceScreen>

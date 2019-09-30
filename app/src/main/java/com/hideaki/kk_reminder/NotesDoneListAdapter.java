@@ -1,9 +1,6 @@
 package com.hideaki.kk_reminder;
 
 import android.os.Handler;
-
-import androidx.constraintlayout.widget.ConstraintLayout;
-
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
@@ -12,6 +9,8 @@ import android.widget.TextView;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+
+import androidx.constraintlayout.widget.ConstraintLayout;
 
 import static com.hideaki.kk_reminder.UtilClass.NOTES_COMPARATOR;
 
@@ -170,6 +169,10 @@ public class NotesDoneListAdapter extends BaseAdapter {
     }
 
     // 各種表示処理
+    if(activity.isDarkMode) {
+      viewHolder.notesItem.setBackgroundColor(activity.backgroundFloatingMaterialDarkColor);
+      viewHolder.string.setTextColor(activity.secondaryTextMaterialDarkColor);
+    }
     viewHolder.string.setText(notes.getString());
 
     return convertView;

@@ -49,6 +49,7 @@ public class ManageListAdapter extends BaseAdapter implements Filterable {
     ImageView order_icon;
     ImageView list_icon;
     TextView detail;
+    CardView controlCard;
     TextView edit;
     ImageView tagPallet;
   }
@@ -274,6 +275,7 @@ public class ManageListAdapter extends BaseAdapter implements Filterable {
       viewHolder.order_icon = convertView.findViewById(R.id.order_icon);
       viewHolder.list_icon = convertView.findViewById(R.id.list_icon);
       viewHolder.detail = convertView.findViewById(R.id.detail);
+      viewHolder.controlCard = convertView.findViewById(R.id.control_card);
       viewHolder.edit = convertView.findViewById(R.id.edit);
       viewHolder.tagPallet = convertView.findViewById(R.id.tag_pallet);
 
@@ -293,6 +295,16 @@ public class ManageListAdapter extends BaseAdapter implements Filterable {
     viewHolder.edit.setOnClickListener(listener);
 
     // 各種表示処理
+    if(activity.isDarkMode) {
+      viewHolder.list_card.setBackgroundColor(activity.backgroundFloatingMaterialDarkColor);
+      viewHolder.controlCard.setBackgroundColor(activity.backgroundFloatingMaterialDarkColor);
+      TextView[] textViews = {
+          viewHolder.detail, viewHolder.edit
+      };
+      for(TextView textView : textViews) {
+        textView.setTextColor(activity.secondaryTextMaterialDarkColor);
+      }
+    }
     viewHolder.detail.setText(list.getTitle());
     viewHolder.detail.setTextSize(activity.text_size);
     if(list.getWhich_tag_belongs() == 0) {
@@ -306,7 +318,7 @@ public class ManageListAdapter extends BaseAdapter implements Filterable {
         viewHolder.tagPallet.setColorFilter(color);
       }
       else {
-        viewHolder.tagPallet.setColorFilter(ContextCompat.getColor(activity, R.color.icon_gray));
+        viewHolder.tagPallet.setColorFilter(ContextCompat.getColor(activity, R.color.iconGray));
       }
     }
 
@@ -323,7 +335,7 @@ public class ManageListAdapter extends BaseAdapter implements Filterable {
       viewHolder.list_icon.setColorFilter(list.getColor());
     }
     else {
-      viewHolder.list_icon.setColorFilter(ContextCompat.getColor(activity, R.color.icon_gray));
+      viewHolder.list_icon.setColorFilter(ContextCompat.getColor(activity, R.color.iconGray));
     }
 
     if(is_sorting) {

@@ -84,7 +84,19 @@ public class DefaultControlTimePickerDialogFragment extends DialogFragment
       }
     }
 
-    return new TimePickerDialog(activity, activity.dialog_style_id, this, hour, minute, true);
+    if(activity.isDarkMode) {
+      return new TimePickerDialog(activity, this, hour, minute, true);
+    }
+    else {
+      return new TimePickerDialog(
+          activity,
+          activity.dialog_style_id,
+          this,
+          hour,
+          minute,
+          true
+      );
+    }
   }
 
   @Override
