@@ -85,6 +85,7 @@ class UtilClass {
 //  static final String STOPPED = "STOPPED";
   static final String BOOLEAN_GENERAL = "BOOLEAN_GENERAL";
   static final String BOOLEAN_GENERAL_COPY = "BOOLEAN_GENERAL_COPY";
+  static final String IS_ID_TABLE_FLOOD = "IS_ID_TABLE_FLOOD";
   static final String IS_DARK_MODE = "IS_DARK_MODE";
   static final String IS_DARK_THEME_FOLLOW_SYSTEM = "IS_DARK_THEME_FOLLOW_SYSTEM";
   static final String PLAY_SLIDE_ANIMATION = "PLAY_SLIDE_ANIMATION";
@@ -263,7 +264,13 @@ class UtilClass {
       // にあるときのみ非同期でコピーを行っている。)
       if(!isFromDirectBootContext && MainActivity.isScreenOn) {
         Intent intent = new Intent(context, CopyDatabaseService.class);
-        context.startService(intent);
+        try {
+          context.startService(intent);
+        }
+        catch(IllegalStateException e) {
+          e.printStackTrace();
+          copyDatabaseKernel(context, false);
+        }
       }
       else {
         copyDatabaseKernel(context, isFromDirectBootContext);
@@ -277,7 +284,13 @@ class UtilClass {
     if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
       if(!isFromDirectBootContext && MainActivity.isScreenOn) {
         Intent intent = new Intent(context, CopySharedPreferencesService.class);
-        context.startService(intent);
+        try {
+          context.startService(intent);
+        }
+        catch(IllegalStateException e) {
+          e.printStackTrace();
+          copySharedPreferencesKernel(context, false);
+        }
       }
       else {
         copySharedPreferencesKernel(context, isFromDirectBootContext);

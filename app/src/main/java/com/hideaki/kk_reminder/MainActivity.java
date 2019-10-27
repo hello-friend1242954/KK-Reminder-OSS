@@ -381,17 +381,19 @@ public class MainActivity extends AppCompatActivity
     onNewIntent(getIntent());
 
     // Notificationチャネルの作成
-    if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-      NotificationManager notificationManager =
-          (NotificationManager)getSystemService(NOTIFICATION_SERVICE);
-      checkNotNull(notificationManager);
-      NotificationChannel channel = new NotificationChannel("kk_reminder_01",
-          getString(R.string.notification_channel_name), NotificationManager.IMPORTANCE_HIGH
-      );
-      channel.setShowBadge(true);
-
-      notificationManager.createNotificationChannel(channel);
-    }
+//    if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+//      NotificationManager notificationManager =
+//          (NotificationManager)getSystemService(NOTIFICATION_SERVICE);
+//      checkNotNull(notificationManager);
+//      NotificationChannel channel = new NotificationChannel(
+//          "kk_reminder_01",
+//          getString(R.string.notification_channel_name),
+//          NotificationManager.IMPORTANCE_HIGH
+//      );
+//      channel.setShowBadge(true);
+//
+//      notificationManager.createNotificationChannel(channel);
+//    }
 
     // 画面がフォアグラウンドの状態におけるDefaultManuallySnoozeReceiverからのインテントを待ち受ける
     registerReceiver(defaultSnoozeReceiver, new IntentFilter(ACTION_IN_NOTIFICATION));
@@ -700,10 +702,8 @@ public class MainActivity extends AppCompatActivity
       }
     }
 
-    // すべての通知を既読する
-    NotificationManager manager = (NotificationManager)getSystemService(NOTIFICATION_SERVICE);
-    checkNotNull(manager);
-    manager.cancelAll();
+    // すべての通知を既読し、通知チャネルを削除する
+    clearAllNotification();
 
     if(!is_premium) {
 
@@ -993,7 +993,13 @@ public class MainActivity extends AppCompatActivity
     for(int group_count = 0; group_count < groups_size; group_count++) {
 
       int group_changed = 0;
-      List<Item> itemList = MyExpandableListAdapter.children.get(group_count);
+      List<Item> itemList;
+      try {
+        itemList = MyExpandableListAdapter.children.get(group_count);
+      }
+      catch(NullPointerException e) {
+        continue;
+      }
 
       int children_size = itemList.size();
       for(int child_count = 0; child_count < children_size; child_count++) {
@@ -1835,6 +1841,24 @@ public class MainActivity extends AppCompatActivity
     }
 
     return controlTimeText;
+  }
+
+  void clearAllNotification() {
+
+    NotificationManager manager =
+        (NotificationManager)getSystemService(NOTIFICATION_SERVICE);
+    checkNotNull(manager);
+    manager.cancelAll();
+
+    if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+      List<NotificationChannel> channelList = manager.getNotificationChannels();
+      if(channelList != null) {
+        int size = channelList.size();
+        for(int i = 0; i < size; i++) {
+          manager.deleteNotificationChannel(channelList.get(i).getId());
+        }
+      }
+    }
   }
 
   private void createAndSetFragmentColor() {

@@ -2,7 +2,6 @@ package com.hideaki.kk_reminder;
 
 import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
-import android.app.NotificationManager;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -44,8 +43,6 @@ import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.core.content.ContextCompat;
 
 import static android.content.Context.MODE_PRIVATE;
-import static android.content.Context.NOTIFICATION_SERVICE;
-import static com.google.common.base.Preconditions.checkNotNull;
 import static com.hideaki.kk_reminder.StartupReceiver.getDynamicContext;
 import static com.hideaki.kk_reminder.StartupReceiver.getIsDirectBootContext;
 import static com.hideaki.kk_reminder.UtilClass.CHANGE_GRADE;
@@ -248,11 +245,8 @@ public class MyExpandableListAdapter extends BaseExpandableListAdapter implement
     @Override
     public void onClick(View v) {
 
-      // すべての通知を既読する
-      NotificationManager manager =
-          (NotificationManager)activity.getSystemService(NOTIFICATION_SERVICE);
-      checkNotNull(manager);
-      manager.cancelAll();
+      // すべての通知を既読し、通知チャネルを削除する
+      activity.clearAllNotification();
 
       activity.actionBarFragment.searchView.clearFocus();
       switch(v.getId()) {
@@ -418,11 +412,8 @@ public class MyExpandableListAdapter extends BaseExpandableListAdapter implement
         lock_block_notify_change = true;
         block_notify_change = true;
 
-        // すべての通知を既読する
-        NotificationManager manager =
-            (NotificationManager)activity.getSystemService(NOTIFICATION_SERVICE);
-        checkNotNull(manager);
-        manager.cancelAll();
+        // すべての通知を既読し、通知チャネルを削除する
+        activity.clearAllNotification();
 
         if(has_panel == item.getId()) {
           isClosed = true;
@@ -1398,11 +1389,8 @@ public class MyExpandableListAdapter extends BaseExpandableListAdapter implement
     @Override
     public boolean onLongClick(View v) {
 
-      // すべての通知を既読する
-      NotificationManager manager =
-          (NotificationManager)activity.getSystemService(NOTIFICATION_SERVICE);
-      checkNotNull(manager);
-      manager.cancelAll();
+      // すべての通知を既読し、通知チャネルを削除する
+      activity.clearAllNotification();
 
       if(actionMode != null) {
 
@@ -1825,9 +1813,15 @@ public class MyExpandableListAdapter extends BaseExpandableListAdapter implement
     Arrays.fill(display_groups, false);
     int size = groups.size();
     for(int i = 0; i < size; i++) {
-      if(children.get(i).size() != 0) {
-        display_groups[i] = true;
-        count++;
+      try {
+        if(children.get(i).size() != 0) {
+          display_groups[i] = true;
+          count++;
+        }
+      }
+      catch(NullPointerException e) {
+        e.printStackTrace();
+        return 0;
       }
     }
 
@@ -1891,8 +1885,9 @@ public class MyExpandableListAdapter extends BaseExpandableListAdapter implement
           }
           catch(IndexOutOfBoundsException e) {
             e.printStackTrace();
-            notifyDataSetChanged();
-            return children.get(j).get(i1 - 1);
+            return null;
+//            notifyDataSetChanged();
+//            return children.get(j).get(i1 - 1);
           }
         }
         count++;
@@ -1904,8 +1899,9 @@ public class MyExpandableListAdapter extends BaseExpandableListAdapter implement
     }
     catch(IndexOutOfBoundsException e) {
       e.printStackTrace();
-      notifyDataSetChanged();
-      return children.get(i).get(i1 - 1);
+      return null;
+//      notifyDataSetChanged();
+//      return children.get(i).get(i1 - 1);
     }
   }
 
@@ -2008,13 +2004,23 @@ public class MyExpandableListAdapter extends BaseExpandableListAdapter implement
     TextView day = convertView.findViewById(R.id.day);
     if(activity.isDarkMode) {
       ConstraintLayout groupView = convertView.findViewById(R.id.group_view);
+      if(groupView == null) {
+        notifyDataSetChanged();
+        return convertView;
+      }
       groupView.setBackground(ContextCompat.getDrawable(
           activity,
           R.drawable.expandable_group_view_dark
       ));
       day.setTextColor(activity.secondaryTextMaterialDarkColor);
     }
-    day.setText(getGroup(i).toString());
+    try {
+      day.setText(getGroup(i).toString());
+    }
+    catch(NullPointerException e) {
+      e.printStackTrace();
+      notifyDataSetChanged();
+    }
 
     return convertView;
   }
@@ -2064,6 +2070,11 @@ public class MyExpandableListAdapter extends BaseExpandableListAdapter implement
 
     // 現在のビュー位置でのitemの取得とリスナーの初期化
     Item item = (Item)getChild(i, i1);
+    if(item == null) {
+      notifyDataSetChanged();
+      return convertView;
+    }
+
     int count = 0;
     MyOnClickListener listener = null;
     int size = groups.size();
@@ -2218,7 +2229,7 @@ public class MyExpandableListAdapter extends BaseExpandableListAdapter implement
         }
       };
     }
-    handler.postDelayed(runnable, 2000);
+    handler.postDelayed(runnable, 3500);
   }
 
   // 時間を表示する処理

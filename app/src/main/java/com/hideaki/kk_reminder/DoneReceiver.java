@@ -7,6 +7,7 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.os.Build;
 
 import java.util.Calendar;
 import java.util.Set;
@@ -64,6 +65,9 @@ public class DoneReceiver extends BroadcastReceiver {
 
     for(int i = 1; i <= child_id; i++) {
       manager.cancel(parent_id + i);
+    }
+    if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+      manager.deleteNotificationChannel(String.valueOf(item.getId()));
     }
     id_table.remove(Integer.toBinaryString(parent_id));
     stringPreferences

@@ -11,21 +11,7 @@ import android.graphics.drawable.Drawable;
 import android.media.Ringtone;
 import android.media.RingtoneManager;
 import android.net.Uri;
-import android.os.Build;
 import android.os.Bundle;
-
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
-import androidx.transition.Fade;
-import androidx.transition.Transition;
-import androidx.fragment.app.FragmentManager;
-import androidx.core.content.ContextCompat;
-import androidx.appcompat.app.ActionBar;
-import androidx.appcompat.app.AlertDialog;
-import androidx.preference.Preference;
-import androidx.preference.PreferenceScreen;
-import androidx.appcompat.widget.Toolbar;
-
 import android.text.format.DateFormat;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
@@ -44,6 +30,18 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
 import java.util.Locale;
+
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.appcompat.app.ActionBar;
+import androidx.appcompat.app.AlertDialog;
+import androidx.appcompat.widget.Toolbar;
+import androidx.core.content.ContextCompat;
+import androidx.fragment.app.FragmentManager;
+import androidx.preference.Preference;
+import androidx.preference.PreferenceScreen;
+import androidx.transition.Fade;
+import androidx.transition.Transition;
 
 import static android.app.Activity.RESULT_OK;
 import static com.google.common.base.Preconditions.checkArgument;
@@ -273,15 +271,10 @@ public class MainEditFragment extends BasePreferenceFragmentCompat
       tag.setOnPreferenceClickListener(this);
 
       // notificationセクション
-      PreferenceCategory notificationCategory =
-          (PreferenceCategory)findPreference("notification_category");
       intervalItem = (PreferenceScreen)findPreference("interval");
       intervalItem.setOnPreferenceClickListener(this);
       pickAlarm = findPreference("pick_alarm");
       pickAlarm.setOnPreferenceClickListener(this);
-      if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-        notificationCategory.removePreference(pickAlarm);
-      }
 
       // repeatセクション
       dayRepeatItem = (PreferenceScreen)findPreference("repeat_day_unit");

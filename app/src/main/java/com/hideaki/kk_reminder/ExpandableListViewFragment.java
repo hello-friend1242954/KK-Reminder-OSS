@@ -1,6 +1,5 @@
 package com.hideaki.kk_reminder;
 
-import android.app.NotificationManager;
 import android.content.Context;
 import android.os.Build;
 import android.os.Bundle;
@@ -23,7 +22,6 @@ import androidx.core.view.GravityCompat;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 
-import static android.content.Context.NOTIFICATION_SERVICE;
 import static com.google.common.base.Preconditions.checkNotNull;
 import static com.hideaki.kk_reminder.UtilClass.getPxFromDp;
 
@@ -48,16 +46,27 @@ public class ExpandableListViewFragment extends Fragment {
 
     super.onAttach(context);
     activity = (MainActivity)context;
-    if(activity.drawerLayout != null) {
-      activity.drawerLayout.closeDrawer(GravityCompat.START);
-      if(activity.detail != null) {
-        activity.showMainEditFragment(activity.detail);
-        activity.detail = null;
-      }
+    try {
+      if(activity.drawerLayout != null) {
+        activity.drawerLayout.closeDrawer(GravityCompat.START);
+        if(activity.detail != null) {
+          activity.showMainEditFragment(activity.detail);
+          activity.detail = null;
+        }
 
-      activity.setUpdateListTimerTask(true);
+        activity.setUpdateListTimerTask(true);
+      }
+      else {
+        FragmentManager manager = getFragmentManager();
+        checkNotNull(manager);
+        manager
+            .beginTransaction()
+            .remove(this)
+            .commit();
+      }
     }
-    else {
+    catch(NullPointerException e) {
+      e.printStackTrace();
       FragmentManager manager = getFragmentManager();
       checkNotNull(manager);
       manager
@@ -95,11 +104,8 @@ public class ExpandableListViewFragment extends Fragment {
 
     isGetTagNull = false;
 
-    // すべての通知を既読する
-    NotificationManager manager =
-        (NotificationManager)activity.getSystemService(NOTIFICATION_SERVICE);
-    checkNotNull(manager);
-    manager.cancelAll();
+    // すべての通知を既読し、通知チャネルを削除する
+    activity.clearAllNotification();
 
     View view;
     if(Build.VERSION.SDK_INT <= Build.VERSION_CODES.P) {

@@ -2,13 +2,14 @@
 <resources>
     <color name="iconGray">#7f7f7f</color>
     <color name="darkerGrey">#6C6C6C</color>
-    <color name="primaryMaterialDark">#212121</color>
+    <color name="primaryMaterialDark">#000000</color>
     <color name="primaryDarkMaterialDark">#000000</color>
-    <color name="backgroundMaterialDark">#303030</color>
-    <color name="backgroundFloatingMaterialDark">#424242</color>
+    <color name="backgroundMaterialDark">#212121</color>
+    <color name="backgroundFloatingMaterialDark">#303030</color>
     <color name="primaryTextMaterialDark">#ffffffff</color>
     <color name="secondaryTextMaterialDark">#b3ffffff</color>
     <color name="transparent">#000000</color>
+    <color name="ic_launcher_background">#FFFFFF</color>
     <drawable name="transparameter">#cf000000</drawable>
 
     <color name="colorPrimary">#3F51B5</color>

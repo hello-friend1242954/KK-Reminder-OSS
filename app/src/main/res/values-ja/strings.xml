@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 
-    <string name="version_value">3.6.1.0</string>
+    <string name="version_value">3.6.2.0</string>
     <string name="app_id">******************</string>
     <string name="ad_unit_id">******************</string>
     <string name="app_name">KK リマインダー</string>
-    <string name="app_promotion">KK リマインダー  -  タスクや予定を整理してわかりやすく管理</string>
+    <string name="app_promotion">KK リマインダー  -  しつこい通知で見逃し防止</string>
     <string name="app_url">https://play.google.com/store/apps/details?id=com.hideaki.kk_reminder</string>
     <string name="align_top">リストの先頭に飛ぶ</string>
     <string name="past">過去</string>

@@ -7,6 +7,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.res.Configuration;
+import android.os.Build;
 import android.os.Bundle;
 import android.view.View;
 import android.view.Window;
@@ -116,6 +117,9 @@ public class ManuallySnoozeActivity extends AppCompatActivity implements View.On
 
     for(int i = 1; i <= child_id; i++) {
       manager.cancel(parent_id + i);
+    }
+    if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+      manager.deleteNotificationChannel(String.valueOf(item.getId()));
     }
     checkNotNull(id_table);
     id_table.remove(Integer.toBinaryString(parent_id));
