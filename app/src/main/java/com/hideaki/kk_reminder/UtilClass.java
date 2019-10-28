@@ -93,6 +93,7 @@ class UtilClass {
   static final String IS_PREMIUM = "IS_PREMIUM";
   static final String STRING_GENERAL = "STRING_GENERAL";
   static final String STRING_GENERAL_COPY = "STRING_GENERAL_COPY";
+  static final String CHANNEL_ID = "CHANNEL_ID";
   static final String NOTIFICATION_ID_TABLE = "NOTIFICATION_ID_TABLE";
   static final String PARENT_NOTIFICATION_ID = "PARENT_NOTIFICATION_ID";
   static final String CHILD_NOTIFICATION_ID = "CHILD_NOTIFICATION_ID";

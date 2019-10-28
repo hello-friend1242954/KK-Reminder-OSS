@@ -380,21 +380,6 @@ public class MainActivity extends AppCompatActivity
     is_in_on_create = true;
     onNewIntent(getIntent());
 
-    // Notificationチャネルの作成
-//    if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-//      NotificationManager notificationManager =
-//          (NotificationManager)getSystemService(NOTIFICATION_SERVICE);
-//      checkNotNull(notificationManager);
-//      NotificationChannel channel = new NotificationChannel(
-//          "kk_reminder_01",
-//          getString(R.string.notification_channel_name),
-//          NotificationManager.IMPORTANCE_HIGH
-//      );
-//      channel.setShowBadge(true);
-//
-//      notificationManager.createNotificationChannel(channel);
-//    }
-
     // 画面がフォアグラウンドの状態におけるDefaultManuallySnoozeReceiverからのインテントを待ち受ける
     registerReceiver(defaultSnoozeReceiver, new IntentFilter(ACTION_IN_NOTIFICATION));
   }

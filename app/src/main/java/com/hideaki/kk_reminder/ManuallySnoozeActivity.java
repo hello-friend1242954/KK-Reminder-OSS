@@ -33,6 +33,7 @@ import static com.hideaki.kk_reminder.UtilClass.ACTION_IN_NOTIFICATION;
 import static com.hideaki.kk_reminder.UtilClass.BOOLEAN_GENERAL;
 import static com.hideaki.kk_reminder.UtilClass.BOOLEAN_GENERAL_COPY;
 import static com.hideaki.kk_reminder.UtilClass.BOOT_FROM_NOTIFICATION;
+import static com.hideaki.kk_reminder.UtilClass.CHANNEL_ID;
 import static com.hideaki.kk_reminder.UtilClass.CHILD_NOTIFICATION_ID;
 import static com.hideaki.kk_reminder.UtilClass.CREATED;
 import static com.hideaki.kk_reminder.UtilClass.DESTROYED;
@@ -112,6 +113,7 @@ public class ManuallySnoozeActivity extends AppCompatActivity implements View.On
         stringPreferences.getStringSet(NOTIFICATION_ID_TABLE, new TreeSet<String>());
     int parent_id = intent.getIntExtra(PARENT_NOTIFICATION_ID, 0);
     int child_id = intent.getIntExtra(CHILD_NOTIFICATION_ID, 0);
+    String channelId = intent.getStringExtra(CHANNEL_ID);
     NotificationManager manager = (NotificationManager)getSystemService(NOTIFICATION_SERVICE);
     checkNotNull(manager);
 
@@ -119,7 +121,7 @@ public class ManuallySnoozeActivity extends AppCompatActivity implements View.On
       manager.cancel(parent_id + i);
     }
     if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-      manager.deleteNotificationChannel(String.valueOf(item.getId()));
+      manager.deleteNotificationChannel(channelId);
     }
     checkNotNull(id_table);
     id_table.remove(Integer.toBinaryString(parent_id));

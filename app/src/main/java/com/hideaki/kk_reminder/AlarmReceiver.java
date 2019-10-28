@@ -32,6 +32,7 @@ import static com.hideaki.kk_reminder.StartupReceiver.getIsDirectBootContext;
 import static com.hideaki.kk_reminder.UtilClass.BOOLEAN_GENERAL;
 import static com.hideaki.kk_reminder.UtilClass.BOOLEAN_GENERAL_COPY;
 import static com.hideaki.kk_reminder.UtilClass.BOOT_FROM_NOTIFICATION;
+import static com.hideaki.kk_reminder.UtilClass.CHANNEL_ID;
 import static com.hideaki.kk_reminder.UtilClass.CHILD_NOTIFICATION_ID;
 import static com.hideaki.kk_reminder.UtilClass.DEFAULT_URI_SOUND;
 import static com.hideaki.kk_reminder.UtilClass.HOUR;
@@ -179,7 +180,13 @@ public class AlarmReceiver extends BroadcastReceiver {
     NotificationManager manager =
         (NotificationManager)context.getSystemService(NOTIFICATION_SERVICE);
     checkNotNull(manager);
-    String channelId = String.valueOf(item.getId());
+    // あるIDで一度でも通知チャンネルを作ってしまうと、例えチャンネルを消しても再び作成したチャンネルのIDに
+    // 同じものが使われていると通知チャンネルのアップデートができないので、使い捨てかつ重複しないように現在時刻
+    // を通知チャンネルのIDとしている
+    String channelId = intent.getStringExtra(CHANNEL_ID);
+    if(channelId == null) {
+      channelId = String.valueOf(System.currentTimeMillis());
+    }
     if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
 
       AudioAttributes attributes = new AudioAttributes.Builder()
@@ -226,6 +233,7 @@ public class AlarmReceiver extends BroadcastReceiver {
     doneIntent.putExtra(ITEM, serialize(item));
     doneIntent.putExtra(PARENT_NOTIFICATION_ID, parent_id);
     doneIntent.putExtra(CHILD_NOTIFICATION_ID, child_id);
+    doneIntent.putExtra(CHANNEL_ID, channelId);
     PendingIntent doneSender = PendingIntent.getBroadcast(
         context, (int)item.getId(), doneIntent, PendingIntent.FLAG_UPDATE_CURRENT
     );
@@ -257,6 +265,7 @@ public class AlarmReceiver extends BroadcastReceiver {
     defaultSnoozeIntent.putExtra(ITEM, serialize(item));
     defaultSnoozeIntent.putExtra(PARENT_NOTIFICATION_ID, parent_id);
     defaultSnoozeIntent.putExtra(CHILD_NOTIFICATION_ID, child_id);
+    defaultSnoozeIntent.putExtra(CHANNEL_ID, channelId);
     PendingIntent defaultSnoozeSender = PendingIntent.getBroadcast(
         context, (int)item.getId(), defaultSnoozeIntent, PendingIntent.FLAG_UPDATE_CURRENT
     );
@@ -267,6 +276,7 @@ public class AlarmReceiver extends BroadcastReceiver {
     advancedSnoozeIntent.putExtra(ITEM, serialize(item));
     advancedSnoozeIntent.putExtra(PARENT_NOTIFICATION_ID, parent_id);
     advancedSnoozeIntent.putExtra(CHILD_NOTIFICATION_ID, child_id);
+    advancedSnoozeIntent.putExtra(CHANNEL_ID, channelId);
     PendingIntent snoozeSender = PendingIntent.getActivity(
         context, (int)item.getId(), advancedSnoozeIntent, PendingIntent.FLAG_UPDATE_CURRENT
     );
@@ -298,6 +308,7 @@ public class AlarmReceiver extends BroadcastReceiver {
       recursive_alarm.putExtra(ITEM, serialize(item));
       recursive_alarm.putExtra(PARENT_NOTIFICATION_ID, parent_id);
       recursive_alarm.putExtra(CHILD_NOTIFICATION_ID, child_id);
+      recursive_alarm.putExtra(CHANNEL_ID, channelId);
       PendingIntent recursive_sender = PendingIntent.getBroadcast(
           context, (int)item.getId(), recursive_alarm, PendingIntent.FLAG_UPDATE_CURRENT);
 

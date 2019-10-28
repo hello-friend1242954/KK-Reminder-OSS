@@ -1,5 +1,5 @@
 body {
-  background-color: #303030;
+  background-color: #212121;
   color: #ffffff;
 }
 
@@ -14,8 +14,8 @@ h3 {
 }
 
 article {
-  background-color: #424242;
-  border: solid 1px #212121;
+  background-color: #303030;
+  border: solid 1px #000000;
   padding-top: 5px;
   padding-left: 30px;
   padding-right: 30px;

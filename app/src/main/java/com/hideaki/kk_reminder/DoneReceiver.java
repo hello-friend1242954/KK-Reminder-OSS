@@ -19,6 +19,7 @@ import static com.google.common.base.Preconditions.checkNotNull;
 import static com.hideaki.kk_reminder.StartupReceiver.getDynamicContext;
 import static com.hideaki.kk_reminder.StartupReceiver.getIsDirectBootContext;
 import static com.hideaki.kk_reminder.UtilClass.ACTION_IN_NOTIFICATION;
+import static com.hideaki.kk_reminder.UtilClass.CHANNEL_ID;
 import static com.hideaki.kk_reminder.UtilClass.CHILD_NOTIFICATION_ID;
 import static com.hideaki.kk_reminder.UtilClass.CREATED;
 import static com.hideaki.kk_reminder.UtilClass.DESTROYED;
@@ -59,6 +60,7 @@ public class DoneReceiver extends BroadcastReceiver {
     checkNotNull(id_table);
     int parent_id = intent.getIntExtra(PARENT_NOTIFICATION_ID, 0);
     int child_id = intent.getIntExtra(CHILD_NOTIFICATION_ID, 0);
+    String channelId = intent.getStringExtra(CHANNEL_ID);
     NotificationManager manager =
         (NotificationManager)context.getSystemService(NOTIFICATION_SERVICE);
     checkNotNull(manager);
@@ -67,7 +69,7 @@ public class DoneReceiver extends BroadcastReceiver {
       manager.cancel(parent_id + i);
     }
     if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-      manager.deleteNotificationChannel(String.valueOf(item.getId()));
+      manager.deleteNotificationChannel(channelId);
     }
     id_table.remove(Integer.toBinaryString(parent_id));
     stringPreferences
