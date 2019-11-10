@@ -57,7 +57,7 @@ import static com.hideaki.kk_reminder.UtilClass.REQUEST_CODE_SIGN_IN;
 import static com.hideaki.kk_reminder.UtilClass.SUBMENU_POSITION;
 
 public class BackupAndRestoreFragment extends BasePreferenceFragmentCompat
-    implements Preference.OnPreferenceClickListener {
+  implements Preference.OnPreferenceClickListener {
 
   @SuppressLint("SdCardPath")
   private static final String DATABASE_PATH = "/data/data/com.hideaki.kk_reminder/databases/";
@@ -114,9 +114,9 @@ public class BackupAndRestoreFragment extends BasePreferenceFragmentCompat
 
   @Override
   public View onCreateView(
-      LayoutInflater inflater,
-      @Nullable ViewGroup container,
-      @Nullable Bundle savedInstanceState
+    LayoutInflater inflater,
+    @Nullable ViewGroup container,
+    @Nullable Bundle savedInstanceState
   ) {
 
     View view = super.onCreateView(inflater, container, savedInstanceState);
@@ -204,63 +204,63 @@ public class BackupAndRestoreFragment extends BasePreferenceFragmentCompat
     if(driveServiceHelper != null) {
 
       driveServiceHelper.queryFolder(FOLDER_NAME)
-          .addOnSuccessListener(new OnSuccessListener<FileList>() {
-            @Override
-            public void onSuccess(FileList fileList) {
+        .addOnSuccessListener(new OnSuccessListener<FileList>() {
+          @Override
+          public void onSuccess(FileList fileList) {
 
-              List<File> folderList = fileList.getFiles();
-              if(folderList.size() == 0) {
-                Toast
-                    .makeText(activity, getString(R.string.backup_not_exists), Toast.LENGTH_LONG)
-                    .show();
-              }
-              else {
-                driveServiceHelper.queryFiles(MIME_TYPE)
-                    .addOnSuccessListener(new OnSuccessListener<List<FileList>>() {
-                      @Override
-                      public void onSuccess(List<FileList> fileLists) {
-
-                        List<String> backupList = new ArrayList<>();
-                        List<String> backupIdList = new ArrayList<>();
-                        for(FileList list : fileLists) {
-                          for(File file : list.getFiles()) {
-                            backupList.add(file.getName());
-                            backupIdList.add(file.getId());
-                          }
-                        }
-                        if(backupList.size() == 0) {
-                          Toast.makeText(
-                              activity, getString(R.string.backup_not_exists), Toast.LENGTH_LONG
-                          ).show();
-                        }
-                        else {
-                          displayDialog(backupList, backupIdList);
-                        }
-                      }
-                    })
-                    .addOnFailureListener(new OnFailureListener() {
-                      @Override
-                      public void onFailure(@NonNull Exception e) {
-
-                        Toast
-                            .makeText(
-                                activity,
-                                getString(R.string.fail_to_query),
-                                Toast.LENGTH_LONG
-                            )
-                            .show();
-                      }
-                    });
-              }
+            List<File> folderList = fileList.getFiles();
+            if(folderList.size() == 0) {
+              Toast
+                .makeText(activity, getString(R.string.backup_not_exists), Toast.LENGTH_LONG)
+                .show();
             }
-          })
-          .addOnFailureListener(new OnFailureListener() {
-            @Override
-            public void onFailure(@NonNull Exception e) {
+            else {
+              driveServiceHelper.queryFiles(MIME_TYPE)
+                .addOnSuccessListener(new OnSuccessListener<List<FileList>>() {
+                  @Override
+                  public void onSuccess(List<FileList> fileLists) {
 
-              Toast.makeText(activity, getString(R.string.fail_to_query), Toast.LENGTH_LONG).show();
+                    List<String> backupList = new ArrayList<>();
+                    List<String> backupIdList = new ArrayList<>();
+                    for(FileList list : fileLists) {
+                      for(File file : list.getFiles()) {
+                        backupList.add(file.getName());
+                        backupIdList.add(file.getId());
+                      }
+                    }
+                    if(backupList.size() == 0) {
+                      Toast.makeText(
+                        activity, getString(R.string.backup_not_exists), Toast.LENGTH_LONG
+                      ).show();
+                    }
+                    else {
+                      displayDialog(backupList, backupIdList);
+                    }
+                  }
+                })
+                .addOnFailureListener(new OnFailureListener() {
+                  @Override
+                  public void onFailure(@NonNull Exception e) {
+
+                    Toast
+                      .makeText(
+                        activity,
+                        getString(R.string.fail_to_query),
+                        Toast.LENGTH_LONG
+                      )
+                      .show();
+                  }
+                });
             }
-          });
+          }
+        })
+        .addOnFailureListener(new OnFailureListener() {
+          @Override
+          public void onFailure(@NonNull Exception e) {
+
+            Toast.makeText(activity, getString(R.string.fail_to_query), Toast.LENGTH_LONG).show();
+          }
+        });
     }
   }
 
@@ -286,37 +286,37 @@ public class BackupAndRestoreFragment extends BasePreferenceFragmentCompat
       String[] items = backupList.toArray(new String[0]);
       final SingleChoiceItemsAdapter adapter = new SingleChoiceItemsAdapter(items);
       final AlertDialog dialog = new AlertDialog.Builder(activity)
-          .setTitle(R.string.choose_backup_data_message)
-          .setSingleChoiceItems(adapter, 0, new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialog, int which) {
+        .setTitle(R.string.choose_backup_data_message)
+        .setSingleChoiceItems(adapter, 0, new DialogInterface.OnClickListener() {
+          @Override
+          public void onClick(DialogInterface dialog, int which) {
 
-            }
-          })
-          .setPositiveButton(R.string.determine, new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialog, int which) {
+          }
+        })
+        .setPositiveButton(R.string.determine, new DialogInterface.OnClickListener() {
+          @Override
+          public void onClick(DialogInterface dialog, int which) {
 
-              choice = SingleChoiceItemsAdapter.checked_position;
+            choice = SingleChoiceItemsAdapter.checked_position;
 
-              readDriveFile(backupIdList.get(choice));
-            }
-          })
-          .setNeutralButton(R.string.cancel, new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialog, int which) {
+            readDriveFile(backupIdList.get(choice));
+          }
+        })
+        .setNeutralButton(R.string.cancel, new DialogInterface.OnClickListener() {
+          @Override
+          public void onClick(DialogInterface dialog, int which) {
 
-              Toast.makeText(activity, getString(R.string.canceled), Toast.LENGTH_LONG).show();
-            }
-          })
-          .setOnCancelListener(new DialogInterface.OnCancelListener() {
-            @Override
-            public void onCancel(DialogInterface dialog) {
+            Toast.makeText(activity, getString(R.string.canceled), Toast.LENGTH_LONG).show();
+          }
+        })
+        .setOnCancelListener(new DialogInterface.OnCancelListener() {
+          @Override
+          public void onCancel(DialogInterface dialog) {
 
-              Toast.makeText(activity, getString(R.string.canceled), Toast.LENGTH_LONG).show();
-            }
-          })
-          .create();
+            Toast.makeText(activity, getString(R.string.canceled), Toast.LENGTH_LONG).show();
+          }
+        })
+        .create();
 
       dialog.setOnShowListener(new DialogInterface.OnShowListener() {
         @Override
@@ -336,28 +336,28 @@ public class BackupAndRestoreFragment extends BasePreferenceFragmentCompat
     if(driveServiceHelper != null) {
       java.io.File file = new java.io.File(DATABASE_PATH + FILE_NAME);
       driveServiceHelper.downloadFile(file, fileId)
-          .addOnSuccessListener(new OnSuccessListener<Void>() {
-            @Override
-            public void onSuccess(Void aVoid) {
+        .addOnSuccessListener(new OnSuccessListener<Void>() {
+          @Override
+          public void onSuccess(Void aVoid) {
 
-              Toast
-                  .makeText(activity, getString(R.string.success_to_restore), Toast.LENGTH_LONG)
-                  .show();
+            Toast
+              .makeText(activity, getString(R.string.success_to_restore), Toast.LENGTH_LONG)
+              .show();
 
-              activity.setIntGeneralInSharedPreferences(MENU_POSITION, 0);
-              activity.setIntGeneralInSharedPreferences(SUBMENU_POSITION, 0);
-              activity.recreate();
-            }
-          })
-          .addOnFailureListener(new OnFailureListener() {
-            @Override
-            public void onFailure(@NonNull Exception e) {
+            activity.setIntGeneralInSharedPreferences(MENU_POSITION, 0);
+            activity.setIntGeneralInSharedPreferences(SUBMENU_POSITION, 0);
+            activity.recreate();
+          }
+        })
+        .addOnFailureListener(new OnFailureListener() {
+          @Override
+          public void onFailure(@NonNull Exception e) {
 
-              Toast
-                  .makeText(activity, getString(R.string.fail_to_restore), Toast.LENGTH_LONG)
-                  .show();
-            }
-          });
+            Toast
+              .makeText(activity, getString(R.string.fail_to_restore), Toast.LENGTH_LONG)
+              .show();
+          }
+        });
     }
   }
 
@@ -366,47 +366,47 @@ public class BackupAndRestoreFragment extends BasePreferenceFragmentCompat
     if(driveServiceHelper != null) {
 
       driveServiceHelper.queryFolder(FOLDER_NAME)
-          .addOnSuccessListener(new OnSuccessListener<FileList>() {
+        .addOnSuccessListener(new OnSuccessListener<FileList>() {
 
-            @Override
-            public void onSuccess(FileList fileList) {
+          @Override
+          public void onSuccess(FileList fileList) {
 
-              List<File> folderList = fileList.getFiles();
-              if(folderList.size() == 0) {
+            List<File> folderList = fileList.getFiles();
+            if(folderList.size() == 0) {
 
-                driveServiceHelper.createFolder(FOLDER_NAME, null)
-                    .addOnSuccessListener(new OnSuccessListener<File>() {
-                      @Override
-                      public void onSuccess(File file) {
+              driveServiceHelper.createFolder(FOLDER_NAME, null)
+                .addOnSuccessListener(new OnSuccessListener<File>() {
+                  @Override
+                  public void onSuccess(File file) {
 
-                        createBackupFile(file.getId());
-                      }
-                    })
-                    .addOnFailureListener(new OnFailureListener() {
-                      @Override
-                      public void onFailure(@NonNull Exception e) {
+                    createBackupFile(file.getId());
+                  }
+                })
+                .addOnFailureListener(new OnFailureListener() {
+                  @Override
+                  public void onFailure(@NonNull Exception e) {
 
-                        Toast.makeText(
-                            activity,
-                            getString(R.string.fail_to_make_backup_folder),
-                            Toast.LENGTH_LONG
-                        ).show();
-                      }
-                    });
-              }
-              else {
-                createBackupFile(folderList.get(0).getId());
-              }
+                    Toast.makeText(
+                      activity,
+                      getString(R.string.fail_to_make_backup_folder),
+                      Toast.LENGTH_LONG
+                    ).show();
+                  }
+                });
             }
-          })
-          .addOnFailureListener(new OnFailureListener() {
-
-            @Override
-            public void onFailure(@NonNull Exception e) {
-
-              Toast.makeText(activity, getString(R.string.fail_to_query), Toast.LENGTH_LONG).show();
+            else {
+              createBackupFile(folderList.get(0).getId());
             }
-          });
+          }
+        })
+        .addOnFailureListener(new OnFailureListener() {
+
+          @Override
+          public void onFailure(@NonNull Exception e) {
+
+            Toast.makeText(activity, getString(R.string.fail_to_query), Toast.LENGTH_LONG).show();
+          }
+        });
     }
   }
 
@@ -418,38 +418,38 @@ public class BackupAndRestoreFragment extends BasePreferenceFragmentCompat
       FileContent fileContent = new FileContent(MIME_TYPE, filePath);
       String fileName = DateFormat.format("yyyy_MM_dd_kk_mm_ss", new Date()).toString() + ".db";
       driveServiceHelper.createFile(fileName, fileContent, folderId)
-          .addOnSuccessListener(new OnSuccessListener<File>() {
-            @Override
-            public void onSuccess(File file) {
+        .addOnSuccessListener(new OnSuccessListener<File>() {
+          @Override
+          public void onSuccess(File file) {
 
-              Toast
-                  .makeText(activity, getString(R.string.create_new_backup), Toast.LENGTH_LONG)
-                  .show();
-            }
-          })
-          .addOnFailureListener(new OnFailureListener() {
-            @Override
-            public void onFailure(@NonNull Exception e) {
+            Toast
+              .makeText(activity, getString(R.string.create_new_backup), Toast.LENGTH_LONG)
+              .show();
+          }
+        })
+        .addOnFailureListener(new OnFailureListener() {
+          @Override
+          public void onFailure(@NonNull Exception e) {
 
-              Toast
-                  .makeText(
-                      activity,
-                      getString(R.string.fail_to_create_new_backup),
-                      Toast.LENGTH_LONG
-                  )
-                  .show();
-            }
-          });
+            Toast
+              .makeText(
+                activity,
+                getString(R.string.fail_to_create_new_backup),
+                Toast.LENGTH_LONG
+              )
+              .show();
+          }
+        });
     }
   }
 
   private void signIn() {
 
     GoogleSignInOptions signInOptions =
-        new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
-            .requestEmail()
-            .requestScopes(new Scope(DriveScopes.DRIVE_FILE))
-            .build();
+      new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
+        .requestEmail()
+        .requestScopes(new Scope(DriveScopes.DRIVE_FILE))
+        .build();
     signInClient = GoogleSignIn.getClient(activity, signInOptions);
     startActivityForResult(signInClient.getSignInIntent(), REQUEST_CODE_SIGN_IN);
   }
@@ -459,25 +459,25 @@ public class BackupAndRestoreFragment extends BasePreferenceFragmentCompat
     if(signInClient != null) {
 
       signInClient.signOut()
-          .addOnSuccessListener(new OnSuccessListener<Void>() {
-            @Override
-            public void onSuccess(Void aVoid) {
+        .addOnSuccessListener(new OnSuccessListener<Void>() {
+          @Override
+          public void onSuccess(Void aVoid) {
 
-              preferenceCategory.removePreference(logout);
-              signInAccount = null;
-              signInClient = null;
-              Toast.makeText(activity, getString(R.string.logout_done), Toast.LENGTH_LONG).show();
-            }
-          })
-          .addOnFailureListener(new OnFailureListener() {
-            @Override
-            public void onFailure(@NonNull Exception e) {
+            preferenceCategory.removePreference(logout);
+            signInAccount = null;
+            signInClient = null;
+            Toast.makeText(activity, getString(R.string.logout_done), Toast.LENGTH_LONG).show();
+          }
+        })
+        .addOnFailureListener(new OnFailureListener() {
+          @Override
+          public void onFailure(@NonNull Exception e) {
 
-              Toast
-                  .makeText(activity, getString(R.string.fail_to_logout), Toast.LENGTH_LONG)
-                  .show();
-            }
-          });
+            Toast
+              .makeText(activity, getString(R.string.fail_to_logout), Toast.LENGTH_LONG)
+              .show();
+          }
+        });
     }
     else {
       preferenceCategory.removePreference(logout);
@@ -528,19 +528,19 @@ public class BackupAndRestoreFragment extends BasePreferenceFragmentCompat
 
     if(signInAccount != null) {
       GoogleAccountCredential credential = GoogleAccountCredential.usingOAuth2(
-          activity, Collections.singleton(DriveScopes.DRIVE_FILE));
+        activity, Collections.singleton(DriveScopes.DRIVE_FILE));
 
       Account account = signInAccount.getAccount();
       checkNotNull(account);
       credential.setSelectedAccount(account);
 
       Drive googleDriveService = new Drive.Builder(
-          AndroidHttp.newCompatibleTransport(),
-          new GsonFactory(),
-          credential
+        AndroidHttp.newCompatibleTransport(),
+        new GsonFactory(),
+        credential
       )
-          .setApplicationName("KK Reminder")
-          .build();
+        .setApplicationName("KK Reminder")
+        .build();
 
       driveServiceHelper = new DriveServiceHelper(googleDriveService);
     }

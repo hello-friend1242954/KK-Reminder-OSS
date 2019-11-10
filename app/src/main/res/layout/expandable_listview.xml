@@ -5,8 +5,9 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
-    <ExpandableListView
+    <com.hideaki.kk_reminder.PinnedHeaderExpandableListView
         android:id="@+id/expandable_list"
+        android:groupIndicator="@null"
         android:divider="@null"
         android:dividerHeight="0dp"
         android:layout_weight="1"

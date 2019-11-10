@@ -41,11 +41,11 @@ class DriveServiceHelper {
         String pageToken = null;
         do {
           FileList result = driveService.files().list()
-              .setQ("mimeType = '" + mimeType + "' and trashed = false")
-              .setSpaces("drive")
-              .setFields("nextPageToken, files(id, name)")
-              .setPageToken(pageToken)
-              .execute();
+            .setQ("mimeType = '" + mimeType + "' and trashed = false")
+            .setSpaces("drive")
+            .setFields("nextPageToken, files(id, name)")
+            .setPageToken(pageToken)
+            .execute();
 
           fileLists.add(result);
           pageToken = result.getNextPageToken();
@@ -65,17 +65,17 @@ class DriveServiceHelper {
       public FileList call() throws Exception {
 
         return driveService.files().list()
-            .setQ("mimeType = '" + DriveFolder.MIME_TYPE + "' and name = '" + folderName + "'"
-                + " and trashed = false")
-            .setSpaces("drive")
-            .execute();
+          .setQ("mimeType = '" + DriveFolder.MIME_TYPE + "' and name = '" + folderName + "'"
+            + " and trashed = false")
+          .setSpaces("drive")
+          .execute();
       }
     });
   }
 
   Task<File> createFile(
-      final String fileName, final AbstractInputStreamContent content,
-      @Nullable final String folderId
+    final String fileName, final AbstractInputStreamContent content,
+    @Nullable final String folderId
   ) {
 
     return Tasks.call(executor, new Callable<File>() {
@@ -91,8 +91,8 @@ class DriveServiceHelper {
         }
 
         File metadata = new File()
-            .setParents(root)
-            .setName(fileName);
+          .setParents(root)
+          .setName(fileName);
 
         File file = driveService.files().create(metadata, content).execute();
         if(file == null) {
@@ -119,9 +119,9 @@ class DriveServiceHelper {
         }
 
         File metadata = new File()
-            .setParents(root)
-            .setMimeType(DriveFolder.MIME_TYPE)
-            .setName(folderName);
+          .setParents(root)
+          .setMimeType(DriveFolder.MIME_TYPE)
+          .setName(folderName);
 
         File file;
         file = driveService.files().create(metadata).execute();

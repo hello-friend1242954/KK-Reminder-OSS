@@ -24,7 +24,7 @@ import static com.google.common.base.Preconditions.checkNotNull;
 public abstract class BasePreferenceFragmentCompat extends PreferenceFragmentCompat {
 
   private static final String DIALOG_FRAGMENT_TAG =
-      BasePreferenceFragmentCompat.class.getSimpleName();
+    BasePreferenceFragmentCompat.class.getSimpleName();
 
   @SuppressLint("RestrictedApi")
   @Override
@@ -59,10 +59,10 @@ public abstract class BasePreferenceFragmentCompat extends PreferenceFragmentCom
     for(int i = 0; i < childCount; i++) {
       setZeroPaddingToLayoutChildren(viewGroup.getChildAt(i));
       viewGroup.setPaddingRelative(
-          0,
-          viewGroup.getPaddingTop(),
-          viewGroup.getPaddingEnd(),
-          viewGroup.getPaddingBottom()
+        0,
+        viewGroup.getPaddingTop(),
+        viewGroup.getPaddingEnd(),
+        viewGroup.getPaddingBottom()
       );
     }
   }

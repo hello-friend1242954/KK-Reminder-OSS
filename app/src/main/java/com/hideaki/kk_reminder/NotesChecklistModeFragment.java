@@ -89,9 +89,9 @@ public class NotesChecklistModeFragment extends Fragment {
 
   @Override
   public View onCreateView(
-      @NonNull LayoutInflater inflater,
-      ViewGroup container,
-      Bundle savedInstanceState
+    @NonNull LayoutInflater inflater,
+    ViewGroup container,
+    Bundle savedInstanceState
   ) {
 
     if(MainEditFragment.is_notes_popping) {
@@ -116,9 +116,9 @@ public class NotesChecklistModeFragment extends Fragment {
 
           if(NotesTodoListAdapter.isSorting) {
             new AlertDialog.Builder(activity)
-                .setTitle(R.string.is_sorting_title)
-                .setMessage(R.string.is_sorting_message)
-                .show();
+              .setTitle(R.string.is_sorting_title)
+              .setMessage(R.string.is_sorting_message)
+              .show();
 
             return true;
           }
@@ -153,7 +153,7 @@ public class NotesChecklistModeFragment extends Fragment {
     TextView todoHeaderTitle = todoHeader.findViewById(R.id.todo);
     todoHeaderTitle.setTextColor(activity.secondary_text_color);
     if(NotesTodoListAdapter.notesList.size() != 0 && sortableListView.getHeaderViewsCount() == 0
-        && !NotesTodoListAdapter.isSorting) {
+      && !NotesTodoListAdapter.isSorting) {
       sortableListView.addHeaderView(todoHeader);
     }
     sortableListView.setDragListener(notesTodoListAdapter.dragListener);
@@ -178,10 +178,10 @@ public class NotesChecklistModeFragment extends Fragment {
       LinearLayout linearLayout = new LinearLayout(activity);
       linearLayout.setOrientation(LinearLayout.VERTICAL);
       LinearLayout.LayoutParams layoutParams =
-          new LinearLayout.LayoutParams(
-              LinearLayout.LayoutParams.MATCH_PARENT,
-              LinearLayout.LayoutParams.MATCH_PARENT
-          );
+        new LinearLayout.LayoutParams(
+          LinearLayout.LayoutParams.MATCH_PARENT,
+          LinearLayout.LayoutParams.MATCH_PARENT
+        );
       layoutParams.gravity = Gravity.CENTER;
       emptyView.setLayoutParams(layoutParams);
       linearLayout.addView(emptyView);
@@ -196,8 +196,8 @@ public class NotesChecklistModeFragment extends Fragment {
     checkNotNull(drawable);
     drawable = drawable.mutate();
     drawable.setColorFilter(new PorterDuffColorFilter(
-        activity.menu_item_color,
-        PorterDuff.Mode.SRC_IN
+      activity.menu_item_color,
+      PorterDuff.Mode.SRC_IN
     ));
     toolbar.setOverflowIcon(drawable);
     activity.setSupportActionBar(toolbar);
@@ -229,8 +229,8 @@ public class NotesChecklistModeFragment extends Fragment {
     checkNotNull(drawable);
     drawable = drawable.mutate();
     drawable.setColorFilter(new PorterDuffColorFilter(
-        activity.menu_item_color,
-        PorterDuff.Mode.SRC_IN
+      activity.menu_item_color,
+      PorterDuff.Mode.SRC_IN
     ));
     sortItem.setIcon(drawable);
 
@@ -239,8 +239,8 @@ public class NotesChecklistModeFragment extends Fragment {
     checkNotNull(drawable);
     drawable = drawable.mutate();
     drawable.setColorFilter(new PorterDuffColorFilter(
-        activity.menu_item_color,
-        PorterDuff.Mode.SRC_IN
+      activity.menu_item_color,
+      PorterDuff.Mode.SRC_IN
     ));
     editModeItem.setIcon(drawable);
 
@@ -275,59 +275,59 @@ public class NotesChecklistModeFragment extends Fragment {
       case R.id.delete_checked_items: {
 
         final AlertDialog dialog = new AlertDialog.Builder(activity)
-            .setTitle(R.string.delete_checked_items)
-            .setMessage(R.string.delete_checked_items_message)
-            .setPositiveButton(R.string.yes, new DialogInterface.OnClickListener() {
-              @Override
-              public void onClick(DialogInterface dialog, int which) {
+          .setTitle(R.string.delete_checked_items)
+          .setMessage(R.string.delete_checked_items_message)
+          .setPositiveButton(R.string.yes, new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
 
-                NotesDoneListAdapter.notesList = new ArrayList<>();
-                if(listView.getHeaderViewsCount() != 0) {
-                  deleteItem.setVisible(false);
-                  unselectItem.setVisible(false);
-                  listView.removeHeaderView(doneHeader);
-                }
-                notesDoneListAdapter.notifyDataSetChanged();
-
-                NotesChecklistModeFragment.item.setNotesList(new ArrayList<>(NotesTodoListAdapter.notesList));
-
-                if(NotesChecklistModeFragment.item.getNotesList().size() == 0 &&
-                    !is_empty_view_added) {
-                  LinearLayout linearLayout = new LinearLayout(activity);
-                  linearLayout.setOrientation(LinearLayout.VERTICAL);
-                  LinearLayout.LayoutParams layoutParams =
-                      new LinearLayout.LayoutParams(
-                          LinearLayout.LayoutParams.MATCH_PARENT,
-                          LinearLayout.LayoutParams.MATCH_PARENT
-                      );
-                  layoutParams.gravity = Gravity.CENTER;
-                  emptyView.setLayoutParams(layoutParams);
-                  linearLayout.addView(emptyView);
-                  int paddingPx = getPxFromDp(activity, 75);
-                  linearLayout.setPadding(0, 0, 0, paddingPx);
-                  ((ViewGroup)sortableListView.getParent()).addView(linearLayout, layoutParams);
-                  is_empty_view_added = true;
-                }
-
-                if(activity.isItemExists(
-                    NotesChecklistModeFragment.item,
-                    MyDatabaseHelper.TODO_TABLE
-                )) {
-                  activity.updateDB(NotesChecklistModeFragment.item, MyDatabaseHelper.TODO_TABLE);
-                }
-                else {
-                  MainEditFragment.item.setNotesList(new ArrayList<>(NotesChecklistModeFragment.item
-                      .getNotesList()));
-                }
+              NotesDoneListAdapter.notesList = new ArrayList<>();
+              if(listView.getHeaderViewsCount() != 0) {
+                deleteItem.setVisible(false);
+                unselectItem.setVisible(false);
+                listView.removeHeaderView(doneHeader);
               }
-            })
-            .setNeutralButton(R.string.cancel, new DialogInterface.OnClickListener() {
-              @Override
-              public void onClick(DialogInterface dialog, int which) {
+              notesDoneListAdapter.notifyDataSetChanged();
 
+              NotesChecklistModeFragment.item.setNotesList(new ArrayList<>(NotesTodoListAdapter.notesList));
+
+              if(NotesChecklistModeFragment.item.getNotesList().size() == 0 &&
+                !is_empty_view_added) {
+                LinearLayout linearLayout = new LinearLayout(activity);
+                linearLayout.setOrientation(LinearLayout.VERTICAL);
+                LinearLayout.LayoutParams layoutParams =
+                  new LinearLayout.LayoutParams(
+                    LinearLayout.LayoutParams.MATCH_PARENT,
+                    LinearLayout.LayoutParams.MATCH_PARENT
+                  );
+                layoutParams.gravity = Gravity.CENTER;
+                emptyView.setLayoutParams(layoutParams);
+                linearLayout.addView(emptyView);
+                int paddingPx = getPxFromDp(activity, 75);
+                linearLayout.setPadding(0, 0, 0, paddingPx);
+                ((ViewGroup)sortableListView.getParent()).addView(linearLayout, layoutParams);
+                is_empty_view_added = true;
               }
-            })
-            .create();
+
+              if(activity.isItemExists(
+                NotesChecklistModeFragment.item,
+                MyDatabaseHelper.TODO_TABLE
+              )) {
+                activity.updateDB(NotesChecklistModeFragment.item, MyDatabaseHelper.TODO_TABLE);
+              }
+              else {
+                MainEditFragment.item.setNotesList(new ArrayList<>(NotesChecklistModeFragment.item
+                  .getNotesList()));
+              }
+            }
+          })
+          .setNeutralButton(R.string.cancel, new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+
+            }
+          })
+          .create();
 
         dialog.setOnShowListener(new DialogInterface.OnShowListener() {
           @Override
@@ -403,7 +403,7 @@ public class NotesChecklistModeFragment extends Fragment {
             unselectItem.setVisible(true);
           }
           if(NotesTodoListAdapter.notesList.size() != 0 &&
-              sortableListView.getHeaderViewsCount() == 0) {
+            sortableListView.getHeaderViewsCount() == 0) {
             sortableListView.addHeaderView(todoHeader);
           }
           listView.setVisibility(View.VISIBLE);
@@ -445,8 +445,8 @@ public class NotesChecklistModeFragment extends Fragment {
           if(is_updated) {
             NotesChecklistModeFragment.item.setNotesList(new ArrayList<>(notesList));
             if(activity.isItemExists(
-                NotesChecklistModeFragment.item,
-                MyDatabaseHelper.TODO_TABLE
+              NotesChecklistModeFragment.item,
+              MyDatabaseHelper.TODO_TABLE
             )) {
               activity.updateDB(NotesChecklistModeFragment.item, MyDatabaseHelper.TODO_TABLE);
             }

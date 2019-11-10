@@ -56,17 +56,17 @@ public class DefaultManuallySnoozeReceiver extends BroadcastReceiver {
 
     // 通知を既読する
     SharedPreferences stringPreferences = getDynamicContext(context).getSharedPreferences(
-        getIsDirectBootContext(context) ? STRING_GENERAL_COPY : STRING_GENERAL,
-        MODE_PRIVATE
+      getIsDirectBootContext(context) ? STRING_GENERAL_COPY : STRING_GENERAL,
+      MODE_PRIVATE
     );
     Set<String> id_table =
-        stringPreferences.getStringSet(NOTIFICATION_ID_TABLE, new TreeSet<String>());
+      stringPreferences.getStringSet(NOTIFICATION_ID_TABLE, new TreeSet<String>());
     checkNotNull(id_table);
     int parent_id = intent.getIntExtra(PARENT_NOTIFICATION_ID, 0);
     int child_id = intent.getIntExtra(CHILD_NOTIFICATION_ID, 0);
     String channelId = intent.getStringExtra(CHANNEL_ID);
     NotificationManager manager =
-        (NotificationManager)context.getSystemService(NOTIFICATION_SERVICE);
+      (NotificationManager)context.getSystemService(NOTIFICATION_SERVICE);
     checkNotNull(manager);
 
     for(int i = 1; i <= child_id; i++) {
@@ -77,17 +77,17 @@ public class DefaultManuallySnoozeReceiver extends BroadcastReceiver {
     }
     id_table.remove(Integer.toBinaryString(parent_id));
     stringPreferences
-        .edit()
-        .putStringSet(NOTIFICATION_ID_TABLE, id_table)
-        .apply();
+      .edit()
+      .putStringSet(NOTIFICATION_ID_TABLE, id_table)
+      .apply();
 
     if(!getIsDirectBootContext(context)) {
       copySharedPreferences(context, false);
     }
 
     SharedPreferences intPreferences = getDynamicContext(context).getSharedPreferences(
-        getIsDirectBootContext(context) ? INT_GENERAL_COPY : INT_GENERAL,
-        MODE_PRIVATE
+      getIsDirectBootContext(context) ? INT_GENERAL_COPY : INT_GENERAL,
+      MODE_PRIVATE
     );
     int snooze_default_hour = intPreferences.getInt(SNOOZE_DEFAULT_HOUR, 0);
     int snooze_default_minute = intPreferences.getInt(SNOOZE_DEFAULT_MINUTE, 15);
@@ -119,19 +119,19 @@ public class DefaultManuallySnoozeReceiver extends BroadcastReceiver {
   public void setAlarm(Item item) {
 
     if(item.getDate().getTimeInMillis() > System.currentTimeMillis() &&
-        item.getWhich_list_belongs() == 0) {
+      item.getWhich_list_belongs() == 0) {
       item.getNotify_interval().setTime(item.getNotify_interval().getOrg_time());
       Intent intent = new Intent(context, AlarmReceiver.class);
       byte[] ob_array = serialize(item);
       intent.putExtra(ITEM, ob_array);
       PendingIntent sender = PendingIntent.getBroadcast(
-          context, (int)item.getId(), intent, PendingIntent.FLAG_UPDATE_CURRENT);
+        context, (int)item.getId(), intent, PendingIntent.FLAG_UPDATE_CURRENT);
 
       AlarmManager alarmManager = (AlarmManager)context.getSystemService(Context.ALARM_SERVICE);
       checkNotNull(alarmManager);
 
       alarmManager.setAlarmClock(
-          new AlarmManager.AlarmClockInfo(item.getDate().getTimeInMillis(), null), sender);
+        new AlarmManager.AlarmClockInfo(item.getDate().getTimeInMillis(), null), sender);
     }
   }
 
@@ -140,7 +140,7 @@ public class DefaultManuallySnoozeReceiver extends BroadcastReceiver {
     if(isAlarmSetted(item)) {
       Intent intent = new Intent(context, AlarmReceiver.class);
       PendingIntent sender = PendingIntent.getBroadcast(
-          context, (int)item.getId(), intent, PendingIntent.FLAG_UPDATE_CURRENT);
+        context, (int)item.getId(), intent, PendingIntent.FLAG_UPDATE_CURRENT);
 
       AlarmManager alarmManager = (AlarmManager)context.getSystemService(Context.ALARM_SERVICE);
       checkNotNull(alarmManager);
@@ -154,7 +154,7 @@ public class DefaultManuallySnoozeReceiver extends BroadcastReceiver {
 
     Intent intent = new Intent(context, AlarmReceiver.class);
     PendingIntent sender = PendingIntent.getBroadcast(
-        context, (int)item.getId(), intent, PendingIntent.FLAG_NO_CREATE);
+      context, (int)item.getId(), intent, PendingIntent.FLAG_NO_CREATE);
 
     return sender != null;
   }

@@ -9,7 +9,9 @@ public class Notes implements Serializable, Cloneable {
   private int order;
   private boolean checked;
 
-  public Notes() {}
+  public Notes() {
+
+  }
 
   Notes(String string, boolean checked, int order) {
 
@@ -19,26 +21,32 @@ public class Notes implements Serializable, Cloneable {
   }
 
   String getString() {
+
     return string;
   }
 
   int getOrder() {
+
     return order;
   }
 
   boolean isChecked() {
+
     return checked;
   }
 
   void setString(String string) {
+
     this.string = string;
   }
 
   void setOrder(int order) {
+
     this.order = order;
   }
 
   void setChecked(boolean checked) {
+
     this.checked = checked;
   }
 
@@ -49,7 +57,8 @@ public class Notes implements Serializable, Cloneable {
 
     try {
       notes = (Notes)super.clone();
-    } catch(CloneNotSupportedException e) {
+    }
+    catch(CloneNotSupportedException e) {
       e.printStackTrace();
     }
 

@@ -103,15 +103,12 @@ class DBAccessor {
   List<byte[]> executeQueryAll(String table) {
 
     sdb = helper.getReadableDatabase();
-    Cursor cursor = null;
-    state_str = "SELECT * FROM " + table;
 
-    try {
-      cursor = sdb.rawQuery(state_str, null);
+    state_str = "SELECT * FROM " + table;
+    try(Cursor cursor = sdb.rawQuery(state_str, null)) {
       return readCursorBySerial(cursor);
     }
     finally {
-      if(cursor != null) cursor.close();
       closeDB();
     }
   }
@@ -119,15 +116,12 @@ class DBAccessor {
   byte[] executeQueryById(long id, String table) {
 
     sdb = helper.getReadableDatabase();
-    Cursor cursor = null;
-    state_str = "SELECT * FROM " + table + " WHERE item_id = ?";
 
-    try {
-      cursor = sdb.rawQuery(state_str, new String[]{Long.toString(id)});
+    state_str = "SELECT * FROM " + table + " WHERE item_id = ?";
+    try(Cursor cursor = sdb.rawQuery(state_str, new String[]{Long.toString(id)})) {
       return readCursorById(cursor);
     }
     finally {
-      if(cursor != null) cursor.close();
       closeDB();
     }
   }

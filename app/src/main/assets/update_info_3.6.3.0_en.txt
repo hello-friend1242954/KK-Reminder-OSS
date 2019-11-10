@@ -1,0 +1,3 @@
+・Enabled setting original vibration pattern (plan to enable setting pattern per task in the future update)
+・Fixed task groups are not pinned on the top of the screen in Android10
+・Fixed display position is rarely shifted after editing tasks

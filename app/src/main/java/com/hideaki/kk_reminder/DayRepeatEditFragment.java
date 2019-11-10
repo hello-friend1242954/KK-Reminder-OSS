@@ -29,11 +29,11 @@ import static com.google.common.base.Preconditions.checkNotNull;
 import static com.hideaki.kk_reminder.UtilClass.LOCALE;
 
 public class DayRepeatEditFragment extends BasePreferenceFragmentCompat
-    implements MyCheckBoxPreference.MyCheckBoxPreferenceCheckedChangeListener {
+  implements MyCheckBoxPreference.MyCheckBoxPreferenceCheckedChangeListener {
 
   private static final String[] MONTH_LIST_EN = {
-      "Jan.", "Feb.", "Mar.", "Apr.", "May", "Jun.", "Jul.",
-      "Aug.", "Sep.", "Oct.", "Nov.", "Dec."
+    "Jan.", "Feb.", "Mar.", "Apr.", "May", "Jun.", "Jul.",
+    "Aug.", "Sep.", "Oct.", "Nov.", "Dec."
   };
   private CheckBoxPreference never;
   CheckBoxPreference everyday;
@@ -88,9 +88,9 @@ public class DayRepeatEditFragment extends BasePreferenceFragmentCompat
 
   @Override
   public View onCreateView(
-      LayoutInflater inflater,
-      @Nullable ViewGroup container,
-      @Nullable Bundle savedInstanceState
+    LayoutInflater inflater,
+    @Nullable ViewGroup container,
+    @Nullable Bundle savedInstanceState
   ) {
 
     View view = super.onCreateView(inflater, container, savedInstanceState);
@@ -246,17 +246,17 @@ public class DayRepeatEditFragment extends BasePreferenceFragmentCompat
   private void transitionFragment(PreferenceFragmentCompat next) {
 
     Transition transition = new Fade()
-        .setDuration(300);
+      .setDuration(300);
     this.setExitTransition(transition);
     next.setEnterTransition(transition);
     FragmentManager manager = getFragmentManager();
     checkNotNull(manager);
     manager
-        .beginTransaction()
-        .remove(this)
-        .add(R.id.content, next)
-        .addToBackStack(null)
-        .commit();
+      .beginTransaction()
+      .remove(this)
+      .add(R.id.content, next)
+      .addToBackStack(null)
+      .commit();
   }
 
   @Override

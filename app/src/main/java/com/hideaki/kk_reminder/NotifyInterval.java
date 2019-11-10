@@ -13,54 +13,67 @@ public class NotifyInterval implements Serializable, Cloneable {
   private int which_setted;
 
   String getLabel() {
+
     return label;
   }
 
   int getHour() {
+
     return hour;
   }
 
   int getMinute() {
+
     return minute;
   }
 
   int getTime() {
+
     return time;
   }
 
   int getOrg_time() {
+
     return org_time;
   }
 
   int getWhich_setted() {
+
     return which_setted;
   }
 
   void setLabel(String label) {
+
     this.label = label;
   }
 
   void setHour(int hour) {
+
     this.hour = hour;
   }
 
   void setMinute(int minute) {
+
     this.minute = minute;
   }
 
   void setTime(int time) {
+
     this.time = time;
   }
 
   void setOrg_time(int org_time) {
+
     this.org_time = org_time;
   }
 
   void addOrgTime(int org_time) {
+
     this.org_time += org_time;
   }
 
   void setWhich_setted(int which_setted) {
+
     this.which_setted = which_setted;
   }
 
@@ -71,7 +84,8 @@ public class NotifyInterval implements Serializable, Cloneable {
 
     try {
       notifyInterval = (NotifyInterval)super.clone();
-    } catch(CloneNotSupportedException e) {
+    }
+    catch(CloneNotSupportedException e) {
       e.printStackTrace();
     }
 

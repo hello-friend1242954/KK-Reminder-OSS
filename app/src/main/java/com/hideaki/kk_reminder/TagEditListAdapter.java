@@ -58,7 +58,7 @@ public class TagEditListAdapter extends BaseAdapter {
   }
 
   private class MyOnClickListener
-      implements View.OnClickListener, AnimCheckBox.OnCheckedChangeListener {
+    implements View.OnClickListener, AnimCheckBox.OnCheckedChangeListener {
 
     private int position;
     private Tag tag;
@@ -93,42 +93,42 @@ public class TagEditListAdapter extends BaseAdapter {
             final EditText editText = new EditText(activity);
             setCursorDrawableColor(activity, editText);
             editText.getBackground().mutate().setColorFilter(new PorterDuffColorFilter(
-                activity.accent_color,
-                PorterDuff.Mode.SRC_IN
+              activity.accent_color,
+              PorterDuff.Mode.SRC_IN
             ));
             editText.setText(tag.getName());
             editText.setHint(R.string.tag_hint);
             editText.setSelection(tag.getName().length());
             editText.setLayoutParams(new LinearLayout.LayoutParams(
-                LinearLayout.LayoutParams.MATCH_PARENT,
-                LinearLayout.LayoutParams.WRAP_CONTENT
+              LinearLayout.LayoutParams.MATCH_PARENT,
+              LinearLayout.LayoutParams.WRAP_CONTENT
             ));
             linearLayout.addView(editText);
             int paddingPx = getPxFromDp(activity, 20);
             linearLayout.setPadding(paddingPx, 0, paddingPx, 0);
 
             final AlertDialog dialog = new AlertDialog.Builder(activity)
-                .setTitle(R.string.name_tag)
-                .setView(linearLayout)
-                .setPositiveButton(R.string.determine, new DialogInterface.OnClickListener() {
-                  @Override
-                  public void onClick(DialogInterface dialog, int which) {
+              .setTitle(R.string.name_tag)
+              .setView(linearLayout)
+              .setPositiveButton(R.string.determine, new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialog, int which) {
 
-                    String name = editText.getText().toString();
-                    if(!name.equals("")) {
-                      tag.setName(name);
-                      activity.generalSettings.getTagList().get(position).setName(name);
-                      activity.updateSettingsDB();
-                    }
+                  String name = editText.getText().toString();
+                  if(!name.equals("")) {
+                    tag.setName(name);
+                    activity.generalSettings.getTagList().get(position).setName(name);
+                    activity.updateSettingsDB();
                   }
-                })
-                .setNeutralButton(R.string.cancel, new DialogInterface.OnClickListener() {
-                  @Override
-                  public void onClick(DialogInterface dialog, int which) {
+                }
+              })
+              .setNeutralButton(R.string.cancel, new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialog, int which) {
 
-                  }
-                })
-                .create();
+                }
+              })
+              .create();
 
             dialog.setOnShowListener(new DialogInterface.OnShowListener() {
               @Override
@@ -167,40 +167,40 @@ public class TagEditListAdapter extends BaseAdapter {
           case R.id.delete: {
 
             final AlertDialog dialog = new AlertDialog.Builder(activity)
-                .setTitle(R.string.delete_tag_title)
-                .setMessage(R.string.delete_tag_message)
-                .setPositiveButton(R.string.delete, new DialogInterface.OnClickListener() {
-                  @Override
-                  public void onClick(DialogInterface dialog, int which) {
+              .setTitle(R.string.delete_tag_title)
+              .setMessage(R.string.delete_tag_message)
+              .setPositiveButton(R.string.delete, new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialog, int which) {
 
-                    if(tag.getId() == checked_item_id) {
-                      if(order == 0 || order == 1 || order == 4) {
-                        MainEditFragment.item.setWhich_tag_belongs(0);
-                      }
-                      else if(order == 3) {
-                        MainEditFragment.list.setWhich_tag_belongs(0);
-                      }
-                      checked_item_id = 0;
+                  if(tag.getId() == checked_item_id) {
+                    if(order == 0 || order == 1 || order == 4) {
+                      MainEditFragment.item.setWhich_tag_belongs(0);
                     }
-
-                    activity.generalSettings.getTagList().remove(position);
-                    int size = activity.generalSettings.getTagList().size();
-                    for(int i = 0; i < size; i++) {
-                      activity.generalSettings.getTagList().get(i).setOrder(i);
+                    else if(order == 3) {
+                      MainEditFragment.list.setWhich_tag_belongs(0);
                     }
-                    tagList = new ArrayList<>(activity.generalSettings.getTagList());
-                    notifyDataSetChanged();
-
-                    activity.updateSettingsDB();
+                    checked_item_id = 0;
                   }
-                })
-                .setNeutralButton(R.string.cancel, new DialogInterface.OnClickListener() {
-                  @Override
-                  public void onClick(DialogInterface dialog, int which) {
 
+                  activity.generalSettings.getTagList().remove(position);
+                  int size = activity.generalSettings.getTagList().size();
+                  for(int i = 0; i < size; i++) {
+                    activity.generalSettings.getTagList().get(i).setOrder(i);
                   }
-                })
-                .create();
+                  tagList = new ArrayList<>(activity.generalSettings.getTagList());
+                  notifyDataSetChanged();
+
+                  activity.updateSettingsDB();
+                }
+              })
+              .setNeutralButton(R.string.cancel, new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialog, int which) {
+
+                }
+              })
+              .create();
 
             dialog.setOnShowListener(new DialogInterface.OnShowListener() {
               @Override

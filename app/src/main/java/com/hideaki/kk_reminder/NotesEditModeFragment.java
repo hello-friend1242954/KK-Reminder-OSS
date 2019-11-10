@@ -80,9 +80,9 @@ public class NotesEditModeFragment extends Fragment {
 
   @Override
   public View onCreateView(
-      @NonNull LayoutInflater inflater,
-      ViewGroup container,
-      Bundle savedInstanceState
+    @NonNull LayoutInflater inflater,
+    ViewGroup container,
+    Bundle savedInstanceState
   ) {
 
     if(MainEditFragment.is_notes_popping) {
@@ -108,9 +108,9 @@ public class NotesEditModeFragment extends Fragment {
 
           if(is_editing) {
             new AlertDialog.Builder(activity)
-                .setTitle(R.string.is_editing_title)
-                .setMessage(R.string.is_editing_message)
-                .show();
+              .setTitle(R.string.is_editing_title)
+              .setMessage(R.string.is_editing_message)
+              .show();
 
             return true;
           }
@@ -135,8 +135,8 @@ public class NotesEditModeFragment extends Fragment {
     memo = view.findViewById(R.id.notes);
     setCursorDrawableColor(activity, memo);
     memo.getBackground().mutate().setColorFilter(new PorterDuffColorFilter(
-        activity.accent_color,
-        PorterDuff.Mode.SRC_IN
+      activity.accent_color,
+      PorterDuff.Mode.SRC_IN
     ));
     memo.setOnFocusChangeListener(new View.OnFocusChangeListener() {
       @Override
@@ -148,8 +148,8 @@ public class NotesEditModeFragment extends Fragment {
           checkNotNull(drawable);
           drawable = drawable.mutate();
           drawable.setColorFilter(new PorterDuffColorFilter(
-              activity.menu_item_color,
-              PorterDuff.Mode.SRC_IN
+            activity.menu_item_color,
+            PorterDuff.Mode.SRC_IN
           ));
           actionBar.setHomeAsUpIndicator(drawable);
 
@@ -159,7 +159,7 @@ public class NotesEditModeFragment extends Fragment {
         }
         else {
           InputMethodManager manager =
-              (InputMethodManager)activity.getSystemService(Context.INPUT_METHOD_SERVICE);
+            (InputMethodManager)activity.getSystemService(Context.INPUT_METHOD_SERVICE);
           checkNotNull(manager);
           manager.hideSoftInputFromWindow(v.getWindowToken(), InputMethodManager.HIDE_NOT_ALWAYS);
         }
@@ -197,8 +197,8 @@ public class NotesEditModeFragment extends Fragment {
     checkNotNull(drawable);
     drawable = drawable.mutate();
     drawable.setColorFilter(new PorterDuffColorFilter(
-        activity.menu_item_color,
-        PorterDuff.Mode.SRC_IN
+      activity.menu_item_color,
+      PorterDuff.Mode.SRC_IN
     ));
     checklistModeItem.setIcon(drawable);
 
@@ -207,8 +207,8 @@ public class NotesEditModeFragment extends Fragment {
     checkNotNull(drawable);
     drawable = drawable.mutate();
     drawable.setColorFilter(new PorterDuffColorFilter(
-        activity.menu_item_color,
-        PorterDuff.Mode.SRC_IN
+      activity.menu_item_color,
+      PorterDuff.Mode.SRC_IN
     ));
     doneItem.setIcon(drawable);
     doneItem.setVisible(false);
@@ -218,8 +218,8 @@ public class NotesEditModeFragment extends Fragment {
     checkNotNull(drawable);
     drawable = drawable.mutate();
     drawable.setColorFilter(new PorterDuffColorFilter(
-        activity.menu_item_color,
-        PorterDuff.Mode.SRC_IN
+      activity.menu_item_color,
+      PorterDuff.Mode.SRC_IN
     ));
     clearNotesItem.setIcon(drawable);
   }
@@ -232,31 +232,31 @@ public class NotesEditModeFragment extends Fragment {
       case R.id.clear_notes: {
 
         final AlertDialog dialog = new AlertDialog.Builder(activity)
-            .setTitle(R.string.clear_notes)
-            .setMessage(R.string.clear_notes_message)
-            .setPositiveButton(R.string.yes, new DialogInterface.OnClickListener() {
-              @Override
-              public void onClick(DialogInterface dialog, int which) {
+          .setTitle(R.string.clear_notes)
+          .setMessage(R.string.clear_notes_message)
+          .setPositiveButton(R.string.yes, new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
 
-                NotesEditModeFragment.item.setNotesList(new ArrayList<Notes>());
-                memo.setText(null);
-                notes = null;
+              NotesEditModeFragment.item.setNotesList(new ArrayList<Notes>());
+              memo.setText(null);
+              notes = null;
 
-                if(activity.isItemExists(NotesEditModeFragment.item, MyDatabaseHelper.TODO_TABLE)) {
-                  activity.updateDB(NotesEditModeFragment.item, MyDatabaseHelper.TODO_TABLE);
-                }
-                else {
-                  MainEditFragment.item.setNotesList(new ArrayList<>(NotesEditModeFragment.item.getNotesList()));
-                }
+              if(activity.isItemExists(NotesEditModeFragment.item, MyDatabaseHelper.TODO_TABLE)) {
+                activity.updateDB(NotesEditModeFragment.item, MyDatabaseHelper.TODO_TABLE);
               }
-            })
-            .setNeutralButton(R.string.cancel, new DialogInterface.OnClickListener() {
-              @Override
-              public void onClick(DialogInterface dialog, int which) {
-
+              else {
+                MainEditFragment.item.setNotesList(new ArrayList<>(NotesEditModeFragment.item.getNotesList()));
               }
-            })
-            .create();
+            }
+          })
+          .setNeutralButton(R.string.cancel, new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+
+            }
+          })
+          .create();
 
         dialog.setOnShowListener(new DialogInterface.OnShowListener() {
           @Override

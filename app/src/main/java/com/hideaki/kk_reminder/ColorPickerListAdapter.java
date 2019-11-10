@@ -42,11 +42,11 @@ public class ColorPickerListAdapter extends BaseAdapter {
 
     this.activity = activity;
     color_name_lists =
-        new ArrayList<>(Arrays.asList(
-            activity
-            .getResources()
-            .getStringArray(R.array.colors_array)
-        ));
+      new ArrayList<>(Arrays.asList(
+        activity
+          .getResources()
+          .getStringArray(R.array.colors_array)
+      ));
   }
 
   private static class ViewHolder {
@@ -58,7 +58,7 @@ public class ColorPickerListAdapter extends BaseAdapter {
   }
 
   private class MyOnClickListener
-      implements View.OnClickListener, AnimCheckBox.OnCheckedChangeListener {
+    implements View.OnClickListener, AnimCheckBox.OnCheckedChangeListener {
 
     private int position;
     private ViewHolder viewHolder;
@@ -168,75 +168,75 @@ public class ColorPickerListAdapter extends BaseAdapter {
         notifyDataSetChanged();
 
         new ColorPicker(activity)
-            .setColors(colors_array)
-            .setTitle(activity.getString(R.string.pick_color_description))
-            .setDefaultColorButton(default_color)
-            .setRoundColorButton(true)
-            .disableDefaultButtons(true)
-            .setOnFastChooseColorListener(new ColorPicker.OnFastChooseColorListener() {
-              @Override
-              public void setOnFastChooseColorListener(int position, int color) {
+          .setColors(colors_array)
+          .setTitle(activity.getString(R.string.pick_color_description))
+          .setDefaultColorButton(default_color)
+          .setRoundColorButton(true)
+          .disableDefaultButtons(true)
+          .setOnFastChooseColorListener(new ColorPicker.OnFastChooseColorListener() {
+            @Override
+            public void setOnFastChooseColorListener(int position, int color) {
 
-                int colors_id = typedArray.getResourceId(position, -1);
-                checkArgument(colors_id != -1);
-                colorVariationArray = res.obtainTypedArray(colors_id);
-                int light_color = colorVariationArray.getColor(1, 0);
-                int dark_color = colorVariationArray.getColor(2, -1);
-                int text_color = colorVariationArray.getColor(3, 1);
+              int colors_id = typedArray.getResourceId(position, -1);
+              checkArgument(colors_id != -1);
+              colorVariationArray = res.obtainTypedArray(colors_id);
+              int light_color = colorVariationArray.getColor(1, 0);
+              int dark_color = colorVariationArray.getColor(2, -1);
+              int text_color = colorVariationArray.getColor(3, 1);
 
-                checkArgument(light_color != 0);
-                checkArgument(dark_color != -1);
-                checkArgument(text_color != 1);
+              checkArgument(light_color != 0);
+              checkArgument(dark_color != -1);
+              checkArgument(text_color != 1);
 
-                if(!is_general_settings) {
-                  if(order == 0 || order == 1 || order == 4 || from_list_tag_edit) {
-                    adapterTag.setPrimary_color(color);
-                    adapterTag.setPrimary_light_color(light_color);
-                    adapterTag.setPrimary_dark_color(dark_color);
-                    adapterTag.setPrimary_text_color(text_color);
-                    adapterTag.setColor_order_child(position);
+              if(!is_general_settings) {
+                if(order == 0 || order == 1 || order == 4 || from_list_tag_edit) {
+                  adapterTag.setPrimary_color(color);
+                  adapterTag.setPrimary_light_color(light_color);
+                  adapterTag.setPrimary_dark_color(dark_color);
+                  adapterTag.setPrimary_text_color(text_color);
+                  adapterTag.setColor_order_child(position);
 
-                    orgTag.setPrimary_color(color);
-                    orgTag.setPrimary_light_color(light_color);
-                    orgTag.setPrimary_dark_color(dark_color);
-                    orgTag.setPrimary_text_color(text_color);
-                    orgTag.setColor_order_child(position);
-                    activity.updateSettingsDB();
-                  }
-                  else if(order == 3) {
-                    MainEditFragment.list.setColor(color);
-                    MainEditFragment.list.setLightColor(light_color);
-                    MainEditFragment.list.setDarkColor(dark_color);
-                    MainEditFragment.list.setTextColor(text_color);
-                    MainEditFragment.list.setColorChild(position);
-                  }
-                }
-                else {
-                  MyTheme theme = activity.generalSettings.getTheme();
-                  theme.setColor(color);
-                  theme.setLightColor(light_color);
-                  theme.setDarkColor(dark_color);
-                  theme.setTextColor(text_color);
-                  theme.setColorChild(position);
+                  orgTag.setPrimary_color(color);
+                  orgTag.setPrimary_light_color(light_color);
+                  orgTag.setPrimary_dark_color(dark_color);
+                  orgTag.setPrimary_text_color(text_color);
+                  orgTag.setColor_order_child(position);
                   activity.updateSettingsDB();
                 }
-
-                viewHolder.pallet.setColorFilter(color);
-
-                colorVariationArray.recycle();
-                typedArray.recycle();
-                typedArraysOfArray.recycle();
+                else if(order == 3) {
+                  MainEditFragment.list.setColor(color);
+                  MainEditFragment.list.setLightColor(light_color);
+                  MainEditFragment.list.setDarkColor(dark_color);
+                  MainEditFragment.list.setTextColor(text_color);
+                  MainEditFragment.list.setColorChild(position);
+                }
+              }
+              else {
+                MyTheme theme = activity.generalSettings.getTheme();
+                theme.setColor(color);
+                theme.setLightColor(light_color);
+                theme.setDarkColor(dark_color);
+                theme.setTextColor(text_color);
+                theme.setColorChild(position);
+                activity.updateSettingsDB();
               }
 
-              @Override
-              public void onCancel() {
+              viewHolder.pallet.setColorFilter(color);
 
-                colorVariationArray.recycle();
-                typedArray.recycle();
-                typedArraysOfArray.recycle();
-              }
-            })
-            .show();
+              colorVariationArray.recycle();
+              typedArray.recycle();
+              typedArraysOfArray.recycle();
+            }
+
+            @Override
+            public void onCancel() {
+
+              colorVariationArray.recycle();
+              typedArray.recycle();
+              typedArraysOfArray.recycle();
+            }
+          })
+          .show();
       }
       else if(position == checked_position && manually_checked) {
         is_first = false;
@@ -363,10 +363,10 @@ public class ColorPickerListAdapter extends BaseAdapter {
       }
       else {
         colors_id =
-            typedArray.getResourceId(
-                activity.generalSettings.getTheme().getColorChild(),
-                -1
-            );
+          typedArray.getResourceId(
+            activity.generalSettings.getTheme().getColorChild(),
+            -1
+          );
       }
     }
     else {

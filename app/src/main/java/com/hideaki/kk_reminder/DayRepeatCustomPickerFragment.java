@@ -27,15 +27,15 @@ import static com.google.common.base.Preconditions.checkNotNull;
 import static com.hideaki.kk_reminder.UtilClass.LOCALE;
 
 public class DayRepeatCustomPickerFragment extends BasePreferenceFragmentCompat
-    implements
-    Preference.OnPreferenceClickListener,
-    MyCheckBoxPreference.MyCheckBoxPreferenceCheckedChangeListener {
+  implements
+  Preference.OnPreferenceClickListener,
+  MyCheckBoxPreference.MyCheckBoxPreferenceCheckedChangeListener {
 
   static final String[] DAY_OF_WEEK_LIST_JA = {"月", "火", "水", "木", "金", "土", "日"};
   static final String[] DAY_OF_WEEK_LIST_EN = {"Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"};
   private static final String[] MONTH_LIST_EN = {
-      "Jan.", "Feb.", "Mar.", "Apr.", "May", "Jun.",
-      "Jul.", "Aug.", "Sep.", "Oct.", "Nov.", "Dec."
+    "Jan.", "Feb.", "Mar.", "Apr.", "May", "Jun.",
+    "Jul.", "Aug.", "Sep.", "Oct.", "Nov.", "Dec."
   };
 
   PreferenceScreen rootPreferenceScreen;
@@ -94,9 +94,9 @@ public class DayRepeatCustomPickerFragment extends BasePreferenceFragmentCompat
 
   @Override
   public View onCreateView(
-      LayoutInflater inflater,
-      @Nullable ViewGroup container,
-      @Nullable Bundle savedInstanceState
+    LayoutInflater inflater,
+    @Nullable ViewGroup container,
+    @Nullable Bundle savedInstanceState
   ) {
 
     View view = super.onCreateView(inflater, container, savedInstanceState);
@@ -243,7 +243,7 @@ public class DayRepeatCustomPickerFragment extends BasePreferenceFragmentCompat
           if(MainEditFragment.dayRepeat.getOn_the_month().ordinal() < 7) {
             if(LOCALE.equals(Locale.JAPAN)) {
               label += DAY_OF_WEEK_LIST_JA[MainEditFragment.dayRepeat.getOn_the_month().ordinal()] +
-                  "曜日";
+                "曜日";
             }
             else {
               label += DAY_OF_WEEK_LIST_EN[MainEditFragment.dayRepeat.getOn_the_month().ordinal()];
@@ -327,7 +327,7 @@ public class DayRepeatCustomPickerFragment extends BasePreferenceFragmentCompat
 
           int cal_day_of_week = MainEditFragment.final_cal.get(Calendar.DAY_OF_WEEK);
           if(DayRepeatCustomWeekPickerPreference.week == (1 << (cal_day_of_week - 2)) ||
-              DayRepeatCustomWeekPickerPreference.week == (1 << (cal_day_of_week + 5))) {
+            DayRepeatCustomWeekPickerPreference.week == (1 << (cal_day_of_week + 5))) {
             match_to_template = true;
             dayRepeatEditFragment.everyweek.setChecked(true);
             dayRepeatEditFragment.custom.setChecked(false);
@@ -353,7 +353,7 @@ public class DayRepeatCustomPickerFragment extends BasePreferenceFragmentCompat
           if(MainEditFragment.dayRepeat.isDays_of_month_setted()) {
             int cal_day_of_month = MainEditFragment.final_cal.get(Calendar.DAY_OF_MONTH);
             if(DayRepeatCustomDaysOfMonthPickerPreference.days_of_month ==
-                (1 << (cal_day_of_month - 1))) {
+              (1 << (cal_day_of_month - 1))) {
               match_to_template = true;
               dayRepeatEditFragment.everymonth.setChecked(true);
               dayRepeatEditFragment.custom.setChecked(false);
@@ -376,7 +376,7 @@ public class DayRepeatCustomPickerFragment extends BasePreferenceFragmentCompat
             MainEditFragment.dayRepeat.setWhich_template(1 << 4);
             MainEditFragment.dayRepeat.setLabel(DayRepeatEditFragment.label_str_everyyear);
             MainEditFragment.dayRepeat.setDay_of_month_of_year(MainEditFragment.final_cal.get(
-                Calendar.DAY_OF_MONTH));
+              Calendar.DAY_OF_MONTH));
           }
 
           break;
@@ -534,12 +534,12 @@ public class DayRepeatCustomPickerFragment extends BasePreferenceFragmentCompat
             if(MainEditFragment.dayRepeat.getOn_the_month().ordinal() < 7) {
               if(LOCALE.equals(Locale.JAPAN)) {
                 label +=
-                    DAY_OF_WEEK_LIST_JA[MainEditFragment.dayRepeat.getOn_the_month().ordinal()] +
-                        "曜日";
+                  DAY_OF_WEEK_LIST_JA[MainEditFragment.dayRepeat.getOn_the_month().ordinal()] +
+                    "曜日";
               }
               else {
                 label +=
-                    DAY_OF_WEEK_LIST_EN[MainEditFragment.dayRepeat.getOn_the_month().ordinal()];
+                  DAY_OF_WEEK_LIST_EN[MainEditFragment.dayRepeat.getOn_the_month().ordinal()];
               }
             }
             else if(MainEditFragment.dayRepeat.getOn_the_month().ordinal() == 7) {
@@ -631,7 +631,7 @@ public class DayRepeatCustomPickerFragment extends BasePreferenceFragmentCompat
       case "picker": {
 
         DayRepeatCustomPickerDialogFragment dialog =
-            new DayRepeatCustomPickerDialogFragment(this);
+          new DayRepeatCustomPickerDialogFragment(this);
         dialog.show(activity.getSupportFragmentManager(), "day_repeat_custom_picker");
 
         return true;
@@ -639,7 +639,7 @@ public class DayRepeatCustomPickerFragment extends BasePreferenceFragmentCompat
       case "on_the_month_picker": {
 
         DayRepeatCustomOnTheMonthPickerDialogFragment dialog =
-            new DayRepeatCustomOnTheMonthPickerDialogFragment(this);
+          new DayRepeatCustomOnTheMonthPickerDialogFragment(this);
         dialog.show(activity.getSupportFragmentManager(), "day_repeat_custom_on_the_month_picker");
 
         return true;
@@ -709,7 +709,7 @@ public class DayRepeatCustomPickerFragment extends BasePreferenceFragmentCompat
           if(MainEditFragment.dayRepeat.getOn_the_month().ordinal() < 7) {
             if(LOCALE.equals(Locale.JAPAN)) {
               label += DAY_OF_WEEK_LIST_JA[MainEditFragment.dayRepeat.getOn_the_month().ordinal()] +
-                  "曜日";
+                "曜日";
             }
             else {
               label += DAY_OF_WEEK_LIST_EN[MainEditFragment.dayRepeat.getOn_the_month().ordinal()];

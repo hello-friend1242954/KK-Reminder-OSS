@@ -40,7 +40,7 @@ public class MyCheckBoxPreference extends CheckBoxPreference {
     super.onAttached();
     if(listener == null) {
       throw new RuntimeException(
-          getKey() + " must call setOnMyCheckBoxPreferenceCheckedChangeListener");
+        getKey() + " must call setOnMyCheckBoxPreferenceCheckedChangeListener");
     }
     is_checked = super.isChecked();
   }

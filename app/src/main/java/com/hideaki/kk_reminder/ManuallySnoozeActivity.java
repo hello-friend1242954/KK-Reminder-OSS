@@ -87,30 +87,30 @@ public class ManuallySnoozeActivity extends AppCompatActivity implements View.On
 
     // SharedPreferencesからダークモードかどうかを取得
     SharedPreferences booleanPreferences =
-        getDynamicContext(this).getSharedPreferences(
-            getIsDirectBootContext(this) ? BOOLEAN_GENERAL_COPY : BOOLEAN_GENERAL,
-            MODE_PRIVATE
-        );
+      getDynamicContext(this).getSharedPreferences(
+        getIsDirectBootContext(this) ? BOOLEAN_GENERAL_COPY : BOOLEAN_GENERAL,
+        MODE_PRIVATE
+      );
     isDarkMode = booleanPreferences.getBoolean(IS_DARK_MODE, false);
     isDarkThemeFollowSystem = booleanPreferences.getBoolean(IS_DARK_THEME_FOLLOW_SYSTEM, true);
 
     // SharedPreferencesからデフォルトのスヌーズ時間を取得
     SharedPreferences intPreferences =
-        getDynamicContext(this).getSharedPreferences(
-            getIsDirectBootContext(this) ? INT_GENERAL_COPY : INT_GENERAL,
-            MODE_PRIVATE
-        );
+      getDynamicContext(this).getSharedPreferences(
+        getIsDirectBootContext(this) ? INT_GENERAL_COPY : INT_GENERAL,
+        MODE_PRIVATE
+      );
     snooze_default_hour = intPreferences.getInt(SNOOZE_DEFAULT_HOUR, 0);
     snooze_default_minute = intPreferences.getInt(SNOOZE_DEFAULT_MINUTE, 15);
 
     // 通知を既読する
     SharedPreferences stringPreferences =
-        getDynamicContext(this).getSharedPreferences(
-            getIsDirectBootContext(this) ? STRING_GENERAL_COPY : STRING_GENERAL,
-            MODE_PRIVATE
-        );
+      getDynamicContext(this).getSharedPreferences(
+        getIsDirectBootContext(this) ? STRING_GENERAL_COPY : STRING_GENERAL,
+        MODE_PRIVATE
+      );
     Set<String> id_table =
-        stringPreferences.getStringSet(NOTIFICATION_ID_TABLE, new TreeSet<String>());
+      stringPreferences.getStringSet(NOTIFICATION_ID_TABLE, new TreeSet<String>());
     int parent_id = intent.getIntExtra(PARENT_NOTIFICATION_ID, 0);
     int child_id = intent.getIntExtra(CHILD_NOTIFICATION_ID, 0);
     String channelId = intent.getStringExtra(CHANNEL_ID);
@@ -126,9 +126,9 @@ public class ManuallySnoozeActivity extends AppCompatActivity implements View.On
     checkNotNull(id_table);
     id_table.remove(Integer.toBinaryString(parent_id));
     stringPreferences
-        .edit()
-        .putStringSet(NOTIFICATION_ID_TABLE, id_table)
-        .apply();
+      .edit()
+      .putStringSet(NOTIFICATION_ID_TABLE, id_table)
+      .apply();
 
     if(!getIsDirectBootContext(this)) {
       copySharedPreferences(this, false);
@@ -136,7 +136,7 @@ public class ManuallySnoozeActivity extends AppCompatActivity implements View.On
 
     // ダークモードの設定
     int currentNightMode =
-        getResources().getConfiguration().uiMode & Configuration.UI_MODE_NIGHT_MASK;
+      getResources().getConfiguration().uiMode & Configuration.UI_MODE_NIGHT_MASK;
     if(!isDarkThemeFollowSystem) {
       if(isDarkMode && currentNightMode != Configuration.UI_MODE_NIGHT_YES) {
         AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_YES);
@@ -148,17 +148,17 @@ public class ManuallySnoozeActivity extends AppCompatActivity implements View.On
 
     // 色の設定
     int primaryDarkMaterialDarkColor =
-        ContextCompat.getColor(this, R.color.primaryDarkMaterialDark);
+      ContextCompat.getColor(this, R.color.primaryDarkMaterialDark);
     primaryTextMaterialDarkColor =
-        ContextCompat.getColor(this, R.color.primaryTextMaterialDark);
+      ContextCompat.getColor(this, R.color.primaryTextMaterialDark);
     secondaryTextMaterialDarkColor =
-        ContextCompat.getColor(this, R.color.secondaryTextMaterialDark);
+      ContextCompat.getColor(this, R.color.secondaryTextMaterialDark);
 
     setContentView(R.layout.manually_snooze_layout);
 
     // ListViewの設定
     ManuallySnoozeListAdapter manuallySnoozeListAdapter
-        = new ManuallySnoozeListAdapter(this);
+      = new ManuallySnoozeListAdapter(this);
     listView = findViewById(R.id.listView);
     listView.setAdapter(manuallySnoozeListAdapter);
 
@@ -229,7 +229,7 @@ public class ManuallySnoozeActivity extends AppCompatActivity implements View.On
     super.onResume();
 
     int currentNightMode =
-        getResources().getConfiguration().uiMode & Configuration.UI_MODE_NIGHT_MASK;
+      getResources().getConfiguration().uiMode & Configuration.UI_MODE_NIGHT_MASK;
     if(isDarkThemeFollowSystem) {
       if(isDarkMode && currentNightMode != Configuration.UI_MODE_NIGHT_YES) {
         setIsDarkModeInSharedPreferences(false);
@@ -249,36 +249,36 @@ public class ManuallySnoozeActivity extends AppCompatActivity implements View.On
     isDarkMode = value;
 
     getDynamicContext(this).getSharedPreferences(
-        getIsDirectBootContext(this) ? BOOLEAN_GENERAL_COPY : BOOLEAN_GENERAL,
-        Context.MODE_PRIVATE
+      getIsDirectBootContext(this) ? BOOLEAN_GENERAL_COPY : BOOLEAN_GENERAL,
+      Context.MODE_PRIVATE
     )
-        .edit()
-        .putBoolean(IS_DARK_MODE, value)
-        .apply();
+      .edit()
+      .putBoolean(IS_DARK_MODE, value)
+      .apply();
   }
 
   public void setAlarm(Item item) {
 
     if(
-        item.getDate().getTimeInMillis() > System.currentTimeMillis() &&
-            item.getWhich_list_belongs() == 0
+      item.getDate().getTimeInMillis() > System.currentTimeMillis() &&
+        item.getWhich_list_belongs() == 0
     ) {
       item.getNotify_interval().setTime(item.getNotify_interval().getOrg_time());
       Intent intent = new Intent(this, AlarmReceiver.class);
       byte[] ob_array = serialize(item);
       intent.putExtra(ITEM, ob_array);
       PendingIntent sender = PendingIntent.getBroadcast(
-          this, (int)item.getId(), intent, PendingIntent.FLAG_UPDATE_CURRENT);
+        this, (int)item.getId(), intent, PendingIntent.FLAG_UPDATE_CURRENT);
 
       AlarmManager alarmManager = (AlarmManager)getSystemService(Context.ALARM_SERVICE);
       checkNotNull(alarmManager);
 
       alarmManager.setAlarmClock(
-          new AlarmManager.AlarmClockInfo(
-              item.getDate().getTimeInMillis(),
-              null
-          ),
-          sender
+        new AlarmManager.AlarmClockInfo(
+          item.getDate().getTimeInMillis(),
+          null
+        ),
+        sender
       );
     }
   }
@@ -288,7 +288,7 @@ public class ManuallySnoozeActivity extends AppCompatActivity implements View.On
     if(isAlarmSetted(item)) {
       Intent intent = new Intent(this, AlarmReceiver.class);
       PendingIntent sender = PendingIntent.getBroadcast(
-          this, (int)item.getId(), intent, PendingIntent.FLAG_UPDATE_CURRENT);
+        this, (int)item.getId(), intent, PendingIntent.FLAG_UPDATE_CURRENT);
 
       AlarmManager alarmManager = (AlarmManager)getSystemService(Context.ALARM_SERVICE);
       checkNotNull(alarmManager);
@@ -302,7 +302,7 @@ public class ManuallySnoozeActivity extends AppCompatActivity implements View.On
 
     Intent intent = new Intent(this, AlarmReceiver.class);
     PendingIntent sender = PendingIntent.getBroadcast(
-        this, (int)item.getId(), intent, PendingIntent.FLAG_NO_CREATE);
+      this, (int)item.getId(), intent, PendingIntent.FLAG_NO_CREATE);
 
     return sender != null;
   }
@@ -338,14 +338,14 @@ public class ManuallySnoozeActivity extends AppCompatActivity implements View.On
         long default_snooze = snooze_default_hour * HOUR + snooze_default_minute * MINUTE;
         long custom_snooze = custom_hour * HOUR + custom_minute * MINUTE;
         long[] how_long = {
-            default_snooze,
-            15 * MINUTE,
-            30 * MINUTE,
-            HOUR,
-            3 * HOUR,
-            10 * HOUR,
-            24 * HOUR,
-            custom_snooze
+          default_snooze,
+          15 * MINUTE,
+          30 * MINUTE,
+          HOUR,
+          3 * HOUR,
+          10 * HOUR,
+          24 * HOUR,
+          custom_snooze
         };
 
         if(item.getTime_altered() == 0) {
@@ -358,7 +358,7 @@ public class ManuallySnoozeActivity extends AppCompatActivity implements View.On
         deleteAlarm(item);
         setAlarm(item);
         accessor =
-            new DBAccessor(getDynamicContext(this), getIsDirectBootContext(this));
+          new DBAccessor(getDynamicContext(this), getIsDirectBootContext(this));
         updateDB(item, MyDatabaseHelper.TODO_TABLE);
 
         // データベースを端末暗号化ストレージへコピーする
@@ -367,10 +367,10 @@ public class ManuallySnoozeActivity extends AppCompatActivity implements View.On
         }
 
         SharedPreferences preferences =
-            getDynamicContext(this).getSharedPreferences(
-                getIsDirectBootContext(this) ? INT_GENERAL_COPY : INT_GENERAL,
-                MODE_PRIVATE
-            );
+          getDynamicContext(this).getSharedPreferences(
+            getIsDirectBootContext(this) ? INT_GENERAL_COPY : INT_GENERAL,
+            MODE_PRIVATE
+          );
         int created = preferences.getInt(CREATED, -1);
         int destroyed = preferences.getInt(DESTROYED, -1);
         if(created > destroyed) {

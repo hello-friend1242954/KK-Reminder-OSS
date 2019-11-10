@@ -75,11 +75,11 @@ public class DefaultControlTimeModelPreference extends Preference {
       childCard.setBackgroundColor(activity.backgroundFloatingMaterialDarkColor);
       controlCard.setBackgroundColor(activity.backgroundFloatingMaterialDarkColor);
       clockImage.setColorFilter(ContextCompat.getColor(
-          activity,
-          R.color.green5PrimaryColor
+        activity,
+        R.color.green5PrimaryColor
       ));
       TextView[] textViews = {
-          date, detail, repeat, minusTime1, minusTime2, minusTime3, plusTime1, plusTime2, plusTime3
+        date, detail, repeat, minusTime1, minusTime2, minusTime3, plusTime1, plusTime2, plusTime3
       };
       for(TextView textView : textViews) {
         textView.setTextColor(activity.secondaryTextMaterialDarkColor);
@@ -104,7 +104,7 @@ public class DefaultControlTimeModelPreference extends Preference {
       public void onClick(View v) {
 
         DefaultControlTimePickerDialogFragment dialog =
-            new DefaultControlTimePickerDialogFragment();
+          new DefaultControlTimePickerDialogFragment();
         dialog.setWhichTimeController((TextView)v, true, 1);
         dialog.show(activity.getSupportFragmentManager(), "minus_control_time_picker1");
       }
@@ -115,7 +115,7 @@ public class DefaultControlTimeModelPreference extends Preference {
       public void onClick(View v) {
 
         DefaultControlTimePickerDialogFragment dialog =
-            new DefaultControlTimePickerDialogFragment();
+          new DefaultControlTimePickerDialogFragment();
         dialog.setWhichTimeController((TextView)v, true, 2);
         dialog.show(activity.getSupportFragmentManager(), "minus_control_time_picker2");
       }
@@ -126,7 +126,7 @@ public class DefaultControlTimeModelPreference extends Preference {
       public void onClick(View v) {
 
         DefaultControlTimePickerDialogFragment dialog =
-            new DefaultControlTimePickerDialogFragment();
+          new DefaultControlTimePickerDialogFragment();
         dialog.setWhichTimeController((TextView)v, true, 3);
         dialog.show(activity.getSupportFragmentManager(), "minus_control_time_picker3");
       }
@@ -137,7 +137,7 @@ public class DefaultControlTimeModelPreference extends Preference {
       public void onClick(View v) {
 
         DefaultControlTimePickerDialogFragment dialog =
-            new DefaultControlTimePickerDialogFragment();
+          new DefaultControlTimePickerDialogFragment();
         dialog.setWhichTimeController((TextView)v, false, 1);
         dialog.show(activity.getSupportFragmentManager(), "plus_control_time_picker1");
       }
@@ -148,7 +148,7 @@ public class DefaultControlTimeModelPreference extends Preference {
       public void onClick(View v) {
 
         DefaultControlTimePickerDialogFragment dialog =
-            new DefaultControlTimePickerDialogFragment();
+          new DefaultControlTimePickerDialogFragment();
         dialog.setWhichTimeController((TextView)v, false, 2);
         dialog.show(activity.getSupportFragmentManager(), "plus_control_time_picker2");
       }
@@ -159,7 +159,7 @@ public class DefaultControlTimeModelPreference extends Preference {
       public void onClick(View v) {
 
         DefaultControlTimePickerDialogFragment dialog =
-            new DefaultControlTimePickerDialogFragment();
+          new DefaultControlTimePickerDialogFragment();
         dialog.setWhichTimeController((TextView)v, false, 3);
         dialog.show(activity.getSupportFragmentManager(), "plus_control_time_picker3");
       }

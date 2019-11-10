@@ -24,7 +24,7 @@ import android.view.ViewGroup;
 import static com.google.common.base.Preconditions.checkNotNull;
 
 public class HelpAndFeedbackFragment extends BasePreferenceFragmentCompat
-    implements Preference.OnPreferenceClickListener {
+  implements Preference.OnPreferenceClickListener {
 
   static final String TAG = HelpAndFeedbackFragment.class.getSimpleName();
   private MainActivity activity;
@@ -46,9 +46,9 @@ public class HelpAndFeedbackFragment extends BasePreferenceFragmentCompat
       FragmentManager manager = getFragmentManager();
       checkNotNull(manager);
       manager
-          .beginTransaction()
-          .remove(this)
-          .commit();
+        .beginTransaction()
+        .remove(this)
+        .commit();
     }
   }
 
@@ -78,9 +78,9 @@ public class HelpAndFeedbackFragment extends BasePreferenceFragmentCompat
 
   @Override
   public View onCreateView(
-      LayoutInflater inflater,
-      @Nullable ViewGroup container,
-      @Nullable Bundle savedInstanceState
+    LayoutInflater inflater,
+    @Nullable ViewGroup container,
+    @Nullable Bundle savedInstanceState
   ) {
 
     View view = super.onCreateView(inflater, container, savedInstanceState);
@@ -112,9 +112,9 @@ public class HelpAndFeedbackFragment extends BasePreferenceFragmentCompat
       case "request": {
 
         Intent intent = new Intent()
-            .setAction(Intent.ACTION_SENDTO)
-            .setType("text/plain")
-            .setData(Uri.parse("mailto:bisigness100@gmail.com"));
+          .setAction(Intent.ACTION_SENDTO)
+          .setType("text/plain")
+          .setData(Uri.parse("mailto:bisigness100@gmail.com"));
         if(preference.getKey().equals("contact")) {
           intent.putExtra(Intent.EXTRA_SUBJECT, getString(R.string.contact));
         }

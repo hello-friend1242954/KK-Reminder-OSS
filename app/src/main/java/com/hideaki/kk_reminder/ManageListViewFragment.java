@@ -51,9 +51,9 @@ public class ManageListViewFragment extends Fragment {
       FragmentManager manager = getFragmentManager();
       checkNotNull(manager);
       manager
-          .beginTransaction()
-          .remove(this)
-          .commit();
+        .beginTransaction()
+        .remove(this)
+        .commit();
     }
   }
 
@@ -71,9 +71,9 @@ public class ManageListViewFragment extends Fragment {
   @Nullable
   @Override
   public View onCreateView(
-      @NonNull LayoutInflater inflater,
-      @Nullable ViewGroup container,
-      Bundle savedInstanceState
+    @NonNull LayoutInflater inflater,
+    @Nullable ViewGroup container,
+    Bundle savedInstanceState
   ) {
 
     View view = inflater.inflate(R.layout.listview, container, false);
@@ -93,9 +93,9 @@ public class ManageListViewFragment extends Fragment {
 
           if(ManageListAdapter.is_sorting) {
             new AlertDialog.Builder(activity)
-                .setTitle(R.string.is_sorting_title)
-                .setMessage(R.string.is_sorting_message)
-                .show();
+              .setTitle(R.string.is_sorting_title)
+              .setMessage(R.string.is_sorting_message)
+              .show();
 
             return true;
           }
@@ -110,10 +110,10 @@ public class ManageListViewFragment extends Fragment {
     LinearLayout linearLayout = new LinearLayout(activity);
     linearLayout.setOrientation(LinearLayout.VERTICAL);
     LinearLayout.LayoutParams layoutParams =
-        new LinearLayout.LayoutParams(
-            LinearLayout.LayoutParams.MATCH_PARENT,
-            LinearLayout.LayoutParams.MATCH_PARENT
-        );
+      new LinearLayout.LayoutParams(
+        LinearLayout.LayoutParams.MATCH_PARENT,
+        LinearLayout.LayoutParams.MATCH_PARENT
+      );
     layoutParams.gravity = Gravity.CENTER;
     layoutParams.weight = 1;
     layoutParams.height = 0;
@@ -157,10 +157,10 @@ public class ManageListViewFragment extends Fragment {
 
       @Override
       public void onScroll(
-          AbsListView view,
-          int firstVisibleItem,
-          int visibleItemCount,
-          int totalItemCount
+        AbsListView view,
+        int firstVisibleItem,
+        int visibleItemCount,
+        int totalItemCount
       ) {
 
       }

@@ -16,7 +16,7 @@ import java.util.Calendar;
 import static com.google.common.base.Preconditions.checkNotNull;
 
 public class TimePickerDialogFragment extends DialogFragment
-    implements TimePickerDialog.OnTimeSetListener {
+  implements TimePickerDialog.OnTimeSetListener {
 
   private MainEditFragment mainEditFragment;
 
@@ -40,12 +40,12 @@ public class TimePickerDialogFragment extends DialogFragment
     }
     else {
       return new TimePickerDialog(
-          activity,
-          activity.dialog_style_id,
-          this,
-          hour,
-          minute,
-          true
+        activity,
+        activity.dialog_style_id,
+        this,
+        hour,
+        minute,
+        true
       );
     }
   }

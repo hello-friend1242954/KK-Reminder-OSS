@@ -64,11 +64,11 @@ public class DefaultTextSizeModelPreference extends Preference {
     if(activity.isDarkMode) {
       childCard.setBackgroundColor(activity.backgroundFloatingMaterialDarkColor);
       clockImage.setColorFilter(ContextCompat.getColor(
-          activity,
-          R.color.green5PrimaryColor
+        activity,
+        R.color.green5PrimaryColor
       ));
       TextView[] textViews = {
-          date, detail, repeat
+        date, detail, repeat
       };
       for(TextView textView : textViews) {
         textView.setTextColor(activity.secondaryTextMaterialDarkColor);

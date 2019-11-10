@@ -45,10 +45,9 @@ public class MyEditTextPreference extends EditTextPreference {
     if(editText != null) {
       setCursorDrawableColor(activity, editText);
       editText.getBackground().mutate().setColorFilter(new PorterDuffColorFilter(
-          activity.accent_color,
-          PorterDuff.Mode.SRC_IN
+        activity.accent_color,
+        PorterDuff.Mode.SRC_IN
       ));
-      editText.setHint(R.string.detail_hint);
     }
   }
 }

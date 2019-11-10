@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <PreferenceScreen
+        android:key="label"
+        android:summary="@string/default_vibration_hint"/>
+
+    <PreferenceScreen
+        android:summary="@string/default_vibration_summary"/>
+
+</PreferenceScreen>

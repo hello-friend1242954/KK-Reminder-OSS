@@ -28,12 +28,12 @@ public class ManuallySnoozeListAdapter extends BaseAdapter {
     this.activity = activity;
 
     snoozeList =
-        new ArrayList<>(Arrays.asList(activity.getResources().getStringArray(R.array.snooze_list)));
+      new ArrayList<>(Arrays.asList(activity.getResources().getStringArray(R.array.snooze_list)));
     defaultSnoozeTime = "";
     int default_hour = activity.snooze_default_hour;
     if(default_hour != 0) {
       defaultSnoozeTime +=
-          activity.getResources().getQuantityString(R.plurals.hour, default_hour, default_hour);
+        activity.getResources().getQuantityString(R.plurals.hour, default_hour, default_hour);
       if(!LOCALE.equals(Locale.JAPAN)) {
         defaultSnoozeTime += " ";
       }
@@ -41,22 +41,22 @@ public class ManuallySnoozeListAdapter extends BaseAdapter {
     int default_minute = activity.snooze_default_minute;
     if(default_minute != 0) {
       defaultSnoozeTime += activity
-          .getResources()
-          .getQuantityString(R.plurals.minute, default_minute, default_minute);
+        .getResources()
+        .getQuantityString(R.plurals.minute, default_minute, default_minute);
       if(!LOCALE.equals(Locale.JAPAN)) {
         defaultSnoozeTime += " ";
       }
     }
     if(LOCALE.equals(Locale.JAPAN)) {
       snoozeList.add(
-          0,
-          activity.getString(R.string.default_snooze) + " (" + defaultSnoozeTime + ")"
+        0,
+        activity.getString(R.string.default_snooze) + " (" + defaultSnoozeTime + ")"
       );
     }
     else {
       snoozeList.add(
-          0,
-          activity.getString(R.string.default_snooze) + " (" + defaultSnoozeTime + ")"
+        0,
+        activity.getString(R.string.default_snooze) + " (" + defaultSnoozeTime + ")"
       );
     }
 
@@ -73,7 +73,7 @@ public class ManuallySnoozeListAdapter extends BaseAdapter {
   }
 
   private class MyOnClickListener
-      implements View.OnClickListener, AnimCheckBox.OnCheckedChangeListener {
+    implements View.OnClickListener, AnimCheckBox.OnCheckedChangeListener {
 
     private int position;
     private ViewHolder viewHolder;
@@ -122,19 +122,20 @@ public class ManuallySnoozeListAdapter extends BaseAdapter {
             title = "";
             if(activity.custom_hour != 0) {
               title += activity
-                  .getResources()
-                  .getQuantityString(R.plurals.hour, activity.custom_hour, activity.custom_hour);
+                .getResources()
+                .getQuantityString(R.plurals.hour, activity.custom_hour, activity.custom_hour);
               if(!LOCALE.equals(Locale.JAPAN)) {
                 title += " ";
               }
             }
             if(activity.custom_minute != 0) {
               title += activity
-                  .getResources()
-                  .getQuantityString(R.plurals.minute,
-                      activity.custom_minute,
-                      activity.custom_minute
-                  );
+                .getResources()
+                .getQuantityString(
+                  R.plurals.minute,
+                  activity.custom_minute,
+                  activity.custom_minute
+                );
               if(!LOCALE.equals(Locale.JAPAN)) {
                 title += " ";
               }

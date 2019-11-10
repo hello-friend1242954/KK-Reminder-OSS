@@ -22,7 +22,7 @@ import static com.google.common.base.Preconditions.checkNotNull;
 import static com.hideaki.kk_reminder.UtilClass.DEFAULT_TEXT_SIZE;
 
 public class DefaultTextSizeEditFragment extends BasePreferenceFragmentCompat
-    implements MyCheckBoxPreference.MyCheckBoxPreferenceCheckedChangeListener {
+  implements MyCheckBoxPreference.MyCheckBoxPreferenceCheckedChangeListener {
 
   private MainActivity activity;
   private PreferenceScreen rootPreferenceScreen;
@@ -62,9 +62,9 @@ public class DefaultTextSizeEditFragment extends BasePreferenceFragmentCompat
 
   @Override
   public View onCreateView(
-      LayoutInflater inflater,
-      ViewGroup container,
-      Bundle savedInstanceState
+    LayoutInflater inflater,
+    ViewGroup container,
+    Bundle savedInstanceState
   ) {
 
     View view = super.onCreateView(inflater, container, savedInstanceState);

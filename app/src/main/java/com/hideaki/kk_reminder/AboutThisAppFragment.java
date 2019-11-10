@@ -49,9 +49,9 @@ public class AboutThisAppFragment extends Fragment {
 
   @Override
   public View onCreateView(
-      @NonNull LayoutInflater inflater,
-      @Nullable ViewGroup container,
-      Bundle savedInstanceState
+    @NonNull LayoutInflater inflater,
+    @Nullable ViewGroup container,
+    Bundle savedInstanceState
   ) {
 
     View view = inflater.inflate(R.layout.about_this_app_layout, container, false);

@@ -15,7 +15,7 @@ import android.widget.TableRow;
 import java.util.Calendar;
 
 public class DayRepeatCustomDaysOfMonthPickerPreference extends Preference
-    implements View.OnClickListener {
+  implements View.OnClickListener {
 
   private MainActivity activity;
   private int max_days_of_month;
@@ -109,8 +109,8 @@ public class DayRepeatCustomDaysOfMonthPickerPreference extends Preference
         }
         else {
           day.setBackgroundColor(ContextCompat.getColor(
-              getContext(),
-              android.R.color.background_light
+            getContext(),
+            android.R.color.background_light
           ));
         }
       }

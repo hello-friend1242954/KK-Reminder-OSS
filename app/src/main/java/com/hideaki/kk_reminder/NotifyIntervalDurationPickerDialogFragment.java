@@ -17,12 +17,12 @@ import static com.google.common.base.Preconditions.checkNotNull;
 import static com.hideaki.kk_reminder.UtilClass.LOCALE;
 
 public class NotifyIntervalDurationPickerDialogFragment extends DialogFragment
-    implements TimePickerDialog.OnTimeSetListener {
+  implements TimePickerDialog.OnTimeSetListener {
 
   private NotifyIntervalEditFragment notifyIntervalEditFragment;
 
   NotifyIntervalDurationPickerDialogFragment(
-      NotifyIntervalEditFragment notifyIntervalEditFragment
+    NotifyIntervalEditFragment notifyIntervalEditFragment
   ) {
 
     this.notifyIntervalEditFragment = notifyIntervalEditFragment;
@@ -43,12 +43,12 @@ public class NotifyIntervalDurationPickerDialogFragment extends DialogFragment
     }
     else {
       return new TimePickerDialog(
-          activity,
-          activity.dialog_style_id,
-          this,
-          hour,
-          minute,
-          true
+        activity,
+        activity.dialog_style_id,
+        this,
+        hour,
+        minute,
+        true
       );
     }
   }
@@ -77,7 +77,7 @@ public class NotifyIntervalDurationPickerDialogFragment extends DialogFragment
       }
       if(interval.getMinute() != 0) {
         String tmp =
-            res.getQuantityString(R.plurals.minute, interval.getMinute(), interval.getMinute());
+          res.getQuantityString(R.plurals.minute, interval.getMinute(), interval.getMinute());
         summary += tmp;
         title += tmp;
       }
@@ -87,7 +87,7 @@ public class NotifyIntervalDurationPickerDialogFragment extends DialogFragment
       }
       else {
         summary += res.getQuantityString(R.plurals.times_notify, interval.getOrg_time(),
-            interval.getOrg_time()
+          interval.getOrg_time()
         );
       }
     }
@@ -95,20 +95,20 @@ public class NotifyIntervalDurationPickerDialogFragment extends DialogFragment
       summary = "Notify every ";
       if(interval.getHour() != 0) {
         String tmp =
-            res.getQuantityString(R.plurals.hour, interval.getHour(), interval.getHour()) + " ";
+          res.getQuantityString(R.plurals.hour, interval.getHour(), interval.getHour()) + " ";
         summary += tmp;
         title += tmp;
       }
       if(interval.getMinute() != 0) {
         String tmp =
-            res.getQuantityString(R.plurals.minute, interval.getMinute(), interval.getMinute()) +
-                " ";
+          res.getQuantityString(R.plurals.minute, interval.getMinute(), interval.getMinute()) +
+            " ";
         summary += tmp;
         title += tmp;
       }
       if(interval.getOrg_time() != -1) {
         summary += res.getQuantityString(R.plurals.times_notify, interval.getOrg_time(),
-            interval.getOrg_time()
+          interval.getOrg_time()
         ) + " ";
       }
       summary += getString(R.string.unless_complete_task);

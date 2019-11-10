@@ -1,7 +1,6 @@
 package com.hideaki.kk_reminder;
 
 import android.content.Context;
-import android.os.Build;
 import android.os.Bundle;
 import android.view.Gravity;
 import android.view.KeyEvent;
@@ -9,14 +8,18 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AbsListView;
+import android.widget.AbsListView.LayoutParams;
 import android.widget.ExpandableListView;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.TextView;
 
 import com.google.android.gms.ads.AdRequest;
 import com.google.android.gms.ads.AdView;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.core.content.ContextCompat;
 import androidx.core.view.GravityCompat;
 import androidx.fragment.app.Fragment;
@@ -25,7 +28,8 @@ import androidx.fragment.app.FragmentManager;
 import static com.google.common.base.Preconditions.checkNotNull;
 import static com.hideaki.kk_reminder.UtilClass.getPxFromDp;
 
-public class ExpandableListViewFragment extends Fragment {
+public class ExpandableListViewFragment extends Fragment
+  implements PinnedHeaderExpandableListView.OnHeaderUpdateListener {
 
   static final String TAG = ExpandableListViewFragment.class.getSimpleName();
   private MainActivity activity;
@@ -35,6 +39,7 @@ public class ExpandableListViewFragment extends Fragment {
   static int group_height;
   static long updatedItemId = 0;
   static boolean isGetTagNull = false;
+  private static int nullPointerCount = 0;
 
   public static ExpandableListViewFragment newInstance() {
 
@@ -60,19 +65,29 @@ public class ExpandableListViewFragment extends Fragment {
         FragmentManager manager = getFragmentManager();
         checkNotNull(manager);
         manager
-            .beginTransaction()
-            .remove(this)
-            .commit();
-      }
-    }
-    catch(NullPointerException e) {
-      e.printStackTrace();
-      FragmentManager manager = getFragmentManager();
-      checkNotNull(manager);
-      manager
           .beginTransaction()
           .remove(this)
           .commit();
+      }
+      nullPointerCount = 0;
+    }
+    catch(NullPointerException e) {
+      try {
+        Thread.sleep(10);
+      }
+      catch(InterruptedException ex) {
+        ex.printStackTrace();
+      }
+      nullPointerCount++;
+      if(nullPointerCount < 3) {
+        Context newContext = getContext();
+        if(newContext == null) {
+          onAttach(context);
+        }
+        else {
+          onAttach(newContext);
+        }
+      }
     }
   }
 
@@ -97,9 +112,9 @@ public class ExpandableListViewFragment extends Fragment {
   @Nullable
   @Override
   public View onCreateView(
-      @NonNull LayoutInflater inflater,
-      @Nullable ViewGroup container,
-      Bundle savedInstanceState
+    @NonNull LayoutInflater inflater,
+    @Nullable ViewGroup container,
+    Bundle savedInstanceState
   ) {
 
     isGetTagNull = false;
@@ -108,17 +123,7 @@ public class ExpandableListViewFragment extends Fragment {
     activity.clearAllNotification();
 
     View view;
-    if(Build.VERSION.SDK_INT <= Build.VERSION_CODES.P) {
-      view =
-          inflater.inflate(
-              R.layout.expandable_listview_less_than_or_equal_api_28,
-              container,
-              false
-          );
-    }
-    else {
-      view = inflater.inflate(R.layout.expandable_listview, container, false);
-    }
+    view = inflater.inflate(R.layout.expandable_listview, container, false);
 
     if(activity.isDarkMode) {
       view.setBackgroundColor(activity.backgroundMaterialDarkColor);
@@ -150,10 +155,10 @@ public class ExpandableListViewFragment extends Fragment {
     LinearLayout linearLayout = new LinearLayout(activity);
     linearLayout.setOrientation(LinearLayout.VERTICAL);
     LinearLayout.LayoutParams layoutParams =
-        new LinearLayout.LayoutParams(
-            LinearLayout.LayoutParams.MATCH_PARENT,
-            LinearLayout.LayoutParams.MATCH_PARENT
-        );
+      new LinearLayout.LayoutParams(
+        LinearLayout.LayoutParams.MATCH_PARENT,
+        LinearLayout.LayoutParams.MATCH_PARENT
+      );
     layoutParams.gravity = Gravity.CENTER;
     layoutParams.weight = 1;
     layoutParams.height = 0;
@@ -162,16 +167,13 @@ public class ExpandableListViewFragment extends Fragment {
     linearLayout.addView(emptyView);
     int paddingPx = getPxFromDp(activity, 75);
     linearLayout.setPadding(0, 0, 0, paddingPx);
-    ((ViewGroup)activity.expandableListView.getParent()).addView(linearLayout, 0, layoutParams);
+    ((ViewGroup)activity.expandableListView.getParent())
+      .addView(linearLayout, 0, layoutParams);
     activity.expandableListView.setEmptyView(linearLayout);
     setPosition();
-    if(Build.VERSION.SDK_INT <= Build.VERSION_CODES.P) {
-      activity.expandableListView.setAdapter(activity.wrapperAdapter);
-    }
-    else {
-      activity.expandableListView.setAdapter(activity.expandableListAdapter);
-    }
+    activity.expandableListView.setAdapter(activity.expandableListAdapter);
     activity.expandableListView.setTextFilterEnabled(true);
+    activity.expandableListView.setOnHeaderUpdateListener(this);
     activity.expandableListView.setOnScrollListener(new AbsListView.OnScrollListener() {
       @Override
       public void onScrollStateChanged(AbsListView view, int scrollState) {
@@ -194,10 +196,10 @@ public class ExpandableListViewFragment extends Fragment {
 
       @Override
       public void onScroll(
-          AbsListView view,
-          int firstVisibleItem,
-          int visibleItemCount,
-          int totalItemCount
+        AbsListView view,
+        int firstVisibleItem,
+        int visibleItemCount,
+        int totalItemCount
       ) {
 
       }
@@ -231,13 +233,47 @@ public class ExpandableListViewFragment extends Fragment {
           activity.is_boot_from_notification = false;
         }
         activity.expandableListView.setSelectionFromTop(position, offset);
-        if(position == 0 && offset == 0 && group_height == 0) {
-          View child = activity.expandableListView.getChildAt(0);
-          if(child != null) {
-            group_height = child.getHeight();
-          }
-        }
       }
     });
+  }
+
+  @Override
+  public View getPinnedHeader() {
+
+    View headerView = View.inflate(activity, R.layout.parent_layout, null);
+    headerView.setLayoutParams(new LayoutParams(
+      LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT));
+
+    TextView day = headerView.findViewById(R.id.day);
+    if(activity.isDarkMode) {
+      ConstraintLayout groupView = headerView.findViewById(R.id.group_view);
+      if(groupView == null) {
+        activity.expandableListAdapter.notifyDataSetChanged();
+        return headerView;
+      }
+      groupView.setBackground(ContextCompat.getDrawable(
+        activity,
+        R.drawable.expandable_group_view_dark
+      ));
+      day.setTextColor(activity.secondaryTextMaterialDarkColor);
+    }
+
+    return headerView;
+  }
+
+  @Override
+  public void updatePinnedHeader(View headerView, int firstVisibleGroupPos) {
+
+    ImageView indicator = headerView.findViewById(R.id.indicator);
+    if(activity.expandableListView.isGroupExpanded(firstVisibleGroupPos)) {
+      indicator.setImageResource(R.drawable.ic_expand_more_grey_24dp);
+    }
+    else {
+      indicator.setImageResource(R.drawable.ic_expand_less_right_grey_24dp);
+    }
+    String firstVisibleGroup =
+      (String)activity.expandableListAdapter.getGroup(firstVisibleGroupPos);
+    TextView textView = headerView.findViewById(R.id.day);
+    textView.setText(firstVisibleGroup);
   }
 }

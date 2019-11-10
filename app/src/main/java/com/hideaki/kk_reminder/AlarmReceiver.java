@@ -35,6 +35,7 @@ import static com.hideaki.kk_reminder.UtilClass.BOOT_FROM_NOTIFICATION;
 import static com.hideaki.kk_reminder.UtilClass.CHANNEL_ID;
 import static com.hideaki.kk_reminder.UtilClass.CHILD_NOTIFICATION_ID;
 import static com.hideaki.kk_reminder.UtilClass.DEFAULT_URI_SOUND;
+import static com.hideaki.kk_reminder.UtilClass.DEFAULT_VIBRATION_PATTERN;
 import static com.hideaki.kk_reminder.UtilClass.HOUR;
 import static com.hideaki.kk_reminder.UtilClass.INT_GENERAL;
 import static com.hideaki.kk_reminder.UtilClass.INT_GENERAL_COPY;
@@ -48,9 +49,11 @@ import static com.hideaki.kk_reminder.UtilClass.SNOOZE_DEFAULT_HOUR;
 import static com.hideaki.kk_reminder.UtilClass.SNOOZE_DEFAULT_MINUTE;
 import static com.hideaki.kk_reminder.UtilClass.STRING_GENERAL;
 import static com.hideaki.kk_reminder.UtilClass.STRING_GENERAL_COPY;
+import static com.hideaki.kk_reminder.UtilClass.VIBRATION_PATTERN;
 import static com.hideaki.kk_reminder.UtilClass.copySharedPreferences;
 import static com.hideaki.kk_reminder.UtilClass.currentTimeMinutes;
 import static com.hideaki.kk_reminder.UtilClass.deserialize;
+import static com.hideaki.kk_reminder.UtilClass.getVibrationPattern;
 import static com.hideaki.kk_reminder.UtilClass.serialize;
 
 public class AlarmReceiver extends BroadcastReceiver {
@@ -79,7 +82,7 @@ public class AlarmReceiver extends BroadcastReceiver {
     accessor = new DBAccessor(getDynamicContext(context), getIsDirectBootContext(context));
 
     int currentNightMode =
-        context.getResources().getConfiguration().uiMode & Configuration.UI_MODE_NIGHT_MASK;
+      context.getResources().getConfiguration().uiMode & Configuration.UI_MODE_NIGHT_MASK;
 
     // 通知の文字色に使うアクセントカラーの取得
     GeneralSettings generalSettings = querySettingsDB();
@@ -103,15 +106,15 @@ public class AlarmReceiver extends BroadcastReceiver {
 
     // Notification IDの生成
     SharedPreferences stringPreferences = getDynamicContext(context).getSharedPreferences(
-        getIsDirectBootContext(context) ? STRING_GENERAL_COPY : STRING_GENERAL,
-        MODE_PRIVATE
+      getIsDirectBootContext(context) ? STRING_GENERAL_COPY : STRING_GENERAL,
+      MODE_PRIVATE
     );
     SharedPreferences booleanPreferences = getDynamicContext(context).getSharedPreferences(
-        getIsDirectBootContext(context) ? BOOLEAN_GENERAL_COPY : BOOLEAN_GENERAL,
-        MODE_PRIVATE
+      getIsDirectBootContext(context) ? BOOLEAN_GENERAL_COPY : BOOLEAN_GENERAL,
+      MODE_PRIVATE
     );
     Set<String> id_table =
-        stringPreferences.getStringSet(NOTIFICATION_ID_TABLE, new TreeSet<String>());
+      stringPreferences.getStringSet(NOTIFICATION_ID_TABLE, new TreeSet<String>());
     checkNotNull(id_table);
     boolean isIdTableFlood = booleanPreferences.getBoolean(IS_ID_TABLE_FLOOD, false);
     int parent_id = intent.getIntExtra(PARENT_NOTIFICATION_ID, 0);
@@ -125,9 +128,9 @@ public class AlarmReceiver extends BroadcastReceiver {
         if(!id_table.contains(binaryId)) {
           id_table.add(binaryId);
           stringPreferences
-              .edit()
-              .putStringSet(NOTIFICATION_ID_TABLE, id_table)
-              .apply();
+            .edit()
+            .putStringSet(NOTIFICATION_ID_TABLE, id_table)
+            .apply();
 
           if(!getIsDirectBootContext(context)) {
             copySharedPreferences(context, false);
@@ -141,14 +144,14 @@ public class AlarmReceiver extends BroadcastReceiver {
           id_table.add(Integer.toBinaryString(parent_id));
 
           stringPreferences
-              .edit()
-              .putStringSet(NOTIFICATION_ID_TABLE, id_table)
-              .apply();
+            .edit()
+            .putStringSet(NOTIFICATION_ID_TABLE, id_table)
+            .apply();
 
           booleanPreferences
-              .edit()
-              .putBoolean(IS_ID_TABLE_FLOOD, isIdTableFlood)
-              .apply();
+            .edit()
+            .putBoolean(IS_ID_TABLE_FLOOD, isIdTableFlood)
+            .apply();
 
           if(!getIsDirectBootContext(context)) {
             copySharedPreferences(context, false);
@@ -166,8 +169,12 @@ public class AlarmReceiver extends BroadcastReceiver {
     Intent open_activity = new Intent(context, MainActivity.class);
     open_activity.setAction(BOOT_FROM_NOTIFICATION);
     PendingIntent sender = PendingIntent.getActivity(
-        context, (int)System.currentTimeMillis(), open_activity, PendingIntent.FLAG_UPDATE_CURRENT
+      context, (int)System.currentTimeMillis(), open_activity, PendingIntent.FLAG_UPDATE_CURRENT
     );
+
+    // バイブレーションの設定
+    String vibrationStr = stringPreferences.getString(VIBRATION_PATTERN, DEFAULT_VIBRATION_PATTERN);
+    long[] vibrationPattern = getVibrationPattern(vibrationStr);
 
     // 通知音の設定
     String uriString = item.getSoundUri();
@@ -178,7 +185,7 @@ public class AlarmReceiver extends BroadcastReceiver {
 
     // タスクごとに異なるNotificationChannelを利用して通知音を区別する
     NotificationManager manager =
-        (NotificationManager)context.getSystemService(NOTIFICATION_SERVICE);
+      (NotificationManager)context.getSystemService(NOTIFICATION_SERVICE);
     checkNotNull(manager);
     // あるIDで一度でも通知チャンネルを作ってしまうと、例えチャンネルを消しても再び作成したチャンネルのIDに
     // 同じものが使われていると通知チャンネルのアップデートができないので、使い捨てかつ重複しないように現在時刻
@@ -190,41 +197,45 @@ public class AlarmReceiver extends BroadcastReceiver {
     if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
 
       AudioAttributes attributes = new AudioAttributes.Builder()
-          .setUsage(AudioAttributes.USAGE_NOTIFICATION)
-          .build();
+        .setUsage(AudioAttributes.USAGE_NOTIFICATION)
+        .build();
 
       String channelName = LOCALE.equals(Locale.JAPAN) ? "タスク" : "Task";
       channelName += ": " + item.getDetail();
       NotificationChannel channel = new NotificationChannel(
-          channelId,
-          channelName,
-          NotificationManager.IMPORTANCE_HIGH
+        channelId,
+        channelName,
+        NotificationManager.IMPORTANCE_HIGH
       );
 
       channel.setShowBadge(true);
       channel.setSound(sound, attributes);
+      channel.setLightColor(Color.RED);
+      channel.setVibrationPattern(vibrationPattern);
+      channel.enableLights(true);
+      channel.enableVibration(true);
 
       manager.createNotificationChannel(channel);
     }
 
     NotificationCompat.Builder builder = new NotificationCompat
-        .Builder(context, channelId)
-        .setContentTitle(context.getString(R.string.app_name))
-        .setContentText(item.getDetail())
-        .setSmallIcon(R.mipmap.ic_launcher_notification)
-        .setLargeIcon(BitmapFactory.decodeResource(
-            context.getResources(),
-            R.mipmap.ic_launcher_notification
-        ))
-        .setWhen(System.currentTimeMillis())
-        .setContentIntent(sender)
-        .setAutoCancel(true)
-        .setPriority(NotificationCompat.PRIORITY_MAX)
-        .setSound(sound)
-        .setLights(Color.RED, 2000, 1000)
-        .setVibrate(new long[]{0, 500})
-        .setColor(accent_color)
-        .setColorized(true);
+      .Builder(context, channelId)
+      .setContentTitle(context.getString(R.string.app_name))
+      .setContentText(item.getDetail())
+      .setSmallIcon(R.mipmap.ic_launcher_notification)
+      .setLargeIcon(BitmapFactory.decodeResource(
+        context.getResources(),
+        R.mipmap.ic_launcher_notification
+      ))
+      .setWhen(System.currentTimeMillis())
+      .setContentIntent(sender)
+      .setAutoCancel(true)
+      .setPriority(NotificationCompat.PRIORITY_MAX)
+      .setSound(sound)
+      .setLights(Color.RED, 2000, 1000)
+      .setVibrate(vibrationPattern)
+      .setColor(accent_color)
+      .setColorized(true);
 
     // 手動スヌーズ用のIntentの設定
 
@@ -235,14 +246,14 @@ public class AlarmReceiver extends BroadcastReceiver {
     doneIntent.putExtra(CHILD_NOTIFICATION_ID, child_id);
     doneIntent.putExtra(CHANNEL_ID, channelId);
     PendingIntent doneSender = PendingIntent.getBroadcast(
-        context, (int)item.getId(), doneIntent, PendingIntent.FLAG_UPDATE_CURRENT
+      context, (int)item.getId(), doneIntent, PendingIntent.FLAG_UPDATE_CURRENT
     );
     builder.addAction(R.mipmap.done, context.getString(R.string.done), doneSender);
 
     // デフォルトスヌーズ
     SharedPreferences intPreferences = getDynamicContext(context).getSharedPreferences(
-        getIsDirectBootContext(context) ? INT_GENERAL_COPY : INT_GENERAL,
-        MODE_PRIVATE
+      getIsDirectBootContext(context) ? INT_GENERAL_COPY : INT_GENERAL,
+      MODE_PRIVATE
     );
     int hour = intPreferences.getInt(SNOOZE_DEFAULT_HOUR, 0);
     int minute = intPreferences.getInt(SNOOZE_DEFAULT_MINUTE, 15);
@@ -267,7 +278,7 @@ public class AlarmReceiver extends BroadcastReceiver {
     defaultSnoozeIntent.putExtra(CHILD_NOTIFICATION_ID, child_id);
     defaultSnoozeIntent.putExtra(CHANNEL_ID, channelId);
     PendingIntent defaultSnoozeSender = PendingIntent.getBroadcast(
-        context, (int)item.getId(), defaultSnoozeIntent, PendingIntent.FLAG_UPDATE_CURRENT
+      context, (int)item.getId(), defaultSnoozeIntent, PendingIntent.FLAG_UPDATE_CURRENT
     );
     builder.addAction(R.mipmap.update, summary, defaultSnoozeSender);
 
@@ -278,12 +289,12 @@ public class AlarmReceiver extends BroadcastReceiver {
     advancedSnoozeIntent.putExtra(CHILD_NOTIFICATION_ID, child_id);
     advancedSnoozeIntent.putExtra(CHANNEL_ID, channelId);
     PendingIntent snoozeSender = PendingIntent.getActivity(
-        context, (int)item.getId(), advancedSnoozeIntent, PendingIntent.FLAG_UPDATE_CURRENT
+      context, (int)item.getId(), advancedSnoozeIntent, PendingIntent.FLAG_UPDATE_CURRENT
     );
     builder.addAction(
-        R.mipmap.snooze,
-        context.getString(R.string.more_advanced_snooze),
-        snoozeSender
+      R.mipmap.snooze,
+      context.getString(R.string.more_advanced_snooze),
+      snoozeSender
     );
 
     // 通知を発行
@@ -293,7 +304,7 @@ public class AlarmReceiver extends BroadcastReceiver {
     PowerManager powerManager = (PowerManager)context.getSystemService(Context.POWER_SERVICE);
     checkNotNull(powerManager);
     PowerManager.WakeLock wakeLock = powerManager.newWakeLock(
-        PowerManager.FULL_WAKE_LOCK |
+      PowerManager.FULL_WAKE_LOCK |
         PowerManager.ACQUIRE_CAUSES_WAKEUP |
         PowerManager.ON_AFTER_RELEASE, "kk_reminder:Notification"
     );
@@ -310,17 +321,17 @@ public class AlarmReceiver extends BroadcastReceiver {
       recursive_alarm.putExtra(CHILD_NOTIFICATION_ID, child_id);
       recursive_alarm.putExtra(CHANNEL_ID, channelId);
       PendingIntent recursive_sender = PendingIntent.getBroadcast(
-          context, (int)item.getId(), recursive_alarm, PendingIntent.FLAG_UPDATE_CURRENT);
+        context, (int)item.getId(), recursive_alarm, PendingIntent.FLAG_UPDATE_CURRENT);
 
       long reset_schedule = currentTimeMinutes()
-          + item.getNotify_interval().getHour() * HOUR
-          + item.getNotify_interval().getMinute() * MINUTE;
+        + item.getNotify_interval().getHour() * HOUR
+        + item.getNotify_interval().getMinute() * MINUTE;
 
       AlarmManager alarmManager = (AlarmManager)context.getSystemService(Context.ALARM_SERVICE);
       checkNotNull(alarmManager);
 
       alarmManager.setAlarmClock(
-          new AlarmManager.AlarmClockInfo(reset_schedule, null), recursive_sender);
+        new AlarmManager.AlarmClockInfo(reset_schedule, null), recursive_sender);
 
       updateDB(item, MyDatabaseHelper.TODO_TABLE);
     }
@@ -337,7 +348,7 @@ public class AlarmReceiver extends BroadcastReceiver {
     do {
       try {
         generalSettings = (GeneralSettings)deserialize(
-            accessor.executeQueryById(1, MyDatabaseHelper.SETTINGS_TABLE)
+          accessor.executeQueryById(1, MyDatabaseHelper.SETTINGS_TABLE)
         );
       }
       catch(SQLiteCantOpenDatabaseException e) {

@@ -44,10 +44,10 @@ public class ColorPickerListViewFragment extends Fragment {
       if(!ColorPickerListAdapter.is_general_settings) {
         activity.colorPickerListAdapter.adapterTag = TagEditListAdapter.tagList.get(tag_position);
         activity.colorPickerListAdapter.orgTag =
-            activity.generalSettings.getTagList().get(tag_position);
+          activity.generalSettings.getTagList().get(tag_position);
         if(order == 0 || order == 1 || order == 4 || ColorPickerListAdapter.from_list_tag_edit) {
           ColorPickerListAdapter.checked_position =
-              activity.colorPickerListAdapter.adapterTag.getColor_order_group();
+            activity.colorPickerListAdapter.adapterTag.getColor_order_group();
         }
         else if(order == 3) {
           ColorPickerListAdapter.checked_position = MainEditFragment.list.getColorGroup();
@@ -55,7 +55,7 @@ public class ColorPickerListViewFragment extends Fragment {
       }
       else {
         ColorPickerListAdapter.checked_position =
-            activity.generalSettings.getTheme().getColorGroup();
+          activity.generalSettings.getTheme().getColorGroup();
       }
 
     }
@@ -63,9 +63,9 @@ public class ColorPickerListViewFragment extends Fragment {
       FragmentManager manager = getFragmentManager();
       checkNotNull(manager);
       manager
-          .beginTransaction()
-          .remove(this)
-          .commit();
+        .beginTransaction()
+        .remove(this)
+        .commit();
     }
   }
 
@@ -79,9 +79,9 @@ public class ColorPickerListViewFragment extends Fragment {
   @Nullable
   @Override
   public View onCreateView(
-      @NonNull LayoutInflater inflater,
-      @Nullable ViewGroup container,
-      Bundle savedInstanceState
+    @NonNull LayoutInflater inflater,
+    @Nullable ViewGroup container,
+    Bundle savedInstanceState
   ) {
 
     View view = inflater.inflate(R.layout.listview, container, false);
@@ -140,10 +140,10 @@ public class ColorPickerListViewFragment extends Fragment {
 
       @Override
       public void onScroll(
-          AbsListView view,
-          int firstVisibleItem,
-          int visibleItemCount,
-          int totalItemCount
+        AbsListView view,
+        int firstVisibleItem,
+        int visibleItemCount,
+        int totalItemCount
       ) {
 
       }

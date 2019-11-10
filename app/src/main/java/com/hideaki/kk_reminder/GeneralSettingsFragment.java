@@ -1,6 +1,7 @@
 package com.hideaki.kk_reminder;
 
 import android.content.Context;
+import android.content.SharedPreferences;
 import android.content.res.Configuration;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
@@ -27,13 +28,14 @@ import androidx.transition.Fade;
 import androidx.transition.Transition;
 
 import static com.google.common.base.Preconditions.checkNotNull;
+import static com.hideaki.kk_reminder.UtilClass.BOOLEAN_GENERAL;
 import static com.hideaki.kk_reminder.UtilClass.IS_DARK_MODE;
 import static com.hideaki.kk_reminder.UtilClass.IS_DARK_THEME_FOLLOW_SYSTEM;
 import static com.hideaki.kk_reminder.UtilClass.PLAY_SLIDE_ANIMATION;
 
 public class GeneralSettingsFragment extends BasePreferenceFragmentCompat
-    implements Preference.OnPreferenceClickListener,
-    MyCheckBoxPreference.MyCheckBoxPreferenceCheckedChangeListener {
+  implements Preference.OnPreferenceClickListener,
+  MyCheckBoxPreference.MyCheckBoxPreferenceCheckedChangeListener {
 
   static final String TAG = GeneralSettingsFragment.class.getSimpleName();
 
@@ -59,9 +61,9 @@ public class GeneralSettingsFragment extends BasePreferenceFragmentCompat
       FragmentManager manager = getFragmentManager();
       checkNotNull(manager);
       manager
-          .beginTransaction()
-          .remove(this)
-          .commit();
+        .beginTransaction()
+        .remove(this)
+        .commit();
     }
   }
 
@@ -75,6 +77,7 @@ public class GeneralSettingsFragment extends BasePreferenceFragmentCompat
     PreferenceScreen defaultNewTask = (PreferenceScreen)findPreference("new_task");
     PreferenceScreen manuallySnooze = (PreferenceScreen)findPreference("manually_snooze");
     animation = (CheckBoxPreference)findPreference("animation");
+    PreferenceScreen vibration = (PreferenceScreen)findPreference("vibration");
     PreferenceCategory adsCategory = (PreferenceCategory)findPreference("ads_category");
     PreferenceScreen disableAds = (PreferenceScreen)findPreference("disable_ads");
     PreferenceScreen primaryColor = (PreferenceScreen)findPreference("primary_color");
@@ -89,12 +92,13 @@ public class GeneralSettingsFragment extends BasePreferenceFragmentCompat
     defaultNewTask.setOnPreferenceClickListener(this);
     manuallySnooze.setOnPreferenceClickListener(this);
     ((MyCheckBoxPreference)animation).setOnMyCheckBoxPreferenceCheckedChangeListener(this);
+    vibration.setOnPreferenceClickListener(this);
     disableAds.setOnPreferenceClickListener(this);
     primaryColor.setOnPreferenceClickListener(this);
     secondaryColor.setOnPreferenceClickListener(this);
     ((MyCheckBoxPreference)darkTheme).setOnMyCheckBoxPreferenceCheckedChangeListener(this);
     ((MyCheckBoxPreference)darkThemeFollowSystem)
-        .setOnMyCheckBoxPreferenceCheckedChangeListener(this);
+      .setOnMyCheckBoxPreferenceCheckedChangeListener(this);
     backup.setOnPreferenceClickListener(this);
     about.setOnPreferenceClickListener(this);
 
@@ -115,9 +119,9 @@ public class GeneralSettingsFragment extends BasePreferenceFragmentCompat
 
   @Override
   public View onCreateView(
-      LayoutInflater inflater,
-      @Nullable ViewGroup container,
-      @Nullable Bundle savedInstanceState
+    LayoutInflater inflater,
+    @Nullable ViewGroup container,
+    @Nullable Bundle savedInstanceState
   ) {
 
     View view = super.onCreateView(inflater, container, savedInstanceState);
@@ -184,6 +188,10 @@ public class GeneralSettingsFragment extends BasePreferenceFragmentCompat
         transitionFragment(DefaultManuallySnoozeFragment.newInstance());
         return true;
       }
+      case "vibration": {
+        transitionFragment(DefaultVibrationEditFragment.newInstance());
+        return true;
+      }
       case "disable_ads": {
         activity.promotionDialog.show();
         return true;
@@ -216,17 +224,17 @@ public class GeneralSettingsFragment extends BasePreferenceFragmentCompat
   private void transitionFragment(PreferenceFragmentCompat next) {
 
     Transition transition = new Fade()
-        .setDuration(300);
+      .setDuration(300);
     this.setExitTransition(transition);
     next.setEnterTransition(transition);
     FragmentManager manager = getFragmentManager();
     checkNotNull(manager);
     manager
-        .beginTransaction()
-        .remove(this)
-        .add(R.id.content, next)
-        .addToBackStack(null)
-        .commit();
+      .beginTransaction()
+      .remove(this)
+      .add(R.id.content, next)
+      .addToBackStack(null)
+      .commit();
   }
 
   @Override
@@ -236,7 +244,9 @@ public class GeneralSettingsFragment extends BasePreferenceFragmentCompat
       case "animation": {
         animation.setChecked(checked);
         if(activity.play_slide_animation != checked) {
-          activity.setBooleanGeneralInSharedPreferences(PLAY_SLIDE_ANIMATION, checked);
+          activity.setBooleanGeneralInSharedPreferences(
+            PLAY_SLIDE_ANIMATION, checked
+          );
         }
         break;
       }
@@ -251,7 +261,9 @@ public class GeneralSettingsFragment extends BasePreferenceFragmentCompat
       case "dark_theme_follow_system": {
         darkThemeFollowSystem.setChecked(checked);
         if(activity.isDarkThemeFollowSystem != checked) {
-          activity.setBooleanGeneralInSharedPreferences(IS_DARK_THEME_FOLLOW_SYSTEM, checked);
+          activity.setBooleanGeneralInSharedPreferences(
+            IS_DARK_THEME_FOLLOW_SYSTEM, checked
+          );
         }
         initDarkMode();
         break;
@@ -265,7 +277,7 @@ public class GeneralSettingsFragment extends BasePreferenceFragmentCompat
   private void initDarkMode() {
 
     int currentNightMode =
-        getResources().getConfiguration().uiMode & Configuration.UI_MODE_NIGHT_MASK;
+      getResources().getConfiguration().uiMode & Configuration.UI_MODE_NIGHT_MASK;
     if(!activity.isDarkThemeFollowSystem) {
       if(activity.isDarkMode && currentNightMode != Configuration.UI_MODE_NIGHT_YES) {
         AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_YES);

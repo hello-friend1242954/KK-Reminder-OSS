@@ -1,12 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 
-    <string name="version_value">3.6.2.1</string>
+    <string name="version_value">3.6.3.0</string>
     <string name="app_id">******************</string>
     <string name="ad_unit_id">******************</string>
     <string name="app_name">KK リマインダー</string>
     <string name="app_promotion">KK リマインダー  -  しつこい通知で見逃し防止</string>
     <string name="app_url">https://play.google.com/store/apps/details?id=com.hideaki.kk_reminder</string>
+    <string name="update_info">更新情報</string>
     <string name="align_top">リストの先頭に飛ぶ</string>
     <string name="past">過去</string>
     <string name="today">今日</string>
@@ -120,6 +121,11 @@
     <string name="default_control_time_description">時間と分を両方0に合わせると、24時間として設定されます。</string>
     <string name="play_slide_animation">カードのスライドアニメーション</string>
     <string name="play_slide_animation_summary">スクロール時にカードがスライドしながら表示されるアニメーションのオンオフを設定します</string>
+    <string name="default_vibration">バイブレーションパターン</string>
+    <string name="default_vibration_summary">例: 0, 500\nパターンが正しく設定されていない、または空の場合、デフォルトのパターンが適用されます</string>
+    <string name="vibration_hint">0, 500</string>
+    <string name="default_vibration_hint">デフォルトのバイブレーションパターン</string>
+    <string name="custom_vibration_hint">カスタムバイブレーションパターン</string>
     <string name="theme">テーマ</string>
     <string name="after_theme_set_message">テーマ設定後は自動的にアプリを再起動します</string>
     <string name="dark_theme">ダークテーマ</string>

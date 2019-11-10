@@ -96,8 +96,8 @@ public class SortableListView extends ListView {
       return eventToPosition(ev) != 0;
     }
     return MyListAdapter.is_sorting || ManageListAdapter.is_sorting ||
-        NotesTodoListAdapter.isSorting
-        || super.onInterceptTouchEvent(ev);
+      NotesTodoListAdapter.isSorting
+      || super.onInterceptTouchEvent(ev);
   }
 
   @Override
@@ -336,9 +336,9 @@ public class SortableListView extends ListView {
     layoutParams.width = WindowManager.LayoutParams.WRAP_CONTENT;
     layoutParams.height = WindowManager.LayoutParams.WRAP_CONTENT;
     layoutParams.flags = WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE
-        | WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE
-        | WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON
-        | WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS;
+      | WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE
+      | WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON
+      | WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS;
     layoutParams.format = PixelFormat.TRANSLUCENT; // 透明を有効化
     layoutParams.windowAnimations = 0;
   }

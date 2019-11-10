@@ -87,9 +87,9 @@ public class ActionBarFragment extends Fragment {
 
   @Override
   public View onCreateView(
-      @NonNull LayoutInflater inflater,
-      ViewGroup container,
-      Bundle savedInstanceState
+    @NonNull LayoutInflater inflater,
+    ViewGroup container,
+    Bundle savedInstanceState
   ) {
 
     Toolbar toolbar = activity.findViewById(R.id.toolbar_layout);
@@ -192,153 +192,153 @@ public class ActionBarFragment extends Fragment {
           drawable = drawable.mutate();
           if(tag.getPrimary_color() != 0) {
             drawable.setColorFilter(new PorterDuffColorFilter(
-                tag.getPrimary_color(),
-                PorterDuff.Mode.SRC_IN
+              tag.getPrimary_color(),
+              PorterDuff.Mode.SRC_IN
             ));
           }
           else {
             drawable.setColorFilter(new PorterDuffColorFilter(
-                ContextCompat.getColor(activity, R.color.iconGray),
-                PorterDuff.Mode.SRC_IN
+              ContextCompat.getColor(activity, R.color.iconGray),
+              PorterDuff.Mode.SRC_IN
             ));
           }
 
           MenuItem tagItem = menu.add(Menu.NONE, Menu.NONE, tag.getOrder(), tag.getName())
-              .setIcon(drawable)
-              .setOnMenuItemClickListener(new MenuItem.OnMenuItemClickListener() {
-                @Override
-                public boolean onMenuItemClick(MenuItem item) {
+            .setIcon(drawable)
+            .setOnMenuItemClickListener(new MenuItem.OnMenuItemClickListener() {
+              @Override
+              public boolean onMenuItemClick(MenuItem item) {
 
-                  if(tag.getId() != checkedTag) {
-                    int size = menu.size();
-                    for(int i = 0; i < size; i++) {
-                      MenuItem menuItem = menu.getItem(i);
-                      if(menuItem.isChecked()) {
-                        menuItem.setChecked(false);
-                      }
+                if(tag.getId() != checkedTag) {
+                  int size = menu.size();
+                  for(int i = 0; i < size; i++) {
+                    MenuItem menuItem = menu.getItem(i);
+                    if(menuItem.isChecked()) {
+                      menuItem.setChecked(false);
                     }
-                    item.setChecked(true);
-                    checkedTag = tag.getId();
+                  }
+                  item.setChecked(true);
+                  checkedTag = tag.getId();
 
-                    if(order == 0) {
+                  if(order == 0) {
 
-                      if(activity.isExpandableTodo) {
-                        MyExpandableListAdapter.children =
-                            activity.getChildren(MyDatabaseHelper.TODO_TABLE);
+                    if(activity.isExpandableTodo) {
+                      MyExpandableListAdapter.children =
+                        activity.getChildren(MyDatabaseHelper.TODO_TABLE);
 
-                        filteredLists = new ArrayList<>();
-                        for(List<Item> itemList : MyExpandableListAdapter.children) {
-                          List<Item> filteredList = new ArrayList<>();
-                          for(Item filteredItem : itemList) {
-                            if(filteredItem.getWhich_tag_belongs() == tag.getId()) {
-                              filteredList.add(filteredItem);
-                            }
+                      filteredLists = new ArrayList<>();
+                      for(List<Item> itemList : MyExpandableListAdapter.children) {
+                        List<Item> filteredList = new ArrayList<>();
+                        for(Item filteredItem : itemList) {
+                          if(filteredItem.getWhich_tag_belongs() == tag.getId()) {
+                            filteredList.add(filteredItem);
                           }
-                          filteredLists.add(filteredList);
                         }
+                        filteredLists.add(filteredList);
+                      }
 
-                        MyExpandableListAdapter.children = filteredLists;
-                        activity.expandableListAdapter.notifyDataSetChanged();
+                      MyExpandableListAdapter.children = filteredLists;
+                      activity.expandableListAdapter.notifyDataSetChanged();
 
-                        if(filteredText != null) {
+                      if(filteredText != null) {
 //                          activity.expandableListView.setFilterText(filteredText);
-                          activity.expandableListAdapter.getFilter().filter(filteredText);
-                        }
-                      }
-                      else {
-                        DoneListAdapter.itemList = activity.getDoneItem();
-
-                        filteredList = new ArrayList<>();
-                        for(Item filteredItem : DoneListAdapter.itemList) {
-                          if(filteredItem.getWhich_tag_belongs() == tag.getId()) {
-                            filteredList.add(filteredItem);
-                          }
-                        }
-
-                        DoneListAdapter.itemList = filteredList;
-                        activity.doneListAdapter.notifyDataSetChanged();
-
-                        if(filteredText != null) {
-                          activity.listView.setFilterText(filteredText);
-                        }
+                        activity.expandableListAdapter.getFilter().filter(filteredText);
                       }
                     }
-                    else if(order == 1) {
+                    else {
+                      DoneListAdapter.itemList = activity.getDoneItem();
 
-                      if(
-                          activity.generalSettings
-                          .getNonScheduledLists()
-                          .get(activity.whichMenuOpen - 1)
-                          .isTodo()
-                      ) {
-                        MyListAdapter.itemList =
-                            activity.getNonScheduledItem(MyDatabaseHelper.TODO_TABLE);
-
-                        filteredList = new ArrayList<>();
-                        for(Item filteredItem : MyListAdapter.itemList) {
-                          if(filteredItem.getWhich_tag_belongs() == tag.getId()) {
-                            filteredList.add(filteredItem);
-                          }
-                        }
-
-                        MyListAdapter.itemList = filteredList;
-                        activity.listAdapter.notifyDataSetChanged();
-
-                        if(filteredText != null) {
-                          activity.listView.setFilterText(filteredText);
-                        }
-                      }
-                      else {
-                        DoneListAdapter.itemList = activity.getDoneItem();
-
-                        filteredList = new ArrayList<>();
-                        for(Item filteredItem : DoneListAdapter.itemList) {
-                          if(filteredItem.getWhich_tag_belongs() == tag.getId()) {
-                            filteredList.add(filteredItem);
-                          }
-                        }
-
-                        DoneListAdapter.itemList = filteredList;
-                        activity.doneListAdapter.notifyDataSetChanged();
-
-                        if(filteredText != null) {
-                          activity.listView.setFilterText(filteredText);
-                        }
-                      }
-                    }
-                    else if(order == 3) {
-
-                      ManageListAdapter.nonScheduledLists = new ArrayList<>(
-                          activity.generalSettings.getNonScheduledLists()
-                      );
-
-                      nonScheduledLists = new ArrayList<>();
-                      for(NonScheduledList list : ManageListAdapter.nonScheduledLists) {
-                        if(list.getWhich_tag_belongs() == tag.getId()) {
-                          nonScheduledLists.add(list);
+                      filteredList = new ArrayList<>();
+                      for(Item filteredItem : DoneListAdapter.itemList) {
+                        if(filteredItem.getWhich_tag_belongs() == tag.getId()) {
+                          filteredList.add(filteredItem);
                         }
                       }
 
-                      ManageListAdapter.nonScheduledLists = nonScheduledLists;
-                      activity.manageListAdapter.notifyDataSetChanged();
+                      DoneListAdapter.itemList = filteredList;
+                      activity.doneListAdapter.notifyDataSetChanged();
 
                       if(filteredText != null) {
                         activity.listView.setFilterText(filteredText);
                       }
                     }
                   }
+                  else if(order == 1) {
 
-                  return false;
+                    if(
+                      activity.generalSettings
+                        .getNonScheduledLists()
+                        .get(activity.whichMenuOpen - 1)
+                        .isTodo()
+                    ) {
+                      MyListAdapter.itemList =
+                        activity.getNonScheduledItem(MyDatabaseHelper.TODO_TABLE);
+
+                      filteredList = new ArrayList<>();
+                      for(Item filteredItem : MyListAdapter.itemList) {
+                        if(filteredItem.getWhich_tag_belongs() == tag.getId()) {
+                          filteredList.add(filteredItem);
+                        }
+                      }
+
+                      MyListAdapter.itemList = filteredList;
+                      activity.listAdapter.notifyDataSetChanged();
+
+                      if(filteredText != null) {
+                        activity.listView.setFilterText(filteredText);
+                      }
+                    }
+                    else {
+                      DoneListAdapter.itemList = activity.getDoneItem();
+
+                      filteredList = new ArrayList<>();
+                      for(Item filteredItem : DoneListAdapter.itemList) {
+                        if(filteredItem.getWhich_tag_belongs() == tag.getId()) {
+                          filteredList.add(filteredItem);
+                        }
+                      }
+
+                      DoneListAdapter.itemList = filteredList;
+                      activity.doneListAdapter.notifyDataSetChanged();
+
+                      if(filteredText != null) {
+                        activity.listView.setFilterText(filteredText);
+                      }
+                    }
+                  }
+                  else if(order == 3) {
+
+                    ManageListAdapter.nonScheduledLists = new ArrayList<>(
+                      activity.generalSettings.getNonScheduledLists()
+                    );
+
+                    nonScheduledLists = new ArrayList<>();
+                    for(NonScheduledList list : ManageListAdapter.nonScheduledLists) {
+                      if(list.getWhich_tag_belongs() == tag.getId()) {
+                        nonScheduledLists.add(list);
+                      }
+                    }
+
+                    ManageListAdapter.nonScheduledLists = nonScheduledLists;
+                    activity.manageListAdapter.notifyDataSetChanged();
+
+                    if(filteredText != null) {
+                      activity.listView.setFilterText(filteredText);
+                    }
+                  }
                 }
-              });
+
+                return false;
+              }
+            });
 
           if(tag.getId() == checkedTag) {
             SpannableString spannable = new SpannableString(tag.getName());
             spannable.setSpan(
-                new ForegroundColorSpan(Color.RED),
-                0,
-                tag.getName().length(),
-                Spanned.SPAN_EXCLUSIVE_EXCLUSIVE
+              new ForegroundColorSpan(Color.RED),
+              0,
+              tag.getName().length(),
+              Spanned.SPAN_EXCLUSIVE_EXCLUSIVE
             );
             tagItem.setTitle(spannable);
 //            tagItem.setChecked(true);
@@ -346,7 +346,7 @@ public class ActionBarFragment extends Fragment {
         }
 
         MenuPopupHelper popupHelper =
-            new MenuPopupHelper(activity, (MenuBuilder)popupMenu.getMenu(), tagSearchView);
+          new MenuPopupHelper(activity, (MenuBuilder)popupMenu.getMenu(), tagSearchView);
         popupHelper.setForceShowIcon(true);
         popupHelper.show();
 
@@ -423,12 +423,12 @@ public class ActionBarFragment extends Fragment {
               // デフォルトアイテムのリストア
               activity.menu.removeGroup(R.id.reminder_list);
               activity.menu
-                  .add(R.id.reminder_list, R.id.scheduled_list, 0, R.string.nav_scheduled_item)
-                  .setIcon(R.drawable.ic_time)
-                  .setCheckable(true);
+                .add(R.id.reminder_list, R.id.scheduled_list, 0, R.string.nav_scheduled_item)
+                .setIcon(R.drawable.ic_time)
+                .setCheckable(true);
               activity.menu.add(R.id.reminder_list, R.id.add_list, 2, R.string.add_list)
-                  .setIcon(R.drawable.ic_add_24dp)
-                  .setCheckable(false);
+                .setIcon(R.drawable.ic_add_24dp)
+                .setCheckable(false);
 
               // 新しく追加したリストのリストア
               for(NonScheduledList list : activity.generalSettings.getNonScheduledLists()) {
@@ -437,19 +437,19 @@ public class ActionBarFragment extends Fragment {
                 drawable = drawable.mutate();
                 if(list.getColor() != 0) {
                   drawable.setColorFilter(new PorterDuffColorFilter(
-                      list.getColor(),
-                      PorterDuff.Mode.SRC_IN
+                    list.getColor(),
+                    PorterDuff.Mode.SRC_IN
                   ));
                 }
                 else {
                   drawable.setColorFilter(new PorterDuffColorFilter(
-                      ContextCompat.getColor(activity, R.color.iconGray),
-                      PorterDuff.Mode.SRC_IN
+                    ContextCompat.getColor(activity, R.color.iconGray),
+                    PorterDuff.Mode.SRC_IN
                   ));
                 }
                 activity.menu.add(R.id.reminder_list, generateUniqueId(), 1, list.getTitle())
-                    .setIcon(drawable)
-                    .setCheckable(true);
+                  .setIcon(drawable)
+                  .setCheckable(true);
               }
 
               activity.updateSettingsDB();
@@ -504,7 +504,9 @@ public class ActionBarFragment extends Fragment {
           if(!activity.isExpandableTodo) {
             alignTop.setVisible(true);
             addItem.setVisible(true);
-            activity.setBooleanGeneralInSharedPreferences(IS_EXPANDABLE_TODO, true);
+            activity.setBooleanGeneralInSharedPreferences(
+              IS_EXPANDABLE_TODO, true
+            );
             activity.showExpandableListViewFragment();
 
             setTodoPushedColor();
@@ -512,7 +514,7 @@ public class ActionBarFragment extends Fragment {
         }
         else if(order == 1) {
           if(
-              !activity.generalSettings
+            !activity.generalSettings
               .getNonScheduledLists()
               .get(activity.whichMenuOpen - 1)
               .isTodo()
@@ -520,9 +522,9 @@ public class ActionBarFragment extends Fragment {
             addItem.setVisible(true);
             sortItem.setVisible(true);
             activity.generalSettings
-                .getNonScheduledLists()
-                .get(activity.whichMenuOpen - 1)
-                .setTodo(true);
+              .getNonScheduledLists()
+              .get(activity.whichMenuOpen - 1)
+              .setTodo(true);
             activity.updateSettingsDB();
             activity.showListViewFragment();
 
@@ -540,7 +542,9 @@ public class ActionBarFragment extends Fragment {
           if(activity.isExpandableTodo) {
             alignTop.setVisible(false);
             addItem.setVisible(false);
-            activity.setBooleanGeneralInSharedPreferences(IS_EXPANDABLE_TODO, false);
+            activity.setBooleanGeneralInSharedPreferences(
+              IS_EXPANDABLE_TODO, false
+            );
             activity.showDoneListViewFragment();
 
             setDonePushedColor();
@@ -548,7 +552,7 @@ public class ActionBarFragment extends Fragment {
         }
         else if(order == 1) {
           if(
-              activity.generalSettings
+            activity.generalSettings
               .getNonScheduledLists()
               .get(activity.whichMenuOpen - 1)
               .isTodo()
@@ -556,9 +560,9 @@ public class ActionBarFragment extends Fragment {
             addItem.setVisible(false);
             sortItem.setVisible(false);
             activity.generalSettings
-                .getNonScheduledLists()
-                .get(activity.whichMenuOpen - 1)
-                .setTodo(false);
+              .getNonScheduledLists()
+              .get(activity.whichMenuOpen - 1)
+              .setTodo(false);
             activity.updateSettingsDB();
             activity.showDoneListViewFragment();
 
@@ -595,8 +599,8 @@ public class ActionBarFragment extends Fragment {
     checkNotNull(drawable);
     drawable = drawable.mutate();
     drawable.setColorFilter(new PorterDuffColorFilter(
-        activity.menu_item_color,
-        PorterDuff.Mode.SRC_IN
+      activity.menu_item_color,
+      PorterDuff.Mode.SRC_IN
     ));
     tagSearchItem.setIcon(drawable);
   }
@@ -607,8 +611,8 @@ public class ActionBarFragment extends Fragment {
     checkNotNull(drawable);
     drawable = drawable.mutate();
     drawable.setColorFilter(new PorterDuffColorFilter(
-        activity.menu_item_color,
-        PorterDuff.Mode.SRC_IN
+      activity.menu_item_color,
+      PorterDuff.Mode.SRC_IN
     ));
     sortItem.setIcon(drawable);
   }
@@ -619,8 +623,8 @@ public class ActionBarFragment extends Fragment {
     checkNotNull(drawable);
     drawable = drawable.mutate();
     drawable.setColorFilter(new PorterDuffColorFilter(
-        activity.menu_item_color,
-        PorterDuff.Mode.SRC_IN
+      activity.menu_item_color,
+      PorterDuff.Mode.SRC_IN
     ));
     addItem.setIcon(drawable);
   }
@@ -631,8 +635,8 @@ public class ActionBarFragment extends Fragment {
     checkNotNull(drawable);
     drawable = drawable.mutate();
     drawable.setColorFilter(new PorterDuffColorFilter(
-        activity.menu_item_color,
-        PorterDuff.Mode.SRC_IN
+      activity.menu_item_color,
+      PorterDuff.Mode.SRC_IN
     ));
     alignTop.setIcon(drawable);
   }
@@ -655,8 +659,8 @@ public class ActionBarFragment extends Fragment {
     checkNotNull(drawable);
     drawable = drawable.mutate();
     drawable.setColorFilter(new PorterDuffColorFilter(
-        activity.menu_item_color,
-        PorterDuff.Mode.SRC_IN
+      activity.menu_item_color,
+      PorterDuff.Mode.SRC_IN
     ));
     ImageView searchIcon = searchView.findViewById(androidx.appcompat.R.id.search_button);
     searchIcon.setImageDrawable(drawable);
@@ -672,7 +676,7 @@ public class ActionBarFragment extends Fragment {
     // ヒントの色
     String strColor = String.format("#%06X", 0xFFFFFF & search_color);
     searchView.setQueryHint(Html.fromHtml(
-        "<font color = " +
+      "<font color = " +
         strColor +
         ">" +
         getResources().getString(R.string.search_hint) +
@@ -712,7 +716,7 @@ public class ActionBarFragment extends Fragment {
         else if(order == 1) {
           toggleItem.setVisible(true);
           if(
-              activity.generalSettings
+            activity.generalSettings
               .getNonScheduledLists()
               .get(activity.whichMenuOpen - 1)
               .isTodo()
@@ -740,7 +744,7 @@ public class ActionBarFragment extends Fragment {
           }
           else if(order == 1) {
             if(
-                activity.generalSettings
+              activity.generalSettings
                 .getNonScheduledLists()
                 .get(activity.whichMenuOpen - 1)
                 .isTodo()
@@ -755,7 +759,7 @@ public class ActionBarFragment extends Fragment {
           }
           else if(order == 3) {
             ManageListAdapter.nonScheduledLists =
-                new ArrayList<>(activity.generalSettings.getNonScheduledLists());
+              new ArrayList<>(activity.generalSettings.getNonScheduledLists());
             activity.manageListAdapter.notifyDataSetChanged();
           }
         }

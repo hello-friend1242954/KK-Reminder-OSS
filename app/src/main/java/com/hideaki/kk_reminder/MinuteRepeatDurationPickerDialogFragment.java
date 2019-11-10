@@ -16,13 +16,13 @@ import static com.google.common.base.Preconditions.checkNotNull;
 import static com.hideaki.kk_reminder.UtilClass.LOCALE;
 
 public class MinuteRepeatDurationPickerDialogFragment extends DialogFragment
-    implements TimePickerDialog.OnTimeSetListener {
+  implements TimePickerDialog.OnTimeSetListener {
 
   private MainActivity activity;
   private MinuteRepeatEditFragment minuteRepeatEditFragment;
 
   MinuteRepeatDurationPickerDialogFragment(
-      MinuteRepeatEditFragment minuteRepeatEditFragment
+    MinuteRepeatEditFragment minuteRepeatEditFragment
   ) {
 
     this.minuteRepeatEditFragment = minuteRepeatEditFragment;
@@ -43,12 +43,12 @@ public class MinuteRepeatDurationPickerDialogFragment extends DialogFragment
     }
     else {
       return new TimePickerDialog(
-          activity,
-          activity.dialog_style_id,
-          this,
-          hour,
-          minute,
-          true
+        activity,
+        activity.dialog_style_id,
+        this,
+        hour,
+        minute,
+        true
       );
     }
   }
@@ -68,7 +68,7 @@ public class MinuteRepeatDurationPickerDialogFragment extends DialogFragment
     int hour_repeat = MainEditFragment.minuteRepeat.getHour();
     if(hour_repeat != 0) {
       interval +=
-          activity.getResources().getQuantityString(R.plurals.hour, hour_repeat, hour_repeat);
+        activity.getResources().getQuantityString(R.plurals.hour, hour_repeat, hour_repeat);
       if(!LOCALE.equals(Locale.JAPAN)) {
         interval += " ";
       }
@@ -76,7 +76,7 @@ public class MinuteRepeatDurationPickerDialogFragment extends DialogFragment
     int minute_repeat = MainEditFragment.minuteRepeat.getMinute();
     if(minute_repeat != 0) {
       interval +=
-          activity.getResources().getQuantityString(R.plurals.minute, minute_repeat, minute_repeat);
+        activity.getResources().getQuantityString(R.plurals.minute, minute_repeat, minute_repeat);
       if(!LOCALE.equals(Locale.JAPAN)) {
         interval += " ";
       }
@@ -85,7 +85,7 @@ public class MinuteRepeatDurationPickerDialogFragment extends DialogFragment
     int duration_hour = MainEditFragment.minuteRepeat.getOrg_duration_hour();
     if(duration_hour != 0) {
       duration +=
-          activity.getResources().getQuantityString(R.plurals.hour, duration_hour, duration_hour);
+        activity.getResources().getQuantityString(R.plurals.hour, duration_hour, duration_hour);
       if(!LOCALE.equals(Locale.JAPAN)) {
         duration += " ";
       }
@@ -93,8 +93,8 @@ public class MinuteRepeatDurationPickerDialogFragment extends DialogFragment
     int duration_minute = MainEditFragment.minuteRepeat.getOrg_duration_minute();
     if(duration_minute != 0) {
       duration += activity
-          .getResources()
-          .getQuantityString(R.plurals.minute, duration_minute, duration_minute);
+        .getResources()
+        .getQuantityString(R.plurals.minute, duration_minute, duration_minute);
       if(!LOCALE.equals(Locale.JAPAN)) {
         duration += " ";
       }

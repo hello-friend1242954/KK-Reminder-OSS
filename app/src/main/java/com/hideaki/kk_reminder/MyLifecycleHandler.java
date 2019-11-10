@@ -92,17 +92,17 @@ public class MyLifecycleHandler implements Application.ActivityLifecycleCallback
   private void saveCountInSharedPreferences(Activity activity) {
 
     getDynamicContext(activity)
-        .getSharedPreferences(
-            getIsDirectBootContext(activity) ? INT_GENERAL_COPY : INT_GENERAL,
-            MODE_PRIVATE
-        )
-        .edit()
-        .putInt(CREATED, created)
-        .putInt(DESTROYED, destroyed)
+      .getSharedPreferences(
+        getIsDirectBootContext(activity) ? INT_GENERAL_COPY : INT_GENERAL,
+        MODE_PRIVATE
+      )
+      .edit()
+      .putInt(CREATED, created)
+      .putInt(DESTROYED, destroyed)
 //        .putInt(RESUMED, resumed)
 //        .putInt(PAUSED, paused)
 //        .putInt(STARTED, started)
 //        .putInt(STOPPED, stopped)
-        .apply();
+      .apply();
   }
 }

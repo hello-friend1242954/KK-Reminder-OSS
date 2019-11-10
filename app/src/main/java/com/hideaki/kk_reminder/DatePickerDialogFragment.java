@@ -18,7 +18,7 @@ import static com.google.common.base.Preconditions.checkNotNull;
 import static com.hideaki.kk_reminder.UtilClass.LOCALE;
 
 public class DatePickerDialogFragment extends DialogFragment
-    implements DatePickerDialog.OnDateSetListener {
+  implements DatePickerDialog.OnDateSetListener {
 
   private MainEditFragment mainEditFragment;
 
@@ -43,12 +43,12 @@ public class DatePickerDialogFragment extends DialogFragment
     }
     else {
       return new DatePickerDialog(
-          activity,
-          activity.dialog_style_id,
-          this,
-          year,
-          month,
-          day
+        activity,
+        activity.dialog_style_id,
+        this,
+        year,
+        month,
+        day
       );
     }
   }
@@ -61,14 +61,14 @@ public class DatePickerDialogFragment extends DialogFragment
     MainEditFragment.final_cal.set(Calendar.DAY_OF_MONTH, dayOfMonth);
     if(LOCALE.equals(Locale.JAPAN)) {
       mainEditFragment.datePicker.setTitle(DateFormat.format(
-          "yyyy年M月d日(E)",
-          MainEditFragment.final_cal
+        "yyyy年M月d日(E)",
+        MainEditFragment.final_cal
       ));
     }
     else {
       mainEditFragment.datePicker.setTitle(DateFormat.format(
-          "yyyy/M/d (E)",
-          MainEditFragment.final_cal
+        "yyyy/M/d (E)",
+        MainEditFragment.final_cal
       ));
     }
   }

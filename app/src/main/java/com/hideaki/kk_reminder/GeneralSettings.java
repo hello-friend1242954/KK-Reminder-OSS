@@ -13,30 +13,37 @@ class GeneralSettings implements Serializable {
   private MyTheme theme = new MyTheme();
 
   List<NonScheduledList> getNonScheduledLists() {
+
     return nonScheduledLists;
   }
 
   List<Tag> getTagList() {
+
     return tagList;
   }
 
   Tag getTagById(long id) {
 
     for(Tag tag : tagList) {
-      if(tag.getId() == id) return tag;
+      if(tag.getId() == id) {
+        return tag;
+      }
     }
     return null;
   }
 
   Item getItem() {
+
     return item;
   }
 
   MyTheme getTheme() {
+
     return theme;
   }
 
   void setNonScheduledLists(List<NonScheduledList> nonScheduledLists) {
+
     this.nonScheduledLists = nonScheduledLists;
   }
 
@@ -54,14 +61,17 @@ class GeneralSettings implements Serializable {
   }
 
   void setTagList(List<Tag> tagList) {
+
     this.tagList = tagList;
   }
 
   void setItem(Item item) {
+
     this.item = item;
   }
 
   void setTheme(MyTheme theme) {
+
     this.theme = theme;
   }
 }

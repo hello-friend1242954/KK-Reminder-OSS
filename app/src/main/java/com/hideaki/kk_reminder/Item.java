@@ -32,49 +32,62 @@ public class Item implements Serializable, Cloneable {
   private boolean selected;
   private Calendar doneDate = Calendar.getInstance();
 
-  Item() {}
+  Item() {
+
+  }
 
   long getId() {
+
     return id;
   }
 
   String getDetail() {
+
     return detail;
   }
 
   Calendar getDate() {
+
     return date;
   }
 
   Calendar getOrg_date() {
+
     return org_date;
   }
 
   Calendar getOrg_date2() {
+
     return org_date2;
   }
 
   long getWhich_tag_belongs() {
+
     return which_tag_belongs;
   }
 
   NotifyInterval getNotify_interval() {
+
     return notify_interval;
   }
 
   DayRepeat getDayRepeat() {
+
     return dayRepeat;
   }
 
   MinuteRepeat getMinuteRepeat() {
+
     return minuteRepeat;
   }
 
   String getSoundUri() {
+
     return soundUri;
   }
 
   List<Notes> getNotesList() {
+
     return notesList;
   }
 
@@ -89,118 +102,147 @@ public class Item implements Serializable, Cloneable {
   }
 
   boolean isChecklist_mode() {
+
     return checklist_mode;
   }
 
   long getTime_altered() {
+
     return time_altered;
   }
 
   long getOrg_time_altered() {
+
     return org_time_altered;
   }
 
   boolean isAlarm_stopped() {
+
     return alarm_stopped;
   }
 
   boolean isOrg_alarm_stopped() {
+
     return org_alarm_stopped;
   }
 
   long getWhich_list_belongs() {
+
     return which_list_belongs;
   }
 
   int getOrder() {
+
     return order;
   }
 
   boolean isSelected() {
+
     return selected;
   }
 
   Calendar getDoneDate() {
+
     return doneDate;
   }
 
   void setDetail(String detail) {
+
     this.detail = detail;
   }
 
   void setDate(Calendar date) {
+
     this.date = date;
   }
 
   void setOrg_date(Calendar org_date) {
+
     this.org_date = org_date;
   }
 
   void setOrg_date2(Calendar org_date2) {
+
     this.org_date2 = org_date2;
   }
 
   void setWhich_tag_belongs(long which_tag_belongs) {
+
     this.which_tag_belongs = which_tag_belongs;
   }
 
   void setNotify_interval(NotifyInterval notify_interval) {
+
     this.notify_interval = notify_interval;
   }
 
   void setDayRepeat(DayRepeat dayRepeat) {
+
     this.dayRepeat = dayRepeat;
   }
 
   void setMinuteRepeat(MinuteRepeat minuteRepeat) {
+
     this.minuteRepeat = minuteRepeat;
   }
 
   void setSoundUri(String soundUri) {
+
     this.soundUri = soundUri;
   }
 
   void setNotesList(List<Notes> notesList) {
+
     this.notesList = notesList;
   }
 
   void setChecklist_mode(boolean checklist_mode) {
+
     this.checklist_mode = checklist_mode;
   }
 
   void addTime_altered(long time_altered) {
+
     this.time_altered += time_altered;
   }
 
   void setTime_altered(long time_altered) {
+
     this.time_altered = time_altered;
   }
 
   void setOrg_time_altered(long org_time_altered) {
+
     this.org_time_altered = org_time_altered;
   }
 
   void setAlarm_stopped(boolean alarm_stopped) {
+
     this.alarm_stopped = alarm_stopped;
   }
 
   void setOrg_alarm_stopped(boolean org_alarm_stopped) {
+
     this.org_alarm_stopped = org_alarm_stopped;
   }
 
   void setWhich_list_belongs(long which_list_belongs) {
+
     this.which_list_belongs = which_list_belongs;
   }
 
   void setOrder(int order) {
+
     this.order = order;
   }
 
   void setSelected(boolean selected) {
+
     this.selected = selected;
   }
 
   void setDoneDate(Calendar doneDate) {
+
     this.doneDate = doneDate;
   }
 
@@ -238,7 +280,8 @@ public class Item implements Serializable, Cloneable {
 
     try {
       item = (Item)super.clone();
-    } catch(CloneNotSupportedException e) {
+    }
+    catch(CloneNotSupportedException e) {
       e.printStackTrace();
     }
 

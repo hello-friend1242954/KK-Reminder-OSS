@@ -79,7 +79,7 @@ public class MyListAdapter extends BaseAdapter implements Filterable {
   }
 
   private class MyOnClickListener implements View.OnClickListener, View.OnLongClickListener,
-      ActionMode.Callback, AnimCheckBox.OnCheckedChangeListener {
+    ActionMode.Callback, AnimCheckBox.OnCheckedChangeListener {
 
     private int position;
     private Item item;
@@ -109,60 +109,60 @@ public class MyListAdapter extends BaseAdapter implements Filterable {
                 cardView.setTranslationY(-30.0f);
                 cardView.setAlpha(0.0f);
                 cardView
-                    .animate()
-                    .translationY(0.0f)
-                    .alpha(1.0f)
-                    .setDuration(150)
-                    .setListener(new AnimatorListenerAdapter() {
+                  .animate()
+                  .translationY(0.0f)
+                  .alpha(1.0f)
+                  .setDuration(150)
+                  .setListener(new AnimatorListenerAdapter() {
 
-                      @Override
-                      public void onAnimationStart(Animator animation) {
+                    @Override
+                    public void onAnimationStart(Animator animation) {
 
-                        super.onAnimationStart(animation);
+                      super.onAnimationStart(animation);
 
-                        // 他タスクのコントロールパネルを閉じる
-                        int visible_count = activity.listView.getChildCount();
-                        for(int i = 0; i < visible_count; i++) {
-                          View visibleView = activity.listView.getChildAt(i);
-                          final TableLayout panel = visibleView.findViewById(R.id.control_panel);
-                          if(panel != null && panel.getVisibility() == View.VISIBLE) {
-                            ((View)panel.getParent().getParent())
-                                .animate()
-                                .translationY(-30.0f)
-                                .alpha(0.0f)
-                                .setDuration(150)
-                                .setListener(new AnimatorListenerAdapter() {
-                                  @Override
-                                  public void onAnimationEnd(Animator animation) {
+                      // 他タスクのコントロールパネルを閉じる
+                      int visible_count = activity.listView.getChildCount();
+                      for(int i = 0; i < visible_count; i++) {
+                        View visibleView = activity.listView.getChildAt(i);
+                        final TableLayout panel = visibleView.findViewById(R.id.control_panel);
+                        if(panel != null && panel.getVisibility() == View.VISIBLE) {
+                          ((View)panel.getParent().getParent())
+                            .animate()
+                            .translationY(-30.0f)
+                            .alpha(0.0f)
+                            .setDuration(150)
+                            .setListener(new AnimatorListenerAdapter() {
+                              @Override
+                              public void onAnimationEnd(Animator animation) {
 
-                                    super.onAnimationEnd(animation);
-                                    panel.setVisibility(View.GONE);
-                                  }
-                                });
-                            break;
-                          }
+                                super.onAnimationEnd(animation);
+                                panel.setVisibility(View.GONE);
+                              }
+                            });
+                          break;
                         }
-
-                        viewHolder.control_panel.setVisibility(View.VISIBLE);
                       }
-                    });
+
+                      viewHolder.control_panel.setVisibility(View.VISIBLE);
+                    }
+                  });
               }
             }
             else {
               has_panel = 0;
               ((View)viewHolder.control_panel.getParent().getParent())
-                  .animate()
-                  .translationY(-30.0f)
-                  .alpha(0.0f)
-                  .setDuration(150)
-                  .setListener(new AnimatorListenerAdapter() {
-                    @Override
-                    public void onAnimationEnd(Animator animation) {
+                .animate()
+                .translationY(-30.0f)
+                .alpha(0.0f)
+                .setDuration(150)
+                .setListener(new AnimatorListenerAdapter() {
+                  @Override
+                  public void onAnimationEnd(Animator animation) {
 
-                      super.onAnimationEnd(animation);
-                      viewHolder.control_panel.setVisibility(View.GONE);
-                    }
-                  });
+                    super.onAnimationEnd(animation);
+                    viewHolder.control_panel.setVisibility(View.GONE);
+                  }
+                });
             }
           }
           else if(viewHolder.checkBox.isChecked()) {
@@ -200,18 +200,18 @@ public class MyListAdapter extends BaseAdapter implements Filterable {
         panel_lock_id = item.getId();
         if(viewHolder.control_panel.getVisibility() == View.VISIBLE) {
           ((View)viewHolder.control_panel.getParent().getParent())
-              .animate()
-              .translationY(-30.0f)
-              .alpha(0.0f)
-              .setDuration(150)
-              .setListener(new AnimatorListenerAdapter() {
-                @Override
-                public void onAnimationEnd(Animator animation) {
+            .animate()
+            .translationY(-30.0f)
+            .alpha(0.0f)
+            .setDuration(150)
+            .setListener(new AnimatorListenerAdapter() {
+              @Override
+              public void onAnimationEnd(Animator animation) {
 
-                  super.onAnimationEnd(animation);
-                  viewHolder.control_panel.setVisibility(View.GONE);
-                }
-              });
+                super.onAnimationEnd(animation);
+                viewHolder.control_panel.setVisibility(View.GONE);
+              }
+            });
         }
 
         activity.actionBarFragment.searchView.clearFocus();
@@ -230,41 +230,42 @@ public class MyListAdapter extends BaseAdapter implements Filterable {
             View parentView = activity.findViewById(android.R.id.content);
             checkNotNull(parentView);
             Snackbar
-                .make(parentView,
-                    activity.getResources().getString(R.string.complete),
-                    Snackbar.LENGTH_LONG
-                )
-                .addCallback(new Snackbar.Callback() {
-                  @Override
-                  public void onShown(Snackbar sb) {
+              .make(
+                parentView,
+                activity.getResources().getString(R.string.complete),
+                Snackbar.LENGTH_LONG
+              )
+              .addCallback(new Snackbar.Callback() {
+                @Override
+                public void onShown(Snackbar sb) {
 
-                    super.onShown(sb);
+                  super.onShown(sb);
+                }
+
+                @Override
+                public void onDismissed(Snackbar transientBottomBar, int event) {
+
+                  super.onDismissed(transientBottomBar, event);
+                  MyListAdapter.panel_lock_id = 0;
+                }
+              })
+              .setAction(R.string.undo, new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+
+                  if(isClosed) {
+                    has_panel = item.getId();
+                    isClosed = false;
                   }
+                  itemList.add(item);
+                  Collections.sort(itemList, NON_SCHEDULED_ITEM_COMPARATOR);
+                  notifyDataSetChanged();
 
-                  @Override
-                  public void onDismissed(Snackbar transientBottomBar, int event) {
-
-                    super.onDismissed(transientBottomBar, event);
-                    MyListAdapter.panel_lock_id = 0;
-                  }
-                })
-                .setAction(R.string.undo, new View.OnClickListener() {
-                  @Override
-                  public void onClick(View v) {
-
-                    if(isClosed) {
-                      has_panel = item.getId();
-                      isClosed = false;
-                    }
-                    itemList.add(item);
-                    Collections.sort(itemList, NON_SCHEDULED_ITEM_COMPARATOR);
-                    notifyDataSetChanged();
-
-                    activity.insertDB(item, MyDatabaseHelper.TODO_TABLE);
-                    activity.deleteDB(item, MyDatabaseHelper.DONE_TABLE);
-                  }
-                })
-                .show();
+                  activity.insertDB(item, MyDatabaseHelper.TODO_TABLE);
+                  activity.deleteDB(item, MyDatabaseHelper.DONE_TABLE);
+                }
+              })
+              .show();
           }
         }, 400);
       }
@@ -340,30 +341,30 @@ public class MyListAdapter extends BaseAdapter implements Filterable {
           }
 
           String message = activity.getResources().getQuantityString(R.plurals.cab_delete_message,
-              itemListToMove.size(), itemListToMove.size()
+            itemListToMove.size(), itemListToMove.size()
           ) + " (" + activity.getString(R.string.delete_dialog_message) + ")";
           final AlertDialog dialog = new AlertDialog.Builder(activity)
-              .setTitle(R.string.cab_delete)
-              .setMessage(message)
-              .setPositiveButton(R.string.delete, new DialogInterface.OnClickListener() {
-                @Override
-                public void onClick(DialogInterface dialog, int which) {
+            .setTitle(R.string.cab_delete)
+            .setMessage(message)
+            .setPositiveButton(R.string.delete, new DialogInterface.OnClickListener() {
+              @Override
+              public void onClick(DialogInterface dialog, int which) {
 
-                  for(Item item : itemListToMove) {
-                    activity.deleteDB(item, MyDatabaseHelper.TODO_TABLE);
-                  }
-                  itemList = activity.getNonScheduledItem(MyDatabaseHelper.TODO_TABLE);
-
-                  actionMode.finish();
+                for(Item item : itemListToMove) {
+                  activity.deleteDB(item, MyDatabaseHelper.TODO_TABLE);
                 }
-              })
-              .setNeutralButton(R.string.cancel, new DialogInterface.OnClickListener() {
-                @Override
-                public void onClick(DialogInterface dialog, int which) {
+                itemList = activity.getNonScheduledItem(MyDatabaseHelper.TODO_TABLE);
 
-                }
-              })
-              .create();
+                actionMode.finish();
+              }
+            })
+            .setNeutralButton(R.string.cancel, new DialogInterface.OnClickListener() {
+              @Override
+              public void onClick(DialogInterface dialog, int which) {
+
+              }
+            })
+            .create();
 
           dialog.setOnShowListener(new DialogInterface.OnShowListener() {
             @Override
@@ -401,81 +402,81 @@ public class MyListAdapter extends BaseAdapter implements Filterable {
           }
 
           String title = activity.getResources().getQuantityString(R.plurals.cab_selected_task_num,
-              itemListToMove.size(), itemListToMove.size()
+            itemListToMove.size(), itemListToMove.size()
           ) + activity.getString(R.string.cab_move_task_message);
           final SingleChoiceItemsAdapter adapter = new SingleChoiceItemsAdapter(items);
           final AlertDialog dialog = new AlertDialog.Builder(activity)
-              .setTitle(title)
-              .setSingleChoiceItems(adapter, 0, new DialogInterface.OnClickListener() {
-                @Override
-                public void onClick(DialogInterface dialog, int which) {
+            .setTitle(title)
+            .setSingleChoiceItems(adapter, 0, new DialogInterface.OnClickListener() {
+              @Override
+              public void onClick(DialogInterface dialog, int which) {
 
+              }
+            })
+            .setPositiveButton(R.string.determine, new DialogInterface.OnClickListener() {
+              @Override
+              public void onClick(DialogInterface dialog, int which) {
+
+                int position = SingleChoiceItemsAdapter.checked_position;
+                if(position >= activity.whichMenuOpen) {
+                  which_list = position + 1;
                 }
-              })
-              .setPositiveButton(R.string.determine, new DialogInterface.OnClickListener() {
-                @Override
-                public void onClick(DialogInterface dialog, int which) {
-
-                  int position = SingleChoiceItemsAdapter.checked_position;
-                  if(position >= activity.whichMenuOpen) {
-                    which_list = position + 1;
-                  }
-                  else {
-                    which_list = position;
-                  }
-
-                  if(which_list == 0) {
-                    for(Item item : itemListToMove) {
-                      item.setSelected(false);
-                    }
-                    MainEditFragment.checked_item_num = checked_item_num;
-                    MainEditFragment.itemListToMove = new ArrayList<>(itemListToMove);
-                    activity.showMainEditFragment(
-                        itemListToMove.get(itemListToMove.size() - 1)
-                    );
-                  }
-                  else {
-                    long list_id =
-                        activity.generalSettings.getNonScheduledLists().get(which_list - 1).getId();
-                    itemList = new ArrayList<>();
-                    for(Item item : activity.queryAllDB(MyDatabaseHelper.TODO_TABLE)) {
-                      if(item.getWhich_list_belongs() == list_id) {
-                        itemList.add(item);
-                      }
-                    }
-                    Collections.sort(itemList, NON_SCHEDULED_ITEM_COMPARATOR);
-
-                    for(Item item : itemListToMove) {
-
-                      item.setSelected(false);
-
-                      // リストのIDをitemに登録する
-                      item.setWhich_list_belongs(list_id);
-
-                      itemList.add(0, item);
-                    }
-
-                    int size = itemList.size();
-                    for(int i = 0; i < size; i++) {
-                      Item item = itemList.get(i);
-                      item.setOrder(i);
-                      activity.updateDB(item, MyDatabaseHelper.TODO_TABLE);
-                    }
-
-                    itemList = activity.getNonScheduledItem(MyDatabaseHelper.TODO_TABLE);
-                    notifyDataSetChanged();
-                  }
-
-                  actionMode.finish();
+                else {
+                  which_list = position;
                 }
-              })
-              .setNeutralButton(R.string.cancel, new DialogInterface.OnClickListener() {
-                @Override
-                public void onClick(DialogInterface dialog, int which) {
 
+                if(which_list == 0) {
+                  for(Item item : itemListToMove) {
+                    item.setSelected(false);
+                  }
+                  MainEditFragment.checked_item_num = checked_item_num;
+                  MainEditFragment.itemListToMove = new ArrayList<>(itemListToMove);
+                  activity.showMainEditFragment(
+                    itemListToMove.get(itemListToMove.size() - 1)
+                  );
                 }
-              })
-              .create();
+                else {
+                  long list_id =
+                    activity.generalSettings.getNonScheduledLists().get(which_list - 1).getId();
+                  itemList = new ArrayList<>();
+                  for(Item item : activity.queryAllDB(MyDatabaseHelper.TODO_TABLE)) {
+                    if(item.getWhich_list_belongs() == list_id) {
+                      itemList.add(item);
+                    }
+                  }
+                  Collections.sort(itemList, NON_SCHEDULED_ITEM_COMPARATOR);
+
+                  for(Item item : itemListToMove) {
+
+                    item.setSelected(false);
+
+                    // リストのIDをitemに登録する
+                    item.setWhich_list_belongs(list_id);
+
+                    itemList.add(0, item);
+                  }
+
+                  int size = itemList.size();
+                  for(int i = 0; i < size; i++) {
+                    Item item = itemList.get(i);
+                    item.setOrder(i);
+                    activity.updateDB(item, MyDatabaseHelper.TODO_TABLE);
+                  }
+
+                  itemList = activity.getNonScheduledItem(MyDatabaseHelper.TODO_TABLE);
+                  notifyDataSetChanged();
+                }
+
+                actionMode.finish();
+              }
+            })
+            .setNeutralButton(R.string.cancel, new DialogInterface.OnClickListener() {
+              @Override
+              public void onClick(DialogInterface dialog, int which) {
+
+              }
+            })
+            .create();
 
           dialog.setOnShowListener(new DialogInterface.OnShowListener() {
             @Override
@@ -500,33 +501,33 @@ public class MyListAdapter extends BaseAdapter implements Filterable {
           }
 
           String message = activity.getResources().getQuantityString(R.plurals.cab_clone_message,
-              itemListToMove.size(), itemListToMove.size()
+            itemListToMove.size(), itemListToMove.size()
           );
           final AlertDialog dialog = new AlertDialog.Builder(activity)
-              .setTitle(R.string.cab_clone)
-              .setMessage(message)
-              .setPositiveButton(R.string.yes, new DialogInterface.OnClickListener() {
-                @Override
-                public void onClick(DialogInterface dialog, int which) {
+            .setTitle(R.string.cab_clone)
+            .setMessage(message)
+            .setPositiveButton(R.string.yes, new DialogInterface.OnClickListener() {
+              @Override
+              public void onClick(DialogInterface dialog, int which) {
 
-                  MainEditFragment.checked_item_num = checked_item_num;
-                  MainEditFragment.itemListToMove = new ArrayList<>(itemListToMove);
-                  MainEditFragment.is_cloning_task = true;
-                  itemListToMove.get(itemListToMove.size() - 1).setSelected(false);
-                  activity.showMainEditFragment(
-                      itemListToMove.get(itemListToMove.size() - 1).copy()
-                  );
+                MainEditFragment.checked_item_num = checked_item_num;
+                MainEditFragment.itemListToMove = new ArrayList<>(itemListToMove);
+                MainEditFragment.is_cloning_task = true;
+                itemListToMove.get(itemListToMove.size() - 1).setSelected(false);
+                activity.showMainEditFragment(
+                  itemListToMove.get(itemListToMove.size() - 1).copy()
+                );
 
-                  actionMode.finish();
-                }
-              })
-              .setNeutralButton(R.string.cancel, new DialogInterface.OnClickListener() {
-                @Override
-                public void onClick(DialogInterface dialog, int which) {
+                actionMode.finish();
+              }
+            })
+            .setNeutralButton(R.string.cancel, new DialogInterface.OnClickListener() {
+              @Override
+              public void onClick(DialogInterface dialog, int which) {
 
-                }
-              })
-              .create();
+              }
+            })
+            .create();
 
           dialog.setOnShowListener(new DialogInterface.OnShowListener() {
             @Override
@@ -551,38 +552,38 @@ public class MyListAdapter extends BaseAdapter implements Filterable {
           }
 
           String message = activity.getResources().getQuantityString(R.plurals.cab_share_message,
-              itemListToMove.size(), itemListToMove.size()
+            itemListToMove.size(), itemListToMove.size()
           );
           final AlertDialog dialog = new AlertDialog.Builder(activity)
-              .setTitle(R.string.cab_share)
-              .setMessage(message)
-              .setPositiveButton(R.string.yes, new DialogInterface.OnClickListener() {
-                @Override
-                public void onClick(DialogInterface dialog, int which) {
+            .setTitle(R.string.cab_share)
+            .setMessage(message)
+            .setPositiveButton(R.string.yes, new DialogInterface.OnClickListener() {
+              @Override
+              public void onClick(DialogInterface dialog, int which) {
 
-                  for(Item item : itemListToMove) {
-                    String send_content =
-                        activity.getString(R.string.detail) + ": " + item.getDetail()
-                            + LINE_SEPARATOR
-                            + activity.getString(R.string.memo) + ": " + item.getNotesString();
+                for(Item item : itemListToMove) {
+                  String send_content =
+                    activity.getString(R.string.detail) + ": " + item.getDetail()
+                      + LINE_SEPARATOR
+                      + activity.getString(R.string.memo) + ": " + item.getNotesString();
 
-                    Intent intent = new Intent()
-                        .setAction(Intent.ACTION_SEND)
-                        .setType("text/plain")
-                        .putExtra(Intent.EXTRA_TEXT, send_content);
-                    activity.startActivity(intent);
-                  }
-
-                  actionMode.finish();
+                  Intent intent = new Intent()
+                    .setAction(Intent.ACTION_SEND)
+                    .setType("text/plain")
+                    .putExtra(Intent.EXTRA_TEXT, send_content);
+                  activity.startActivity(intent);
                 }
-              })
-              .setNeutralButton(R.string.cancel, new DialogInterface.OnClickListener() {
-                @Override
-                public void onClick(DialogInterface dialog, int which) {
 
-                }
-              })
-              .create();
+                actionMode.finish();
+              }
+            })
+            .setNeutralButton(R.string.cancel, new DialogInterface.OnClickListener() {
+              @Override
+              public void onClick(DialogInterface dialog, int which) {
+
+              }
+            })
+            .create();
 
           dialog.setOnShowListener(new DialogInterface.OnShowListener() {
             @Override
@@ -806,7 +807,7 @@ public class MyListAdapter extends BaseAdapter implements Filterable {
     else {
       viewHolder.tagPallet.setVisibility(View.VISIBLE);
       int color =
-          activity.generalSettings.getTagById(item.getWhich_tag_belongs()).getPrimary_color();
+        activity.generalSettings.getTagById(item.getWhich_tag_belongs()).getPrimary_color();
       if(color != 0) {
         viewHolder.tagPallet.setColorFilter(color);
       }
@@ -825,39 +826,39 @@ public class MyListAdapter extends BaseAdapter implements Filterable {
 
     // ある子ビューでコントロールパネルを出したとき、他の子ビューのコントロールパネルを閉じる
     if(viewHolder.control_panel.getVisibility() == View.VISIBLE
-        && (item.getId() != has_panel || actionMode != null)) {
+      && (item.getId() != has_panel || actionMode != null)) {
       ((View)viewHolder.control_panel.getParent().getParent())
-          .animate()
-          .translationY(-30.0f)
-          .alpha(0.0f)
-          .setDuration(150)
-          .setListener(new AnimatorListenerAdapter() {
-            @Override
-            public void onAnimationEnd(Animator animation) {
+        .animate()
+        .translationY(-30.0f)
+        .alpha(0.0f)
+        .setDuration(150)
+        .setListener(new AnimatorListenerAdapter() {
+          @Override
+          public void onAnimationEnd(Animator animation) {
 
-              super.onAnimationEnd(animation);
-              viewHolder.control_panel.setVisibility(View.GONE);
-            }
-          });
+            super.onAnimationEnd(animation);
+            viewHolder.control_panel.setVisibility(View.GONE);
+          }
+        });
     }
     else if(viewHolder.control_panel.getVisibility() == View.GONE && item.getId() == has_panel &&
-        actionMode == null) {
+      actionMode == null) {
       View cardView = (View)viewHolder.control_panel.getParent().getParent();
       cardView.setTranslationY(-30.0f);
       cardView.setAlpha(0.0f);
       cardView
-          .animate()
-          .translationY(0.0f)
-          .alpha(1.0f)
-          .setDuration(150)
-          .setListener(new AnimatorListenerAdapter() {
-            @Override
-            public void onAnimationEnd(Animator animation) {
+        .animate()
+        .translationY(0.0f)
+        .alpha(1.0f)
+        .setDuration(150)
+        .setListener(new AnimatorListenerAdapter() {
+          @Override
+          public void onAnimationEnd(Animator animation) {
 
-              super.onAnimationEnd(animation);
-              viewHolder.control_panel.setVisibility(View.VISIBLE);
-            }
-          });
+            super.onAnimationEnd(animation);
+            viewHolder.control_panel.setVisibility(View.VISIBLE);
+          }
+        });
     }
 
     // チェックが入っている場合、チェックを外す

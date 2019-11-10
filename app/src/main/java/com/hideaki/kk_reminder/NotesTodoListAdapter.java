@@ -41,7 +41,7 @@ public class NotesTodoListAdapter extends BaseAdapter {
   }
 
   private class MyOnClickListener implements View.OnClickListener,
-      AnimCheckBox.OnCheckedChangeListener {
+    AnimCheckBox.OnCheckedChangeListener {
 
     private int position;
     private Notes notes;
@@ -184,7 +184,7 @@ public class NotesTodoListAdapter extends BaseAdapter {
 
     if(convertView == null || convertView.getTag() == null) {
       convertView = View.inflate(parent.getContext(), R.layout.notes_checklist_todo_item_layout,
-          null
+        null
       );
 
       viewHolder = new ViewHolder();

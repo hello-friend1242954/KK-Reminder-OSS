@@ -77,59 +77,59 @@ public class ManageListAdapter extends BaseAdapter implements Filterable {
             cardView.setTranslationY(-30.0f);
             cardView.setAlpha(0.0f);
             cardView
-                .animate()
-                .translationY(0.0f)
-                .alpha(1.0f)
-                .setDuration(150)
-                .setListener(new AnimatorListenerAdapter() {
+              .animate()
+              .translationY(0.0f)
+              .alpha(1.0f)
+              .setDuration(150)
+              .setListener(new AnimatorListenerAdapter() {
 
-                  @Override
-                  public void onAnimationStart(Animator animation) {
+                @Override
+                public void onAnimationStart(Animator animation) {
 
-                    super.onAnimationStart(animation);
+                  super.onAnimationStart(animation);
 
-                    // 他タスクのコントロールパネルを閉じる
-                    int visible_count = activity.listView.getChildCount();
-                    for(int i = 0; i < visible_count; i++) {
-                      View visibleView = activity.listView.getChildAt(i);
-                      final TextView panel = visibleView.findViewById(R.id.edit);
-                      if(panel != null && panel.getVisibility() == View.VISIBLE) {
-                        ((View)panel.getParent().getParent())
-                            .animate()
-                            .translationY(-30.0f)
-                            .alpha(0.0f)
-                            .setDuration(150)
-                            .setListener(new AnimatorListenerAdapter() {
-                              @Override
-                              public void onAnimationEnd(Animator animation) {
+                  // 他タスクのコントロールパネルを閉じる
+                  int visible_count = activity.listView.getChildCount();
+                  for(int i = 0; i < visible_count; i++) {
+                    View visibleView = activity.listView.getChildAt(i);
+                    final TextView panel = visibleView.findViewById(R.id.edit);
+                    if(panel != null && panel.getVisibility() == View.VISIBLE) {
+                      ((View)panel.getParent().getParent())
+                        .animate()
+                        .translationY(-30.0f)
+                        .alpha(0.0f)
+                        .setDuration(150)
+                        .setListener(new AnimatorListenerAdapter() {
+                          @Override
+                          public void onAnimationEnd(Animator animation) {
 
-                                super.onAnimationEnd(animation);
-                                panel.setVisibility(View.GONE);
-                              }
-                            });
-                        break;
-                      }
+                            super.onAnimationEnd(animation);
+                            panel.setVisibility(View.GONE);
+                          }
+                        });
+                      break;
                     }
-
-                    viewHolder.edit.setVisibility(View.VISIBLE);
                   }
-                });
+
+                  viewHolder.edit.setVisibility(View.VISIBLE);
+                }
+              });
           }
           else {
             has_panel = 0;
             ((View)viewHolder.edit.getParent().getParent())
-                .animate()
-                .translationY(-30.0f)
-                .alpha(0.0f)
-                .setDuration(150)
-                .setListener(new AnimatorListenerAdapter() {
-                  @Override
-                  public void onAnimationEnd(Animator animation) {
+              .animate()
+              .translationY(-30.0f)
+              .alpha(0.0f)
+              .setDuration(150)
+              .setListener(new AnimatorListenerAdapter() {
+                @Override
+                public void onAnimationEnd(Animator animation) {
 
-                    super.onAnimationEnd(animation);
-                    viewHolder.edit.setVisibility(View.GONE);
-                  }
-                });
+                  super.onAnimationEnd(animation);
+                  viewHolder.edit.setVisibility(View.GONE);
+                }
+              });
           }
           break;
         }
@@ -299,7 +299,7 @@ public class ManageListAdapter extends BaseAdapter implements Filterable {
       viewHolder.list_card.setBackgroundColor(activity.backgroundFloatingMaterialDarkColor);
       viewHolder.controlCard.setBackgroundColor(activity.backgroundFloatingMaterialDarkColor);
       TextView[] textViews = {
-          viewHolder.detail, viewHolder.edit
+        viewHolder.detail, viewHolder.edit
       };
       for(TextView textView : textViews) {
         textView.setTextColor(activity.secondaryTextMaterialDarkColor);
@@ -313,7 +313,7 @@ public class ManageListAdapter extends BaseAdapter implements Filterable {
     else {
       viewHolder.tagPallet.setVisibility(View.VISIBLE);
       int color =
-          activity.generalSettings.getTagById(list.getWhich_tag_belongs()).getPrimary_color();
+        activity.generalSettings.getTagById(list.getWhich_tag_belongs()).getPrimary_color();
       if(color != 0) {
         viewHolder.tagPallet.setColorFilter(color);
       }

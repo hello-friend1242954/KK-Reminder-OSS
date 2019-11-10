@@ -8,7 +8,7 @@ import android.util.AttributeSet;
 import android.widget.Checkable;
 
 public class CheckableTextView extends androidx.appcompat.widget.AppCompatTextView
-    implements Checkable {
+  implements Checkable {
 
   private static final int[] CHECKED_STATE_SET = {android.R.attr.state_checked};
 

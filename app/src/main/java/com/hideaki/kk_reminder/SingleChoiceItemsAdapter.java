@@ -32,7 +32,7 @@ public class SingleChoiceItemsAdapter extends BaseAdapter {
   }
 
   private class MyOnClickListener
-      implements View.OnClickListener, AnimCheckBox.OnCheckedChangeListener {
+    implements View.OnClickListener, AnimCheckBox.OnCheckedChangeListener {
 
     private int position;
     private ViewHolder viewHolder;

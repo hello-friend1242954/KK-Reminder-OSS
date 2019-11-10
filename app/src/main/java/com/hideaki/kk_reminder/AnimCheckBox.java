@@ -41,7 +41,7 @@ public class AnimCheckBox extends View implements Checkable {
   private int mInnerCircleAlpha = 0XFF;
   private int mStrokeWidth = 2;
   private int mStrokeColor = Color.BLUE;
-//  private int mCircleColor = Color.WHITE;
+  //  private int mCircleColor = Color.WHITE;
   private OnCheckedChangeListener mOnCheckedChangeListener;
   private MainActivity activity;
   private ManuallySnoozeActivity manuallySnoozeActivity;
@@ -84,22 +84,24 @@ public class AnimCheckBox extends View implements Checkable {
     if(attrs != null) {
       TypedArray array = getContext().obtainStyledAttributes(attrs, R.styleable.AnimCheckBox);
       mStrokeWidth =
-          (int)array.getDimension(R.styleable.AnimCheckBox_stroke_width, dip(mStrokeWidth));
+        (int)array.getDimension(R.styleable.AnimCheckBox_stroke_width, dip(mStrokeWidth));
       if(activity != null) {
         int order = activity.order;
         if(
-            (order == 0 && !activity.isExpandableTodo) ||
-            (order == 1 && !activity
+          (order == 0 && !activity.isExpandableTodo) ||
+            (
+              order == 1 && !activity
                 .generalSettings
                 .getNonScheduledLists()
                 .get(activity.whichMenuOpen - 1)
-                .isTodo())
+                .isTodo()
+            )
         ) {
           mStrokeColor = Color.GRAY;
         }
         else {
           mStrokeColor =
-              array.getColor(R.styleable.AnimCheckBox_stroke_color, activity.accent_color);
+            array.getColor(R.styleable.AnimCheckBox_stroke_color, activity.accent_color);
         }
 //        mCircleColor = array.getColor(R.styleable.AnimCheckBox_circle_color, Color.WHITE);
       }
@@ -109,15 +111,15 @@ public class AnimCheckBox extends View implements Checkable {
         }
         else {
           mStrokeColor = array.getColor(
-              R.styleable.AnimCheckBox_stroke_color,
-              Color.parseColor("#b0002171")
+            R.styleable.AnimCheckBox_stroke_color,
+            Color.parseColor("#b0002171")
           );
         }
       }
       else {
         mStrokeColor = array.getColor(
-            R.styleable.AnimCheckBox_stroke_color,
-            Color.parseColor("#b0002171")
+          R.styleable.AnimCheckBox_stroke_color,
+          Color.parseColor("#b0002171")
         );
 //        mCircleColor = array.getColor(
 //            R.styleable.AnimCheckBox_circle_color,
@@ -161,14 +163,18 @@ public class AnimCheckBox extends View implements Checkable {
     int width = MeasureSpec.getSize(widthMeasureSpec);
     int height = MeasureSpec.getSize(heightMeasureSpec);
     if(MeasureSpec.getMode(widthMeasureSpec) == MeasureSpec.AT_MOST &&
-        MeasureSpec.getMode(heightMeasureSpec) == MeasureSpec.AT_MOST) {
+      MeasureSpec.getMode(heightMeasureSpec) == MeasureSpec.AT_MOST) {
       ViewGroup.MarginLayoutParams params = (ViewGroup.MarginLayoutParams)getLayoutParams();
 
-      width = height = Math.min(dip(defaultSize) - params.leftMargin - params.rightMargin,
-          dip(defaultSize) - params.bottomMargin - params.topMargin);
+      width = height = Math.min(
+        dip(defaultSize) - params.leftMargin - params.rightMargin,
+        dip(defaultSize) - params.bottomMargin - params.topMargin
+      );
     }
-    int size = Math.min(width - getPaddingLeft() - getPaddingRight(),
-        height - getPaddingBottom() - getPaddingTop());
+    int size = Math.min(
+      width - getPaddingLeft() - getPaddingRight(),
+      height - getPaddingBottom() - getPaddingTop()
+    );
     setMeasuredDimension(size, size);
   }
 
@@ -218,20 +224,27 @@ public class AnimCheckBox extends View implements Checkable {
     float offset;
     if(mHookOffset <= (2 * size / 3 - mHookStartY - mBaseLeftHookOffset)) {
       mPath.moveTo(mBaseLeftHookOffset, mBaseLeftHookOffset + mHookStartY);
-      mPath.lineTo(mBaseLeftHookOffset + mHookOffset, mBaseLeftHookOffset + mHookStartY + mHookOffset);
+      mPath.lineTo(
+        mBaseLeftHookOffset + mHookOffset,
+        mBaseLeftHookOffset + mHookStartY + mHookOffset
+      );
     }
     else if(mHookOffset <= mHookSize) {
       mPath.moveTo(mBaseLeftHookOffset, mBaseLeftHookOffset + mHookStartY);
       mPath.lineTo(2 * size / 3 - mHookStartY, 2 * size / 3);
-      mPath.lineTo(mHookOffset + mBaseLeftHookOffset,
-          2 * size / 3 - (mHookOffset - (2 * size / 3 - mHookStartY - mBaseLeftHookOffset)));
+      mPath.lineTo(
+        mHookOffset + mBaseLeftHookOffset,
+        2 * size / 3 - (mHookOffset - (2 * size / 3 - mHookStartY - mBaseLeftHookOffset))
+      );
     }
     else {
       offset = mHookOffset - mHookSize;
       mPath.moveTo(mBaseLeftHookOffset + offset, mBaseLeftHookOffset + mHookStartY + offset);
       mPath.lineTo(2 * size / 3 - mHookStartY, 2 * size / 3);
-      mPath.lineTo(mHookSize + mBaseLeftHookOffset + offset,
-          2 * size / 3 - (mHookSize - (2 * size / 3 - mHookStartY - mBaseLeftHookOffset) + offset));
+      mPath.lineTo(
+        mHookSize + mBaseLeftHookOffset + offset,
+        2 * size / 3 - (mHookSize - (2 * size / 3 - mHookStartY - mBaseLeftHookOffset) + offset)
+      );
     }
     canvas.drawPath(mPath, mPaint);
   }

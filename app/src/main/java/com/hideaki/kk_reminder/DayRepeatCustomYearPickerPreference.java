@@ -14,7 +14,7 @@ import android.widget.TableRow;
 import java.util.Calendar;
 
 public class DayRepeatCustomYearPickerPreference extends Preference
-    implements AnimCheckBox.OnCheckedChangeListener, View.OnClickListener {
+  implements AnimCheckBox.OnCheckedChangeListener, View.OnClickListener {
 
   private AnimCheckBox checkBox;
   private int mask_num;

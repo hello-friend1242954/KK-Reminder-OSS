@@ -23,114 +23,142 @@ public class DayRepeat implements Serializable, Cloneable {
   private int which_template = 0;
 
   String getLabel() {
+
     return label;
   }
 
   int getInterval() {
+
     return interval;
   }
 
   int getScale() {
+
     return scale;
   }
 
   boolean isDay() {
+
     return day;
   }
 
   int getWeek() {
+
     return week;
   }
 
   int getDays_of_month() {
+
     return days_of_month;
   }
 
   int getOrdinal_number() {
+
     return ordinal_number;
   }
 
   Week getOn_the_month() {
+
     return on_the_month;
   }
 
   int getWeekday_num() {
+
     return weekday_num;
   }
 
   boolean isDays_of_month_setted() {
+
     return days_of_month_setted;
   }
 
   int getYear() {
+
     return year;
   }
 
   int getDay_of_month_of_year() {
+
     return day_of_month_of_year;
   }
 
   int getSetted() {
+
     return setted;
   }
 
   int getWhich_template() {
+
     return which_template;
   }
 
   void setLabel(String label) {
+
     this.label = label;
   }
 
   void setInterval(int interval) {
+
     this.interval = interval;
   }
 
   void setScale(int scale) {
+
     this.scale = scale;
   }
 
   void setDay(boolean day) {
+
     this.day = day;
   }
 
   void setWeek(int week) {
+
     this.week = week;
   }
 
   void setDays_of_month(int days_of_month) {
+
     this.days_of_month = days_of_month;
   }
 
   void setOrdinal_number(int ordinal_number) {
+
     this.ordinal_number = ordinal_number;
   }
 
   void setOn_the_month(Week on_the_month) {
+
     this.on_the_month = on_the_month;
   }
 
   void setWeekday_num(int weekday_num) {
+
     this.weekday_num = weekday_num;
   }
 
   void setDays_of_month_setted(boolean days_of_month_setted) {
+
     this.days_of_month_setted = days_of_month_setted;
   }
 
   void setYear(int year) {
+
     this.year = year;
   }
 
   void setDay_of_month_of_year(int day_of_month_of_year) {
+
     this.day_of_month_of_year = day_of_month_of_year;
   }
 
   void setSetted(int setted) {
+
     this.setted = setted;
   }
 
   void setWhich_template(int which_template) {
+
     this.which_template = which_template;
   }
 
@@ -141,7 +169,8 @@ public class DayRepeat implements Serializable, Cloneable {
 
     try {
       dayRepeat = (DayRepeat)super.clone();
-    } catch(CloneNotSupportedException e) {
+    }
+    catch(CloneNotSupportedException e) {
       e.printStackTrace();
     }
 

@@ -19,13 +19,13 @@ import static com.hideaki.kk_reminder.UtilClass.SNOOZE_DEFAULT_HOUR;
 import static com.hideaki.kk_reminder.UtilClass.SNOOZE_DEFAULT_MINUTE;
 
 public class DefaultManuallySnoozePickerDialogFragment extends DialogFragment
-    implements TimePickerDialog.OnTimeSetListener {
+  implements TimePickerDialog.OnTimeSetListener {
 
   private MainActivity activity;
   private DefaultManuallySnoozeFragment defaultManuallySnoozeFragment;
 
   DefaultManuallySnoozePickerDialogFragment(
-      DefaultManuallySnoozeFragment defaultManuallySnoozeFragment
+    DefaultManuallySnoozeFragment defaultManuallySnoozeFragment
   ) {
 
     this.defaultManuallySnoozeFragment = defaultManuallySnoozeFragment;
@@ -46,12 +46,12 @@ public class DefaultManuallySnoozePickerDialogFragment extends DialogFragment
     }
     else {
       return new TimePickerDialog(
-          activity,
-          activity.dialog_style_id,
-          this,
-          hour,
-          minute,
-          true
+        activity,
+        activity.dialog_style_id,
+        this,
+        hour,
+        minute,
+        true
       );
     }
   }

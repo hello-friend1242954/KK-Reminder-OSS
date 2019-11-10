@@ -27,7 +27,7 @@ import static com.hideaki.kk_reminder.UtilClass.DEFAULT_PLUS_TIME_3_HOUR;
 import static com.hideaki.kk_reminder.UtilClass.DEFAULT_PLUS_TIME_3_MINUTE;
 
 public class DefaultControlTimePickerDialogFragment extends DialogFragment
-    implements TimePickerDialog.OnTimeSetListener {
+  implements TimePickerDialog.OnTimeSetListener {
 
   private MainActivity activity;
   private boolean isMinus;
@@ -89,12 +89,12 @@ public class DefaultControlTimePickerDialogFragment extends DialogFragment
     }
     else {
       return new TimePickerDialog(
-          activity,
-          activity.dialog_style_id,
-          this,
-          hour,
-          minute,
-          true
+        activity,
+        activity.dialog_style_id,
+        this,
+        hour,
+        minute,
+        true
       );
     }
   }

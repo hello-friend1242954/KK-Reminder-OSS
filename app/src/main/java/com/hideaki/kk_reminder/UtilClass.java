@@ -15,6 +15,7 @@ import android.os.Build;
 import android.widget.EditText;
 import android.widget.TextView;
 
+import java.io.BufferedReader;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
@@ -22,10 +23,12 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.OutputStream;
 import java.lang.reflect.Field;
+import java.nio.charset.StandardCharsets;
 import java.util.Calendar;
 import java.util.Locale;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -44,11 +47,11 @@ class UtilClass {
   private static final AtomicInteger uniqueId = new AtomicInteger(1);
   static final ScheduledItemComparator SCHEDULED_ITEM_COMPARATOR = new ScheduledItemComparator();
   static final NonScheduledItemComparator NON_SCHEDULED_ITEM_COMPARATOR =
-      new NonScheduledItemComparator();
+    new NonScheduledItemComparator();
   static final DoneItemComparator DONE_ITEM_COMPARATOR = new DoneItemComparator();
   static final NotesComparator NOTES_COMPARATOR = new NotesComparator();
   static final Uri DEFAULT_URI_SOUND =
-      RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
+    RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
   static final String ACTION_IN_NOTIFICATION = "ACTION_IN_NOTIFICATION";
   static final String BOOT_FROM_NOTIFICATION = "BOOT_FROM_NOTIFICATION";
   static final int REQUEST_CODE_RINGTONE_PICKER = 0;
@@ -85,6 +88,7 @@ class UtilClass {
 //  static final String STOPPED = "STOPPED";
   static final String BOOLEAN_GENERAL = "BOOLEAN_GENERAL";
   static final String BOOLEAN_GENERAL_COPY = "BOOLEAN_GENERAL_COPY";
+  static final String IS_RECREATED = "IS_RECREATED";
   static final String IS_ID_TABLE_FLOOD = "IS_ID_TABLE_FLOOD";
   static final String IS_DARK_MODE = "IS_DARK_MODE";
   static final String IS_DARK_THEME_FOLLOW_SYSTEM = "IS_DARK_THEME_FOLLOW_SYSTEM";
@@ -93,6 +97,8 @@ class UtilClass {
   static final String IS_PREMIUM = "IS_PREMIUM";
   static final String STRING_GENERAL = "STRING_GENERAL";
   static final String STRING_GENERAL_COPY = "STRING_GENERAL_COPY";
+  static final String VIBRATION_PATTERN = "VIBRATION_PATTERN";
+  static final String DEFAULT_VIBRATION_PATTERN = "0, 250, 250, 250";
   static final String CHANNEL_ID = "CHANNEL_ID";
   static final String NOTIFICATION_ID_TABLE = "NOTIFICATION_ID_TABLE";
   static final String PARENT_NOTIFICATION_ID = "PARENT_NOTIFICATION_ID";
@@ -103,6 +109,76 @@ class UtilClass {
   static long MINUTE = 60 * 1000;
   static long HOUR = 60 * 60 * 1000;
   static Locale LOCALE = Locale.getDefault();
+
+  static String readFileFromAssets(Context context, String fileName) {
+
+    StringBuilder text = new StringBuilder();
+    try(
+      InputStream is = context.getAssets().open(fileName);
+      BufferedReader br = new BufferedReader(new InputStreamReader(is))
+    ) {
+
+      String str;
+      while((str = br.readLine()) != null) {
+        text
+          .append(str)
+          .append("\n");
+      }
+    }
+    catch(IOException e) {
+      e.printStackTrace();
+    }
+
+    return text.toString();
+  }
+
+  static String getRegularizedVibrationStr(String vibrationStr) {
+
+    if(vibrationStr.equals("")) {
+      return DEFAULT_VIBRATION_PATTERN;
+    }
+
+    String[] vibrationsStr = vibrationStr.split(",");
+    int size = vibrationsStr.length;
+    for(int i = 0; i < size; i++) {
+      vibrationsStr[i] = vibrationsStr[i].trim();
+    }
+    StringBuilder vibrationStrBuilder = new StringBuilder();
+    boolean isAllZero = true;
+    for(String s : vibrationsStr) {
+      try {
+        long val = Long.parseLong(s);
+        if(isAllZero && val != 0) {
+          isAllZero = false;
+        }
+        vibrationStrBuilder
+          .append(s)
+          .append(", ");
+      }
+      catch(NumberFormatException e) {
+        return DEFAULT_VIBRATION_PATTERN;
+      }
+    }
+
+    return isAllZero ?
+      DEFAULT_VIBRATION_PATTERN :
+      vibrationStrBuilder.substring(0, vibrationStrBuilder.length() - 2);
+  }
+
+  static long[] getVibrationPattern(String regularizedVibrationStr) {
+
+    String[] vibrationsStr = regularizedVibrationStr.split(",");
+    int size = vibrationsStr.length;
+    for(int i = 0; i < size; i++) {
+      vibrationsStr[i] = vibrationsStr[i].trim();
+    }
+    long[] vibrationPattern = new long[size];
+    for(int i = 0; i < size; i++) {
+      vibrationPattern[i] = Long.parseLong(vibrationsStr[i]);
+    }
+
+    return vibrationPattern;
+  }
 
   static void setCursorDrawableColor(MainActivity activity, EditText editText) {
 
@@ -117,7 +193,8 @@ class UtilClass {
           f.set(editText, R.drawable.cursor);
         }
       }
-      catch(Exception ignored) {}
+      catch(Exception ignored) {
+      }
     }
     else {
       // mCursorDrawableResへのアクセスは非SDKインターフェースなのでAndroid10以降は無効となる
@@ -135,9 +212,9 @@ class UtilClass {
   private static Bitmap getBitmap(VectorDrawable vectorDrawable) {
 
     Bitmap bitmap = Bitmap.createBitmap(
-        vectorDrawable.getIntrinsicWidth(),
-        vectorDrawable.getIntrinsicHeight(),
-        Bitmap.Config.ARGB_8888
+      vectorDrawable.getIntrinsicWidth(),
+      vectorDrawable.getIntrinsicHeight(),
+      Bitmap.Config.ARGB_8888
     );
     Canvas canvas = new Canvas(bitmap);
     vectorDrawable.setBounds(0, 0, canvas.getWidth(), canvas.getHeight());
@@ -149,9 +226,9 @@ class UtilClass {
   private static Bitmap getBitmap(VectorDrawableCompat vectorDrawable) {
 
     Bitmap bitmap = Bitmap.createBitmap(
-        vectorDrawable.getIntrinsicWidth(),
-        vectorDrawable.getIntrinsicHeight(),
-        Bitmap.Config.ARGB_8888
+      vectorDrawable.getIntrinsicWidth(),
+      vectorDrawable.getIntrinsicHeight(),
+      Bitmap.Config.ARGB_8888
     );
     Canvas canvas = new Canvas(bitmap);
     vectorDrawable.setBounds(0, 0, canvas.getWidth(), canvas.getHeight());
@@ -162,8 +239,8 @@ class UtilClass {
 
   @SuppressLint("NewApi")
   public static Bitmap getBitmap(
-      Context context,
-      @DrawableRes int drawableResId
+    Context context,
+    @DrawableRes int drawableResId
   ) {
 
     Drawable drawable = ContextCompat.getDrawable(context, drawableResId);
@@ -308,7 +385,7 @@ class UtilClass {
     String databasePath;
     if(isFromDirectBootContext) {
       databasePath =
-          direct_boot_context.getDatabasePath(MyDatabaseHelper.DATABASE_COPY).getAbsolutePath();
+        direct_boot_context.getDatabasePath(MyDatabaseHelper.DATABASE_COPY).getAbsolutePath();
     }
     else {
       databasePath = context.getDatabasePath(MyDatabaseHelper.DATABASE).getAbsolutePath();
@@ -320,7 +397,7 @@ class UtilClass {
     if(file.exists()) {
       try {
         String BASE_NAME = isFromDirectBootContext ?
-            MyDatabaseHelper.DATABASE : MyDatabaseHelper.DATABASE_COPY;
+          MyDatabaseHelper.DATABASE : MyDatabaseHelper.DATABASE_COPY;
         os = new FileOutputStream(file.getParent() + "/" + BASE_NAME);
         is = new FileInputStream(databasePath);
 
@@ -366,7 +443,7 @@ class UtilClass {
     // 引数のcontextは必ず通常の(directBootContextでない)Contextを指定すること
     Context direct_boot_context = context.createDeviceProtectedStorageContext();
     final String sharedPreferencesDirectory =
-        context.getFilesDir().getParent() + "/shared_prefs/";
+      context.getFilesDir().getParent() + "/shared_prefs/";
     final String[] sharedPreferencesFiles = {INT_GENERAL, BOOLEAN_GENERAL, STRING_GENERAL};
     for(String sharedPreferencesFile : sharedPreferencesFiles) {
       String sharedPreferencesPath = sharedPreferencesDirectory;
@@ -383,7 +460,7 @@ class UtilClass {
       if(file.exists()) {
         try {
           String BASE_NAME = isFromDirectBootContext ?
-              sharedPreferencesFile + ".xml" : sharedPreferencesFile + "_COPY.xml";
+            sharedPreferencesFile + ".xml" : sharedPreferencesFile + "_COPY.xml";
           os = new FileOutputStream(file.getParent() + "/" + BASE_NAME);
           is = new FileInputStream(sharedPreferencesPath);
 
@@ -419,8 +496,8 @@ class UtilClass {
       }
       else {
         direct_boot_context.moveSharedPreferencesFrom(
-            context,
-            sharedPreferencesFile + "_COPY"
+          context,
+          sharedPreferencesFile + "_COPY"
         );
       }
     }

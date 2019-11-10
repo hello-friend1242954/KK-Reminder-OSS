@@ -65,24 +65,24 @@ public class StartupReceiver extends BroadcastReceiver {
       checkNotNull(item);
 
       if(
-          item.getDate().getTimeInMillis() > System.currentTimeMillis() &&
-              item.getWhich_list_belongs() == 0
+        item.getDate().getTimeInMillis() > System.currentTimeMillis() &&
+          item.getWhich_list_belongs() == 0
       ) {
         Intent set_alarm = new Intent(context, AlarmReceiver.class);
         byte[] ob_array = serialize(item);
         set_alarm.putExtra(ITEM, ob_array);
         PendingIntent sender = PendingIntent.getBroadcast(
-            context, (int)item.getId(), set_alarm, PendingIntent.FLAG_UPDATE_CURRENT);
+          context, (int)item.getId(), set_alarm, PendingIntent.FLAG_UPDATE_CURRENT);
 
         AlarmManager alarmManager = (AlarmManager)context.getSystemService(Context.ALARM_SERVICE);
         checkNotNull(alarmManager);
 
         alarmManager.setAlarmClock(
-            new AlarmManager.AlarmClockInfo(
-                item.getDate().getTimeInMillis(),
-                null
-            ),
-            sender
+          new AlarmManager.AlarmClockInfo(
+            item.getDate().getTimeInMillis(),
+            null
+          ),
+          sender
         );
       }
     }
@@ -101,8 +101,8 @@ public class StartupReceiver extends BroadcastReceiver {
 
     Context directBootContext = context.createDeviceProtectedStorageContext();
     File file = directBootContext
-        .getDatabasePath(MyDatabaseHelper.DATABASE_COPY)
-        .getParentFile();
+      .getDatabasePath(MyDatabaseHelper.DATABASE_COPY)
+      .getParentFile();
     checkNotNull(file);
     String parentPath = file.getAbsolutePath();
 
@@ -139,7 +139,7 @@ public class StartupReceiver extends BroadcastReceiver {
     // 引数のnormalContextはDirectBootContextではなく必ず通常のContextを渡すこと
     if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
       return getIsDirectBootContext(normalContext) ?
-          normalContext.createDeviceProtectedStorageContext() : normalContext;
+        normalContext.createDeviceProtectedStorageContext() : normalContext;
     }
     else {
       return normalContext;

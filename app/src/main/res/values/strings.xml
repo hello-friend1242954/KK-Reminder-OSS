@@ -1,11 +1,12 @@
 <resources>
 
-    <string name="version_value">3.6.2.1</string>
+    <string name="version_value">3.6.3.0</string>
     <string name="app_id">******************</string>
     <string name="ad_unit_id">******************</string>
     <string name="app_name">KK Reminder</string>
     <string name="app_promotion">KK Reminder  -  notify persistently</string>
     <string name="app_url">https://play.google.com/store/apps/details?id=com.hideaki.kk_reminder</string>
+    <string name="update_info">Update Info</string>
     <string name="align_top">Go to top of the list</string>
     <string name="past">Past</string>
     <string name="today">Today</string>
@@ -124,6 +125,11 @@
     <string name="default_control_time_description">If you set both hour and minute to 0, System regards it as 24 hours</string>
     <string name="play_slide_animation">Slide animation of cards</string>
     <string name="play_slide_animation_summary">Whether playing sliding animation of cards when scrolling</string>
+    <string name="default_vibration">Vibration pattern</string>
+    <string name="default_vibration_summary">example: 0, 500\nIf pattern is not set correctly, or nothing is set, default pattern will be applied</string>
+    <string name="vibration_hint">0, 500</string>
+    <string name="default_vibration_hint">Default vibration pattern</string>
+    <string name="custom_vibration_hint">Custom vibration pattern</string>
     <string name="theme">Theme</string>
     <string name="after_theme_set_message">After you set theme, this app reboots automatically</string>
     <string name="dark_theme">Dark Theme</string>

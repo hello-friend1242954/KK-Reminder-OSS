@@ -71,9 +71,9 @@ public class TagEditListViewFragment extends Fragment implements View.OnClickLis
       FragmentManager manager = getFragmentManager();
       checkNotNull(manager);
       manager
-          .beginTransaction()
-          .remove(this)
-          .commit();
+        .beginTransaction()
+        .remove(this)
+        .commit();
     }
   }
 
@@ -87,9 +87,9 @@ public class TagEditListViewFragment extends Fragment implements View.OnClickLis
   @Nullable
   @Override
   public View onCreateView(
-      @NonNull LayoutInflater inflater,
-      @Nullable ViewGroup container,
-      Bundle savedInstanceState
+    @NonNull LayoutInflater inflater,
+    @Nullable ViewGroup container,
+    Bundle savedInstanceState
   ) {
 
     View view = inflater.inflate(R.layout.listview, container, false);
@@ -109,17 +109,17 @@ public class TagEditListViewFragment extends Fragment implements View.OnClickLis
           ColorPickerListAdapter.from_list_tag_edit = false;
           if(TagEditListAdapter.is_editing) {
             new AlertDialog.Builder(activity)
-                .setTitle(R.string.is_editing_title)
-                .setMessage(R.string.is_editing_message)
-                .show();
+              .setTitle(R.string.is_editing_title)
+              .setMessage(R.string.is_editing_message)
+              .show();
 
             return true;
           }
           else if(TagEditListAdapter.is_sorting) {
             new AlertDialog.Builder(activity)
-                .setTitle(R.string.is_sorting_title)
-                .setMessage(R.string.is_sorting_message)
-                .show();
+              .setTitle(R.string.is_sorting_title)
+              .setMessage(R.string.is_sorting_message)
+              .show();
 
             return true;
           }
@@ -135,7 +135,7 @@ public class TagEditListViewFragment extends Fragment implements View.OnClickLis
     activity.listView.setSortable(true);
     footer = View.inflate(activity, R.layout.tag_list_footer, null);
     if(activity.listView.getFooterViewsCount() == 0 && !TagEditListAdapter.is_editing
-        && !TagEditListAdapter.is_sorting) {
+      && !TagEditListAdapter.is_sorting) {
       activity.listView.addFooterView(footer);
     }
     ConstraintLayout addTagItem = footer.findViewById(R.id.add_tag_item);
@@ -175,8 +175,8 @@ public class TagEditListViewFragment extends Fragment implements View.OnClickLis
     checkNotNull(drawable);
     drawable = drawable.mutate();
     drawable.setColorFilter(new PorterDuffColorFilter(
-        activity.menu_item_color,
-        PorterDuff.Mode.SRC_IN
+      activity.menu_item_color,
+      PorterDuff.Mode.SRC_IN
     ));
     editItem.setIcon(drawable);
 
@@ -186,8 +186,8 @@ public class TagEditListViewFragment extends Fragment implements View.OnClickLis
     checkNotNull(drawable);
     drawable = drawable.mutate();
     drawable.setColorFilter(new PorterDuffColorFilter(
-        activity.menu_item_color,
-        PorterDuff.Mode.SRC_IN
+      activity.menu_item_color,
+      PorterDuff.Mode.SRC_IN
     ));
     sortItem.setIcon(drawable);
     if(TagEditListAdapter.is_editing) {
@@ -280,48 +280,48 @@ public class TagEditListViewFragment extends Fragment implements View.OnClickLis
     final EditText editText = new EditText(activity);
     setCursorDrawableColor(activity, editText);
     editText.getBackground().mutate().setColorFilter(new PorterDuffColorFilter(
-        activity.accent_color,
-        PorterDuff.Mode.SRC_IN
+      activity.accent_color,
+      PorterDuff.Mode.SRC_IN
     ));
     editText.setHint(R.string.tag_hint);
     editText.setLayoutParams(new LinearLayout.LayoutParams(
-        LinearLayout.LayoutParams.MATCH_PARENT,
-        LinearLayout.LayoutParams.WRAP_CONTENT
+      LinearLayout.LayoutParams.MATCH_PARENT,
+      LinearLayout.LayoutParams.WRAP_CONTENT
     ));
     linearLayout.addView(editText);
     int paddingPx = getPxFromDp(activity, 20);
     linearLayout.setPadding(paddingPx, 0, paddingPx, 0);
 
     final AlertDialog dialog = new AlertDialog.Builder(activity)
-        .setTitle(R.string.add_tag)
-        .setView(linearLayout)
-        .setPositiveButton(R.string.add, new DialogInterface.OnClickListener() {
-          @Override
-          public void onClick(DialogInterface dialog, int which) {
+      .setTitle(R.string.add_tag)
+      .setView(linearLayout)
+      .setPositiveButton(R.string.add, new DialogInterface.OnClickListener() {
+        @Override
+        public void onClick(DialogInterface dialog, int which) {
 
-            String name = editText.getText().toString();
-            if(name.equals("")) {
-              name = getString(R.string.default_tag);
-            }
-            Tag tag = new Tag();
-            tag.setName(name);
-            activity.generalSettings.getTagList().add(1, tag);
-            int size = activity.generalSettings.getTagList().size();
-            for(int i = 0; i < size; i++) {
-              activity.generalSettings.getTagList().get(i).setOrder(i);
-            }
-            TagEditListAdapter.tagList = new ArrayList<>(activity.generalSettings.getTagList());
-            activity.tagEditListAdapter.notifyDataSetChanged();
-            activity.updateSettingsDB();
+          String name = editText.getText().toString();
+          if(name.equals("")) {
+            name = getString(R.string.default_tag);
           }
-        })
-        .setNeutralButton(R.string.cancel, new DialogInterface.OnClickListener() {
-          @Override
-          public void onClick(DialogInterface dialog, int which) {
+          Tag tag = new Tag();
+          tag.setName(name);
+          activity.generalSettings.getTagList().add(1, tag);
+          int size = activity.generalSettings.getTagList().size();
+          for(int i = 0; i < size; i++) {
+            activity.generalSettings.getTagList().get(i).setOrder(i);
+          }
+          TagEditListAdapter.tagList = new ArrayList<>(activity.generalSettings.getTagList());
+          activity.tagEditListAdapter.notifyDataSetChanged();
+          activity.updateSettingsDB();
+        }
+      })
+      .setNeutralButton(R.string.cancel, new DialogInterface.OnClickListener() {
+        @Override
+        public void onClick(DialogInterface dialog, int which) {
 
-          }
-        })
-        .create();
+        }
+      })
+      .create();
 
     dialog.setOnShowListener(new DialogInterface.OnShowListener() {
       @Override

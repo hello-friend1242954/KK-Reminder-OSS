@@ -25,8 +25,8 @@ import static com.google.common.base.Preconditions.checkNotNull;
 import static com.hideaki.kk_reminder.UtilClass.LOCALE;
 
 public class NotifyIntervalEditFragment extends BasePreferenceFragmentCompat
-    implements Preference.OnPreferenceClickListener,
-    MyCheckBoxPreference.MyCheckBoxPreferenceCheckedChangeListener {
+  implements Preference.OnPreferenceClickListener,
+  MyCheckBoxPreference.MyCheckBoxPreferenceCheckedChangeListener {
 
   private MainActivity activity;
   private PreferenceScreen rootPreferenceScreen;
@@ -92,9 +92,9 @@ public class NotifyIntervalEditFragment extends BasePreferenceFragmentCompat
 
   @Override
   public View onCreateView(
-      LayoutInflater inflater,
-      @Nullable ViewGroup container,
-      @Nullable Bundle savedInstanceState
+    LayoutInflater inflater,
+    @Nullable ViewGroup container,
+    @Nullable Bundle savedInstanceState
   ) {
 
     View view = super.onCreateView(inflater, container, savedInstanceState);
@@ -188,7 +188,7 @@ public class NotifyIntervalEditFragment extends BasePreferenceFragmentCompat
         }
         if(interval.getMinute() != 0) {
           summary +=
-              res.getQuantityString(R.plurals.minute, interval.getMinute(), interval.getMinute());
+            res.getQuantityString(R.plurals.minute, interval.getMinute(), interval.getMinute());
           if(!LOCALE.equals(Locale.JAPAN)) {
             summary += " ";
           }
@@ -231,7 +231,7 @@ public class NotifyIntervalEditFragment extends BasePreferenceFragmentCompat
       case "duration": {
 
         NotifyIntervalDurationPickerDialogFragment dialog =
-            new NotifyIntervalDurationPickerDialogFragment(this);
+          new NotifyIntervalDurationPickerDialogFragment(this);
         dialog.show(activity.getSupportFragmentManager(), "notify_interval_duration_picker");
 
         return true;
@@ -239,7 +239,7 @@ public class NotifyIntervalEditFragment extends BasePreferenceFragmentCompat
       case "time": {
 
         NotifyIntervalTimePickerDialogFragment dialog =
-            new NotifyIntervalTimePickerDialogFragment(this);
+          new NotifyIntervalTimePickerDialogFragment(this);
         dialog.show(activity.getSupportFragmentManager(), "notify_interval_time_picker");
 
         return true;
@@ -422,7 +422,7 @@ public class NotifyIntervalEditFragment extends BasePreferenceFragmentCompat
         if(interval.getMinute() != 0) {
           is_empty = false;
           summary +=
-              res.getQuantityString(R.plurals.minute, interval.getMinute(), interval.getMinute());
+            res.getQuantityString(R.plurals.minute, interval.getMinute(), interval.getMinute());
           if(!LOCALE.equals(Locale.JAPAN)) {
             summary += " ";
           }
@@ -431,7 +431,7 @@ public class NotifyIntervalEditFragment extends BasePreferenceFragmentCompat
         if(is_empty) {
           interval.setMinute(5);
           summary +=
-              res.getQuantityString(R.plurals.minute, interval.getMinute(), interval.getMinute());
+            res.getQuantityString(R.plurals.minute, interval.getMinute(), interval.getMinute());
           if(!LOCALE.equals(Locale.JAPAN)) {
             summary += " ";
           }

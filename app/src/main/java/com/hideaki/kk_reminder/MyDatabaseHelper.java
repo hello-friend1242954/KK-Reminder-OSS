@@ -12,17 +12,17 @@ public class MyDatabaseHelper extends SQLiteOpenHelper {
   static final String DATABASE = "reminder.db";
   static final String DATABASE_COPY = "reminder_copy.db";
   private static final String CREATE_TODO_TABLE =
-      "CREATE TABLE todo(_id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, item_id INTEGER NOT NULL, serial BLOB NOT NULL)";
+    "CREATE TABLE todo(_id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, item_id INTEGER NOT NULL, serial BLOB NOT NULL)";
   private static final String CREATE_DONE_TABLE =
-      "CREATE TABLE done(_id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, item_id INTEGER NOT NULL, serial BLOB NOT NULL)";
+    "CREATE TABLE done(_id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, item_id INTEGER NOT NULL, serial BLOB NOT NULL)";
   private static final String CREATE_SETTINGS_TABLE =
-      "CREATE TABLE settings(_id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, item_id INTEGER NOT NULL, serial BLOB NOT NULL)";
+    "CREATE TABLE settings(_id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, item_id INTEGER NOT NULL, serial BLOB NOT NULL)";
   private static MyDatabaseHelper normalContextSingleton = null;
   private static MyDatabaseHelper directBootContextSingleton = null;
 
   public static synchronized MyDatabaseHelper getInstance(
-      Context context,
-      boolean isDirectBootContext
+    Context context,
+    boolean isDirectBootContext
   ) {
 
     if(isDirectBootContext) {

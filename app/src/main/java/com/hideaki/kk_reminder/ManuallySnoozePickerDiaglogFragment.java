@@ -15,7 +15,7 @@ import static com.google.common.base.Preconditions.checkNotNull;
 import static com.hideaki.kk_reminder.UtilClass.LOCALE;
 
 public class ManuallySnoozePickerDiaglogFragment extends DialogFragment
-    implements TimePickerDialog.OnTimeSetListener {
+  implements TimePickerDialog.OnTimeSetListener {
 
   private ManuallySnoozeActivity activity;
 
@@ -46,9 +46,9 @@ public class ManuallySnoozePickerDiaglogFragment extends DialogFragment
     activity.summary = "";
     if(activity.custom_hour != 0) {
       activity.summary += getResources().getQuantityString(
-          R.plurals.hour,
-          activity.custom_hour,
-          activity.custom_hour
+        R.plurals.hour,
+        activity.custom_hour,
+        activity.custom_hour
       );
       if(!LOCALE.equals(Locale.JAPAN)) {
         activity.summary += " ";
@@ -56,9 +56,9 @@ public class ManuallySnoozePickerDiaglogFragment extends DialogFragment
     }
     if(activity.custom_minute != 0) {
       activity.summary += getResources().getQuantityString(
-          R.plurals.minute,
-          activity.custom_minute,
-          activity.custom_minute
+        R.plurals.minute,
+        activity.custom_minute,
+        activity.custom_minute
       );
       if(!LOCALE.equals(Locale.JAPAN)) {
         activity.summary += " ";

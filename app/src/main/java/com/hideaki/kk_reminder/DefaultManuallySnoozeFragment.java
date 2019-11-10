@@ -51,9 +51,9 @@ public class DefaultManuallySnoozeFragment extends BasePreferenceFragmentCompat 
       public boolean onPreferenceClick(Preference preference) {
 
         DefaultManuallySnoozePickerDialogFragment dialog =
-            new DefaultManuallySnoozePickerDialogFragment(
-                DefaultManuallySnoozeFragment.this
-            );
+          new DefaultManuallySnoozePickerDialogFragment(
+            DefaultManuallySnoozeFragment.this
+          );
         dialog.show(activity.getSupportFragmentManager(), "default_manually_snooze_picker");
         return true;
       }
@@ -62,9 +62,9 @@ public class DefaultManuallySnoozeFragment extends BasePreferenceFragmentCompat 
 
   @Override
   public View onCreateView(
-      LayoutInflater inflater,
-      @Nullable ViewGroup container,
-      @Nullable Bundle savedInstanceState
+    LayoutInflater inflater,
+    @Nullable ViewGroup container,
+    @Nullable Bundle savedInstanceState
   ) {
 
     View view = super.onCreateView(inflater, container, savedInstanceState);

@@ -27,8 +27,8 @@ import static com.google.common.base.Preconditions.checkNotNull;
 import static com.hideaki.kk_reminder.UtilClass.LOCALE;
 
 public class MinuteRepeatEditFragment extends BasePreferenceFragmentCompat
-    implements Preference.OnPreferenceClickListener,
-    MyCheckBoxPreference.MyCheckBoxPreferenceCheckedChangeListener {
+  implements Preference.OnPreferenceClickListener,
+  MyCheckBoxPreference.MyCheckBoxPreferenceCheckedChangeListener {
 
   private PreferenceScreen rootPreferenceScreen;
   PreferenceScreen label;
@@ -79,9 +79,9 @@ public class MinuteRepeatEditFragment extends BasePreferenceFragmentCompat
 
   @Override
   public View onCreateView(
-      LayoutInflater inflater,
-      @Nullable ViewGroup container,
-      @Nullable Bundle savedInstanceState
+    LayoutInflater inflater,
+    @Nullable ViewGroup container,
+    @Nullable Bundle savedInstanceState
   ) {
 
     View view = super.onCreateView(inflater, container, savedInstanceState);
@@ -101,11 +101,11 @@ public class MinuteRepeatEditFragment extends BasePreferenceFragmentCompat
 
         if(keyCode == KeyEvent.KEYCODE_BACK && event.getAction() == KeyEvent.ACTION_UP) {
           if(MainEditFragment.minuteRepeat.getInterval() >
-              MainEditFragment.minuteRepeat.getOrgDuration()
-              && duration.isChecked()) {
+            MainEditFragment.minuteRepeat.getOrgDuration()
+            && duration.isChecked()) {
             new AlertDialog.Builder(activity)
-                .setMessage(R.string.repeat_minute_illegal_dialog)
-                .show();
+              .setMessage(R.string.repeat_minute_illegal_dialog)
+              .show();
             return true;
           }
         }
@@ -163,9 +163,9 @@ public class MinuteRepeatEditFragment extends BasePreferenceFragmentCompat
         // 項目のタイトル部に現在の設定値を表示
         int org_count = MainEditFragment.minuteRepeat.getOrg_count();
         count_picker.setTitle(getResources().getQuantityString(
-            R.plurals.times,
-            org_count,
-            org_count
+          R.plurals.times,
+          org_count,
+          org_count
         ));
         break;
       }
@@ -180,8 +180,8 @@ public class MinuteRepeatEditFragment extends BasePreferenceFragmentCompat
         int duration_hour = MainEditFragment.minuteRepeat.getOrg_duration_hour();
         if(duration_hour != 0) {
           durationLabel += activity
-              .getResources()
-              .getQuantityString(R.plurals.hour, duration_hour, duration_hour);
+            .getResources()
+            .getQuantityString(R.plurals.hour, duration_hour, duration_hour);
           if(!LOCALE.equals(Locale.JAPAN)) {
             durationLabel += " ";
           }
@@ -189,8 +189,8 @@ public class MinuteRepeatEditFragment extends BasePreferenceFragmentCompat
         int duration_minute = MainEditFragment.minuteRepeat.getOrg_duration_minute();
         if(duration_minute != 0) {
           durationLabel += activity
-              .getResources()
-              .getQuantityString(R.plurals.minute, duration_minute, duration_minute);
+            .getResources()
+            .getQuantityString(R.plurals.minute, duration_minute, duration_minute);
           if(!LOCALE.equals(Locale.JAPAN)) {
             durationLabel += " ";
           }
@@ -216,10 +216,10 @@ public class MinuteRepeatEditFragment extends BasePreferenceFragmentCompat
   public boolean onOptionsItemSelected(@NonNull MenuItem item) {
 
     if(MainEditFragment.minuteRepeat.getInterval() > MainEditFragment.minuteRepeat.getOrgDuration()
-        && duration.isChecked()) {
+      && duration.isChecked()) {
       new AlertDialog.Builder(activity)
-          .setMessage(R.string.repeat_minute_illegal_dialog)
-          .show();
+        .setMessage(R.string.repeat_minute_illegal_dialog)
+        .show();
     }
     else {
       FragmentManager manager = getFragmentManager();
@@ -236,7 +236,7 @@ public class MinuteRepeatEditFragment extends BasePreferenceFragmentCompat
       case "interval": {
 
         MinuteRepeatIntervalPickerDialogFragment dialog =
-            new MinuteRepeatIntervalPickerDialogFragment(this);
+          new MinuteRepeatIntervalPickerDialogFragment(this);
         dialog.show(activity.getSupportFragmentManager(), "minute_repeat_interval_picker");
 
         return true;
@@ -244,14 +244,14 @@ public class MinuteRepeatEditFragment extends BasePreferenceFragmentCompat
       case "count_picker": {
 
         MinuteRepeatCountPickerDialogFragment dialog =
-            new MinuteRepeatCountPickerDialogFragment(this);
+          new MinuteRepeatCountPickerDialogFragment(this);
         dialog.show(activity.getSupportFragmentManager(), "minute_repeat_count_picker");
         return true;
       }
       case "duration_picker": {
 
         MinuteRepeatDurationPickerDialogFragment dialog =
-            new MinuteRepeatDurationPickerDialogFragment(this);
+          new MinuteRepeatDurationPickerDialogFragment(this);
         dialog.show(activity.getSupportFragmentManager(), "minute_repeat_duration_picker");
         return true;
       }
@@ -307,7 +307,7 @@ public class MinuteRepeatEditFragment extends BasePreferenceFragmentCompat
           }
           int count = MainEditFragment.minuteRepeat.getOrg_count();
           label_str = res.getQuantityString(R.plurals.repeat_minute_count_format,
-              count, interval, count
+            count, interval, count
           );
           label.setSummary(label_str);
 
