@@ -1,16 +1,6 @@
 package com.hideaki.kk_reminder;
 
 import android.annotation.SuppressLint;
-
-import androidx.fragment.app.DialogFragment;
-import androidx.fragment.app.FragmentManager;
-import androidx.appcompat.app.AlertDialog;
-import androidx.preference.Preference;
-import androidx.preference.PreferenceGroupAdapter;
-import androidx.preference.PreferenceScreen;
-import androidx.preference.PreferenceViewHolder;
-import androidx.recyclerview.widget.RecyclerView;
-
 import android.view.View;
 import android.view.ViewGroup;
 
@@ -19,7 +9,16 @@ import com.takisoft.fix.support.v7.preference.EditTextPreferenceDialogFragmentCo
 import com.takisoft.fix.support.v7.preference.PreferenceCategory;
 import com.takisoft.fix.support.v7.preference.PreferenceFragmentCompat;
 
-import static com.google.common.base.Preconditions.checkNotNull;
+import androidx.appcompat.app.AlertDialog;
+import androidx.fragment.app.DialogFragment;
+import androidx.fragment.app.FragmentManager;
+import androidx.preference.Preference;
+import androidx.preference.PreferenceGroupAdapter;
+import androidx.preference.PreferenceScreen;
+import androidx.preference.PreferenceViewHolder;
+import androidx.recyclerview.widget.RecyclerView;
+
+import static java.util.Objects.requireNonNull;
 
 public abstract class BasePreferenceFragmentCompat extends PreferenceFragmentCompat {
 
@@ -71,7 +70,7 @@ public abstract class BasePreferenceFragmentCompat extends PreferenceFragmentCom
   public void onDisplayPreferenceDialog(Preference preference) {
 
     FragmentManager manager = getFragmentManager();
-    checkNotNull(manager);
+    requireNonNull(manager);
     if(manager.findFragmentByTag(DIALOG_FRAGMENT_TAG) != null) {
       return;
     }
@@ -84,10 +83,10 @@ public abstract class BasePreferenceFragmentCompat extends PreferenceFragmentCom
 
       getFragmentManager().executePendingTransactions();
       final AlertDialog dialog = (AlertDialog)f.getDialog();
-      checkNotNull(dialog);
+      requireNonNull(dialog);
 
       MainActivity activity = (MainActivity)getActivity();
-      checkNotNull(activity);
+      requireNonNull(activity);
 
       dialog.getButton(AlertDialog.BUTTON_POSITIVE).setTextColor(activity.accent_color);
       dialog.getButton(AlertDialog.BUTTON_NEGATIVE).setTextColor(activity.accent_color);

@@ -4,19 +4,18 @@ import android.app.Dialog;
 import android.content.DialogInterface;
 import android.content.res.Resources;
 import android.os.Bundle;
-
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
-import androidx.fragment.app.DialogFragment;
-import androidx.appcompat.app.AlertDialog;
-
 import android.view.View;
 import android.widget.NumberPicker;
 
 import java.util.Locale;
 
-import static com.google.common.base.Preconditions.checkNotNull;
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.appcompat.app.AlertDialog;
+import androidx.fragment.app.DialogFragment;
+
 import static com.hideaki.kk_reminder.UtilClass.LOCALE;
+import static java.util.Objects.requireNonNull;
 
 public class DayRepeatCustomPickerDialogFragment extends DialogFragment {
 
@@ -40,7 +39,7 @@ public class DayRepeatCustomPickerDialogFragment extends DialogFragment {
 
     View view = View.inflate(getContext(), R.layout.repeat_custom_picker, null);
     final MainActivity activity = (MainActivity)getActivity();
-    checkNotNull(activity);
+    requireNonNull(activity);
 
     // intervalの実装
     interval = view.findViewById(R.id.interval);

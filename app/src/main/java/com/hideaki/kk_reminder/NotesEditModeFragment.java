@@ -6,15 +6,6 @@ import android.graphics.PorterDuff;
 import android.graphics.PorterDuffColorFilter;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
-
-import androidx.annotation.NonNull;
-import androidx.fragment.app.Fragment;
-import androidx.fragment.app.FragmentManager;
-import androidx.core.content.ContextCompat;
-import androidx.appcompat.app.ActionBar;
-import androidx.appcompat.app.AlertDialog;
-import androidx.appcompat.widget.Toolbar;
-
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -31,15 +22,23 @@ import java.io.StringReader;
 import java.util.ArrayList;
 import java.util.List;
 
-import static com.google.common.base.Preconditions.checkNotNull;
+import androidx.annotation.NonNull;
+import androidx.appcompat.app.ActionBar;
+import androidx.appcompat.app.AlertDialog;
+import androidx.appcompat.widget.Toolbar;
+import androidx.core.content.ContextCompat;
+import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentManager;
+
 import static com.hideaki.kk_reminder.UtilClass.ITEM;
 import static com.hideaki.kk_reminder.UtilClass.LINE_SEPARATOR;
 import static com.hideaki.kk_reminder.UtilClass.setCursorDrawableColor;
+import static java.util.Objects.requireNonNull;
 
 public class NotesEditModeFragment extends Fragment {
 
   static final String TAG = NotesEditModeFragment.class.getSimpleName();
-  static Item item = null;
+  private static Item item = null;
   private static boolean is_editing;
   private MainActivity activity;
   private MenuItem doneItem;
@@ -74,7 +73,7 @@ public class NotesEditModeFragment extends Fragment {
     this.setHasOptionsMenu(true);
 
     Bundle args = getArguments();
-    checkNotNull(args);
+    requireNonNull(args);
     item = (Item)args.getSerializable(ITEM);
   }
 
@@ -87,7 +86,7 @@ public class NotesEditModeFragment extends Fragment {
 
     if(MainEditFragment.is_notes_popping) {
       FragmentManager manager = getFragmentManager();
-      checkNotNull(manager);
+      requireNonNull(manager);
       manager.popBackStack();
     }
 
@@ -125,7 +124,7 @@ public class NotesEditModeFragment extends Fragment {
     Toolbar toolbar = activity.findViewById(R.id.toolbar_layout);
     activity.setSupportActionBar(toolbar);
     actionBar = activity.getSupportActionBar();
-    checkNotNull(actionBar);
+    requireNonNull(actionBar);
 
     activity.drawerToggle.setDrawerIndicatorEnabled(false);
     actionBar.setHomeAsUpIndicator(activity.upArrow);
@@ -145,7 +144,7 @@ public class NotesEditModeFragment extends Fragment {
         if(hasFocus) {
           is_editing = true;
           Drawable drawable = ContextCompat.getDrawable(activity, R.drawable.ic_cancel_24dp);
-          checkNotNull(drawable);
+          requireNonNull(drawable);
           drawable = drawable.mutate();
           drawable.setColorFilter(new PorterDuffColorFilter(
             activity.menu_item_color,
@@ -160,7 +159,7 @@ public class NotesEditModeFragment extends Fragment {
         else {
           InputMethodManager manager =
             (InputMethodManager)activity.getSystemService(Context.INPUT_METHOD_SERVICE);
-          checkNotNull(manager);
+          requireNonNull(manager);
           manager.hideSoftInputFromWindow(v.getWindowToken(), InputMethodManager.HIDE_NOT_ALWAYS);
         }
       }
@@ -194,7 +193,7 @@ public class NotesEditModeFragment extends Fragment {
 
     checklistModeItem = menu.findItem(R.id.checklist_mode);
     Drawable drawable = ContextCompat.getDrawable(activity, R.drawable.ic_list_24dp);
-    checkNotNull(drawable);
+    requireNonNull(drawable);
     drawable = drawable.mutate();
     drawable.setColorFilter(new PorterDuffColorFilter(
       activity.menu_item_color,
@@ -204,7 +203,7 @@ public class NotesEditModeFragment extends Fragment {
 
     doneItem = menu.findItem(R.id.done);
     drawable = ContextCompat.getDrawable(activity, R.drawable.ic_check_circle_24dp);
-    checkNotNull(drawable);
+    requireNonNull(drawable);
     drawable = drawable.mutate();
     drawable.setColorFilter(new PorterDuffColorFilter(
       activity.menu_item_color,
@@ -215,7 +214,7 @@ public class NotesEditModeFragment extends Fragment {
 
     clearNotesItem = menu.findItem(R.id.clear_notes);
     drawable = ContextCompat.getDrawable(activity, R.drawable.ic_delete_24dp);
-    checkNotNull(drawable);
+    requireNonNull(drawable);
     drawable = drawable.mutate();
     drawable.setColorFilter(new PorterDuffColorFilter(
       activity.menu_item_color,
@@ -338,7 +337,7 @@ public class NotesEditModeFragment extends Fragment {
         else {
           MainEditFragment.is_notes_popping = true;
           FragmentManager manager = getFragmentManager();
-          checkNotNull(manager);
+          requireNonNull(manager);
           manager.popBackStack();
         }
 

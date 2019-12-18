@@ -23,6 +23,7 @@ import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.text.format.DateFormat;
+import android.util.Log;
 import android.view.Gravity;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -36,11 +37,20 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.android.billingclient.api.AcknowledgePurchaseParams;
+import com.android.billingclient.api.AcknowledgePurchaseResponseListener;
 import com.android.billingclient.api.BillingClient;
+import com.android.billingclient.api.BillingClient.BillingResponseCode;
 import com.android.billingclient.api.BillingClientStateListener;
 import com.android.billingclient.api.BillingFlowParams;
+import com.android.billingclient.api.BillingResult;
 import com.android.billingclient.api.Purchase;
+import com.android.billingclient.api.PurchaseHistoryRecord;
+import com.android.billingclient.api.PurchaseHistoryResponseListener;
 import com.android.billingclient.api.PurchasesUpdatedListener;
+import com.android.billingclient.api.SkuDetails;
+import com.android.billingclient.api.SkuDetailsParams;
+import com.android.billingclient.api.SkuDetailsResponseListener;
 import com.google.android.gms.ads.MobileAds;
 import com.google.android.material.navigation.NavigationView;
 import com.google.android.material.snackbar.Snackbar;
@@ -69,9 +79,11 @@ import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
 import androidx.transition.Fade;
 import androidx.transition.Transition;
+import bolts.Continuation;
+import bolts.Task;
+import bolts.TaskCompletionSource;
 
 import static com.google.common.base.Preconditions.checkArgument;
-import static com.google.common.base.Preconditions.checkNotNull;
 import static com.hideaki.kk_reminder.StartupReceiver.getDynamicContext;
 import static com.hideaki.kk_reminder.StartupReceiver.getIsDirectBootContext;
 import static com.hideaki.kk_reminder.UtilClass.ACTION_IN_NOTIFICATION;
@@ -100,6 +112,7 @@ import static com.hideaki.kk_reminder.UtilClass.IS_DARK_MODE;
 import static com.hideaki.kk_reminder.UtilClass.IS_DARK_THEME_FOLLOW_SYSTEM;
 import static com.hideaki.kk_reminder.UtilClass.IS_EXPANDABLE_TODO;
 import static com.hideaki.kk_reminder.UtilClass.IS_PREMIUM;
+import static com.hideaki.kk_reminder.UtilClass.IS_QUERIED_PURCHASE_HISTORY;
 import static com.hideaki.kk_reminder.UtilClass.IS_RECREATED;
 import static com.hideaki.kk_reminder.UtilClass.ITEM;
 import static com.hideaki.kk_reminder.UtilClass.LOCALE;
@@ -120,9 +133,12 @@ import static com.hideaki.kk_reminder.UtilClass.getPxFromDp;
 import static com.hideaki.kk_reminder.UtilClass.readFileFromAssets;
 import static com.hideaki.kk_reminder.UtilClass.serialize;
 import static com.hideaki.kk_reminder.UtilClass.setCursorDrawableColor;
+import static java.util.Objects.requireNonNull;
 
 public class MainActivity extends AppCompatActivity
-  implements NavigationView.OnNavigationItemSelectedListener, PurchasesUpdatedListener {
+  implements NavigationView.OnNavigationItemSelectedListener,
+  PurchasesUpdatedListener,
+  AcknowledgePurchaseResponseListener {
 
   static String IS_FIRST_USE = "";
 
@@ -195,6 +211,7 @@ public class MainActivity extends AppCompatActivity
   boolean isDarkMode;
   boolean isDarkThemeFollowSystem;
   boolean isFirstUse;
+  boolean isQueriedPurchaseHistory;
   int primaryMaterialDarkColor;
   int primaryDarkMaterialDarkColor;
   int backgroundMaterialDarkColor;
@@ -203,6 +220,7 @@ public class MainActivity extends AppCompatActivity
   int secondaryTextMaterialDarkColor;
   private AlertDialog updateInfoMessageDialog = null;
   private boolean isRecreated;
+  private List<SkuDetails> skuDetailsList = null;
 
   @Override
   protected void onCreate(Bundle savedInstanceState) {
@@ -252,6 +270,7 @@ public class MainActivity extends AppCompatActivity
         getIsDirectBootContext(this) ? BOOLEAN_GENERAL_COPY : BOOLEAN_GENERAL,
         MODE_PRIVATE
       );
+    isQueriedPurchaseHistory = booleanPreferences.getBoolean(IS_QUERIED_PURCHASE_HISTORY, false);
     isRecreated = booleanPreferences.getBoolean(IS_RECREATED, false);
     isFirstUse = booleanPreferences.getBoolean(IS_FIRST_USE, true);
     isDarkMode = booleanPreferences.getBoolean(IS_DARK_MODE, false);
@@ -345,7 +364,7 @@ public class MainActivity extends AppCompatActivity
     toolbar = findViewById(R.id.toolbar_layout);
     setSupportActionBar(toolbar);
     ActionBar actionBar = getSupportActionBar();
-    checkNotNull(actionBar);
+    requireNonNull(actionBar);
 
     actionBar.setDisplayHomeAsUpEnabled(true);
     actionBar.setDisplayShowHomeEnabled(true);
@@ -366,7 +385,7 @@ public class MainActivity extends AppCompatActivity
     // 各NonScheduledListを読み込む
     for(NonScheduledList list : generalSettings.getNonScheduledLists()) {
       Drawable drawable = ContextCompat.getDrawable(this, R.drawable.ic_my_list_24dp);
-      checkNotNull(drawable);
+      requireNonNull(drawable);
       drawable = drawable.mutate();
       if(list.getColor() != 0) {
         drawable.setColorFilter(new PorterDuffColorFilter(
@@ -412,97 +431,10 @@ public class MainActivity extends AppCompatActivity
   protected void onDestroy() {
 
     super.onDestroy();
+    if(billingClient != null) {
+      billingClient.endConnection();
+    }
     unregisterReceiver(defaultSnoozeReceiver);
-  }
-
-  private void setupBillingServices() {
-
-    if(billingClient == null) {
-      try_count = 0;
-      billingClient = BillingClient
-        .newBuilder(this)
-        .setListener(this)
-        .build();
-      billingClient.startConnection(new BillingClientStateListener() {
-        @Override
-        public void onBillingSetupFinished(int responseCode) {
-
-          if(responseCode == BillingClient.BillingResponse.OK) {
-
-            // プレミアムアカウントかどうかの確認
-            checkIsPremium();
-          }
-          else {
-            try_count++;
-            if(try_count < 3) {
-              billingClient.startConnection(this);
-            }
-          }
-        }
-
-        @Override
-        public void onBillingServiceDisconnected() {
-
-          try_count++;
-          if(try_count < 3) {
-            billingClient.startConnection(this);
-          }
-        }
-      });
-    }
-    else {
-      checkIsPremium();
-    }
-  }
-
-  private void checkIsPremium() {
-
-    Purchase.PurchasesResult purchasesResult =
-      billingClient.queryPurchases(BillingClient.SkuType.INAPP);
-    List<Purchase> purchaseList = purchasesResult.getPurchasesList();
-    if(purchaseList != null) {
-      for(Purchase purchase : purchaseList) {
-        if(PRODUCT_ID_PREMIUM.equals(purchase.getSku())) {
-          Toast.makeText(
-            this,
-            getString(R.string.succeed_to_upgrade),
-            Toast.LENGTH_LONG
-          ).show();
-          setBooleanGeneralInSharedPreferences(IS_PREMIUM, true);
-          recreate();
-        }
-      }
-    }
-  }
-
-  @Override
-  public void onPurchasesUpdated(int responseCode, @Nullable List<Purchase> purchases) {
-
-    if(responseCode == BillingClient.BillingResponse.OK && purchases != null) {
-      for(Purchase purchase : purchases) {
-        if(PRODUCT_ID_PREMIUM.equals(purchase.getSku())) {
-          Toast
-            .makeText(
-              this,
-              getString(R.string.succeed_to_upgrade),
-              Toast.LENGTH_LONG
-            )
-            .show();
-          setBooleanGeneralInSharedPreferences(IS_PREMIUM, true);
-          recreate();
-        }
-      }
-    }
-    else if(responseCode == BillingClient.BillingResponse.USER_CANCELED) {
-      Toast
-        .makeText(MainActivity.this, getString(R.string.cancel_to_buy), Toast.LENGTH_LONG)
-        .show();
-    }
-    else {
-      Toast
-        .makeText(MainActivity.this, getString(R.string.error_occurred), Toast.LENGTH_LONG)
-        .show();
-    }
   }
 
   private AlertDialog createUpdateInfoMessageDialog() {
@@ -593,13 +525,414 @@ public class MainActivity extends AppCompatActivity
     });
   }
 
+  private void setupBillingServices() {
+
+    if(billingClient == null) {
+      try_count = 0;
+      billingClient = BillingClient
+        .newBuilder(this)
+        .setListener(this)
+        .enablePendingPurchases()
+        .build();
+
+      billingClient.startConnection(new BillingClientStateListener() {
+        @Override
+        public void onBillingSetupFinished(BillingResult billingResult) {
+
+          if(billingResult.getResponseCode() == BillingResponseCode.OK) {
+            // プレミアムアカウントかどうかの確認
+            checkIsPremium();
+          }
+          else {
+            try_count++;
+            if(try_count < 3) {
+              billingClient.startConnection(this);
+            }
+            else {
+              Log.e("onBillingSetup", "Cannot start connection");
+            }
+          }
+        }
+
+        @Override
+        public void onBillingServiceDisconnected() {
+
+          try_count++;
+          if(try_count < 3) {
+            billingClient.startConnection(this);
+          }
+          else {
+            Log.e("onBillingSetup", "Cannot start connection");
+          }
+        }
+      });
+    }
+    else {
+      checkIsPremium();
+    }
+  }
+
+  private void checkIsPremium() {
+
+    Purchase.PurchasesResult purchasesResult =
+      billingClient.queryPurchases(BillingClient.SkuType.INAPP);
+    int responseCode = purchasesResult.getResponseCode();
+    if(responseCode == BillingResponseCode.OK) {
+      Log.i("checkIsPremium", getResponseCodeString(responseCode));
+      List<Purchase> purchaseList = purchasesResult.getPurchasesList();
+      if(purchaseList == null || purchaseList.isEmpty()) {
+        if(!isQueriedPurchaseHistory) {
+          queryPurchaseHistory();
+        }
+      }
+      else {
+        for(Purchase purchase : purchaseList) {
+          checkPurchaseState(purchase);
+        }
+      }
+    }
+    else {
+      Log.w("checkIsPremium", getResponseCodeString(responseCode));
+    }
+  }
+
+  // 購入履歴を問い合わせる(ネットワークアクセス処理)
+  private void queryPurchaseHistory() {
+
+    billingClient.queryPurchaseHistoryAsync(
+      BillingClient.SkuType.INAPP,
+      new PurchaseHistoryResponseListener() {
+        @Override
+        public void onPurchaseHistoryResponse(
+          BillingResult billingResult,
+          List<PurchaseHistoryRecord> purchasesList
+        ) {
+
+          int responseCode = billingResult.getResponseCode();
+          if(responseCode == BillingResponseCode.OK) {
+            Log.i("queryPurchaseHistory", getResponseCodeString(responseCode));
+            setBooleanGeneralInSharedPreferences(IS_QUERIED_PURCHASE_HISTORY, true);
+            if(purchasesList == null || purchasesList.isEmpty()) {
+              Log.w("queryPurchaseHistory", "No History");
+            }
+            else {
+              for(PurchaseHistoryRecord purchase : purchasesList) {
+                if(PRODUCT_ID_PREMIUM.equals(purchase.getSku())) {
+                  Log.i("queryPurchaseHistory", purchase.getSku() + ": Purchased");
+                  Toast
+                    .makeText(
+                      MainActivity.this,
+                      getString(R.string.succeed_to_upgrade),
+                      Toast.LENGTH_LONG
+                    )
+                    .show();
+                  setBooleanGeneralInSharedPreferences(IS_PREMIUM, true);
+                  if(expandableListViewFragment != null) {
+                    expandableListViewFragment.disableAdView();
+                  }
+                }
+              }
+            }
+          }
+          else {
+            Log.w("queryPurchaseHistory", getResponseCodeString(responseCode));
+          }
+        }
+      }
+    );
+  }
+
+  @Override
+  public void onPurchasesUpdated(BillingResult billingResult, @Nullable List<Purchase> purchases) {
+
+    int responseCode = billingResult.getResponseCode();
+    if(responseCode == BillingResponseCode.OK) {
+      if(purchases == null || purchases.isEmpty()) {
+        Log.e("onPurchasesUpdated", "purchases is null or empty");
+        Toast
+          .makeText(MainActivity.this, getString(R.string.error_occurred), Toast.LENGTH_LONG)
+          .show();
+      }
+      else {
+        Log.i("onPurchasesUpdated", getResponseCodeString(responseCode));
+        for(Purchase purchase : purchases) {
+          checkPurchaseState(purchase);
+        }
+      }
+    }
+    else if(responseCode == BillingResponseCode.USER_CANCELED) {
+      Log.w("onPurchasesUpdated", getResponseCodeString(responseCode));
+      Toast
+        .makeText(MainActivity.this, getString(R.string.cancel_to_buy), Toast.LENGTH_LONG)
+        .show();
+    }
+    else {
+      Log.e("onPurchasesUpdated", getResponseCodeString(responseCode));
+      Toast
+        .makeText(MainActivity.this, getString(R.string.error_occurred), Toast.LENGTH_LONG)
+        .show();
+    }
+  }
+
+  private void checkPurchaseState(Purchase purchase) {
+
+    String purchaseState = handlePurchase(purchase);
+    if("purchased".equals(purchaseState)) {
+      Log.i(
+        "checkPurchaseState",
+        "Sku: " + purchase.getSku() + ", State: " + purchaseState
+      );
+      if(PRODUCT_ID_PREMIUM.equals(purchase.getSku())) {
+        Toast
+          .makeText(
+            this,
+            getString(R.string.succeed_to_upgrade),
+            Toast.LENGTH_LONG
+          )
+          .show();
+        setBooleanGeneralInSharedPreferences(IS_PREMIUM, true);
+        if(expandableListViewFragment != null) {
+          expandableListViewFragment.disableAdView();
+        }
+      }
+    }
+    else {
+      Log.w(
+        "checkPurchaseState",
+        "Sku: " + purchase.getSku() + ", State: " + purchaseState
+      );
+    }
+  }
+
+  // 購入を承認する
+  String handlePurchase(Purchase purchase) {
+
+    String stateStr = "error";
+    int purchaseState = purchase.getPurchaseState();
+    if(purchaseState == Purchase.PurchaseState.PURCHASED) {
+      stateStr = "purchased";
+      // まだ購入が承認されていない場合は承認を行う
+      if(!purchase.isAcknowledged()) {
+        AcknowledgePurchaseParams acknowledgePurchaseParams = AcknowledgePurchaseParams
+          .newBuilder()
+          .setPurchaseToken(purchase.getPurchaseToken())
+          .build();
+
+        billingClient.acknowledgePurchase(
+          acknowledgePurchaseParams,
+          this
+        );
+      }
+    }
+    else if(purchaseState == Purchase.PurchaseState.PENDING) {
+      stateStr = "pending";
+    }
+    else if(purchaseState == Purchase.PurchaseState.UNSPECIFIED_STATE) {
+      stateStr = "unspecified";
+    }
+
+    return stateStr;
+  }
+
+  @Override
+  public void onAcknowledgePurchaseResponse(BillingResult billingResult) {
+
+    int responseCode = billingResult.getResponseCode();
+    if(responseCode != BillingResponseCode.OK) {
+      Log.e("onAcknowledgePurchase", getResponseCodeString(responseCode));
+    }
+  }
+
   private void onBuyButtonClicked() {
 
-    BillingFlowParams flowParams = BillingFlowParams.newBuilder()
-      .setSku(PRODUCT_ID_PREMIUM)
+    getSkuDetails(PRODUCT_ID_PREMIUM).onSuccess(new Continuation<SkuDetails, Void>() {
+      @Override
+      public Void then(Task<SkuDetails> task) {
+
+        SkuDetails skuDetails = task.getResult();
+        BillingFlowParams flowParams = BillingFlowParams
+          .newBuilder()
+          .setSkuDetails(skuDetails)
+          .build();
+
+        BillingResult billingResult =
+          billingClient.launchBillingFlow(MainActivity.this, flowParams);
+
+        int responseCode = billingResult.getResponseCode();
+        if(responseCode == BillingResponseCode.OK) {
+          Log.i("onBuyButtonClicked", getResponseCodeString(responseCode));
+        }
+        else {
+          Log.e("onBuyButtonClicked", getResponseCodeString(responseCode));
+        }
+
+        return null;
+      }
+    });
+  }
+
+  private Task<SkuDetails> getSkuDetails(@NonNull final String sku) {
+
+    // continueWith()もcontinueWithTask()もクライアントの渡したContinuationインスタンス内で定義される
+    // then()は非同期で処理されるが、continueWith()と異なりcontinueWithTask()はthen()内でさらなる
+    // 非同期処理が行われることを前提としている。例えば、非同期処理を行うメソッドとして、引数に文字列を受け取り、
+    // 特定の時間停止した後、受け取った文字列をそのまま返す処理を別スレッドで行うasyncTask()を仮定すると、
+    // asyncTask("foo").continueWith()として、then()内でreturn asyncTask(task.getResult() + "bar")
+    // し、さらに.continueWith()を続けると、前のthen()内の処理であるasyncTask()内でsetResult()が呼び出され
+    // ていない(処理が完了していない)限り、そのcontinueWith()内のthen()ではtask.getResult()の値が不定となる。
+    // これはcontinueWith()の実装において、単にユーザの渡したContinuationインスタンスのthen()内の処理が
+    // 完了することが次の.continue*()メソッドの処理を開始する条件となっているためである。一方
+    // continueWithTask()では、Continuationインスタンスのthen()内に非同期処理を行うメソッドが存在する場合、
+    // そのメソッドにTask APIを実装することで、そのメソッドが返すTaskが完了することが次の.continue*()メソッド
+    // の処理を開始する条件となっているので、非同期で処理されるthen()内にさらに非同期処理が存在していても処理結果
+    // の整合性を保つことができる。onSuccess()とonSuccessTask()も全く同じ関係であり、continueWith()は、
+    // 前のTaskが完了していればそのTaskがfailed, canceled, succeededのいずれであってもthen()内の処理を行う
+    // が、onSuccess()は、前のTaskがsucceededのときのみthen()内の処理を行う。
+
+    final TaskCompletionSource<SkuDetails> taskCompletionSource =
+      new TaskCompletionSource<>();
+    if(skuDetailsList == null) {
+      querySkuDetailsList().onSuccess(new Continuation<List<SkuDetails>, Void>() {
+        @Override
+        public Void then(Task<List<SkuDetails>> task) {
+
+          skuDetailsList = task.getResult();
+          getSkuDetailsFromListAndSetTaskCompletionSource(
+            sku,
+            skuDetailsList,
+            taskCompletionSource
+          );
+          return null;
+        }
+      });
+    }
+    else {
+      getSkuDetailsFromListAndSetTaskCompletionSource(sku, skuDetailsList, taskCompletionSource);
+    }
+
+    return taskCompletionSource.getTask();
+  }
+
+  private void getSkuDetailsFromListAndSetTaskCompletionSource(
+    String sku,
+    List<SkuDetails> skuDetailsList,
+    TaskCompletionSource<SkuDetails> taskCompletionSource
+  ) {
+
+    for(SkuDetails skuDetails : skuDetailsList) {
+      if(sku.equals(skuDetails.getSku())) {
+        Log.i("getSkuDetailsFromList", sku + " found");
+        taskCompletionSource.setResult(skuDetails);
+        return;
+      }
+    }
+
+    taskCompletionSource.setError(null);
+    Log.e("getSkuDetailsFromList", sku + " not found");
+    Toast
+      .makeText(
+        this,
+        getString(R.string.error_occurred),
+        Toast.LENGTH_LONG
+      )
+      .show();
+  }
+
+  private Task<List<SkuDetails>> querySkuDetailsList() {
+
+    final TaskCompletionSource<List<SkuDetails>> taskCompletionSource =
+      new TaskCompletionSource<>();
+
+    List<String> skuList = new ArrayList<>();
+    skuList.add(PRODUCT_ID_PREMIUM);
+
+    SkuDetailsParams params = SkuDetailsParams
+      .newBuilder()
+      .setSkusList(skuList)
       .setType(BillingClient.SkuType.INAPP)
       .build();
-    billingClient.launchBillingFlow(this, flowParams);
+
+    billingClient.querySkuDetailsAsync(params, new SkuDetailsResponseListener() {
+
+      @Override
+      public void onSkuDetailsResponse(
+        BillingResult billingResult, List<SkuDetails> list
+      ) {
+
+        int responseCode = billingResult.getResponseCode();
+        if(responseCode == BillingResponseCode.OK) {
+          if(list == null || list.isEmpty()) {
+            Log.e("querySkuDetailsList", "list is null or empty");
+            taskCompletionSource.setError(null);
+            Toast
+              .makeText(
+                MainActivity.this,
+                getString(R.string.error_occurred),
+                Toast.LENGTH_LONG
+              )
+              .show();
+          }
+          else {
+            Log.i("querySkuDetailsList", getResponseCodeString(responseCode));
+            taskCompletionSource.setResult(list);
+          }
+        }
+        else if(responseCode == BillingResponseCode.USER_CANCELED) {
+          Log.w("querySkuDetailsList", getResponseCodeString(responseCode));
+          taskCompletionSource.setCancelled();
+          Toast
+            .makeText(
+              MainActivity.this,
+              getString(R.string.cancel_to_buy),
+              Toast.LENGTH_LONG
+            )
+            .show();
+        }
+        else {
+          Log.e("querySkuDetailsList", getResponseCodeString(responseCode));
+          taskCompletionSource.setError(null);
+          Toast
+            .makeText(
+              MainActivity.this,
+              getString(R.string.error_occurred),
+              Toast.LENGTH_LONG
+            )
+            .show();
+        }
+      }
+    });
+
+    return taskCompletionSource.getTask();
+  }
+
+  private String getResponseCodeString(int responseCode) {
+
+    switch(responseCode) {
+      case BillingResponseCode.OK:
+        return "OK";
+      case BillingResponseCode.USER_CANCELED:
+        return "USER_CANCELED";
+      case BillingResponseCode.SERVICE_UNAVAILABLE:
+        return "SERVICE_UNAVAILABLE";
+      case BillingResponseCode.BILLING_UNAVAILABLE:
+        return "BILLING_UNAVAILABLE";
+      case BillingResponseCode.ITEM_UNAVAILABLE:
+        return "ITEM_UNAVAILABLE";
+      case BillingResponseCode.DEVELOPER_ERROR:
+        return "DEVELOPER_ERROR";
+      case BillingResponseCode.ERROR:
+        return "ERROR";
+      case BillingResponseCode.ITEM_ALREADY_OWNED:
+        return "ITEM_ALREADY_OWNED";
+      case BillingResponseCode.ITEM_NOT_OWNED:
+        return "ITEM_NOT_OWNED";
+      case BillingResponseCode.SERVICE_DISCONNECTED:
+        return "SERVICE_DISCONNECTED";
+      case BillingResponseCode.FEATURE_NOT_SUPPORTED:
+        return "FEATURE_NOT_SUPPORTED";
+      default:
+        throw new IllegalArgumentException("Such a Response Code not exists!");
+    }
   }
 
   @Override
@@ -990,7 +1323,7 @@ public class MainActivity extends AppCompatActivity
             for(NonScheduledList list : generalSettings.getNonScheduledLists()) {
               Drawable drawable =
                 ContextCompat.getDrawable(MainActivity.this, R.drawable.ic_my_list_24dp);
-              checkNotNull(drawable);
+              requireNonNull(drawable);
               drawable = drawable.mutate();
               if(list.getColor() != 0) {
                 drawable.setColorFilter(new PorterDuffColorFilter(
@@ -1048,7 +1381,7 @@ public class MainActivity extends AppCompatActivity
 
           if(hasFocus) {
             Window dialogWindow = dialog.getWindow();
-            checkNotNull(dialogWindow);
+            requireNonNull(dialogWindow);
 
             dialogWindow.setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_VISIBLE);
           }
@@ -1175,7 +1508,7 @@ public class MainActivity extends AppCompatActivity
 
     if(snackBarItem != null) {
       View parentView = findViewById(android.R.id.content);
-      checkNotNull(parentView);
+      requireNonNull(parentView);
       Snackbar.make(parentView, getResources().getString(R.string.complete), Snackbar.LENGTH_LONG)
         .addCallback(new Snackbar.Callback() {
           @Override
@@ -1818,6 +2151,10 @@ public class MainActivity extends AppCompatActivity
   public void setBooleanGeneralInSharedPreferences(String TAG, boolean value) {
 
     switch(TAG) {
+      case IS_QUERIED_PURCHASE_HISTORY: {
+        isQueriedPurchaseHistory = value;
+        break;
+      }
       case IS_RECREATED: {
         isRecreated = value;
         break;
@@ -1877,7 +2214,7 @@ public class MainActivity extends AppCompatActivity
         this, (int)item.getId(), intent, PendingIntent.FLAG_UPDATE_CURRENT);
 
       AlarmManager alarmManager = (AlarmManager)getSystemService(Context.ALARM_SERVICE);
-      checkNotNull(alarmManager);
+      requireNonNull(alarmManager);
 
       alarmManager.setAlarmClock(
         new AlarmManager.AlarmClockInfo(item.getDate().getTimeInMillis(), null), sender);
@@ -1892,7 +2229,7 @@ public class MainActivity extends AppCompatActivity
         this, (int)item.getId(), intent, PendingIntent.FLAG_UPDATE_CURRENT);
 
       AlarmManager alarmManager = (AlarmManager)getSystemService(Context.ALARM_SERVICE);
-      checkNotNull(alarmManager);
+      requireNonNull(alarmManager);
 
       alarmManager.cancel(sender);
       sender.cancel();
@@ -1953,7 +2290,7 @@ public class MainActivity extends AppCompatActivity
 
     NotificationManager manager =
       (NotificationManager)getSystemService(NOTIFICATION_SERVICE);
-    checkNotNull(manager);
+    requireNonNull(manager);
     manager.cancelAll();
 
     if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
@@ -2018,7 +2355,7 @@ public class MainActivity extends AppCompatActivity
     drawerToggle.getDrawerArrowDrawable().setColor(menu_item_color);
     // DisplayHomeAsUpEnabledに指定する戻るボタンの色を指定
     upArrow = ContextCompat.getDrawable(this, R.drawable.abc_ic_ab_back_material);
-    checkNotNull(upArrow);
+    requireNonNull(upArrow);
     upArrow.setColorFilter(new PorterDuffColorFilter(
       menu_item_color,
       PorterDuff.Mode.SRC_IN

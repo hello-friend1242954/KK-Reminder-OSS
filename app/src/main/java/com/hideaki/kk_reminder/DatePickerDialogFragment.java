@@ -3,19 +3,18 @@ package com.hideaki.kk_reminder;
 import android.app.DatePickerDialog;
 import android.app.Dialog;
 import android.os.Bundle;
-
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
-import androidx.fragment.app.DialogFragment;
-
 import android.text.format.DateFormat;
 import android.widget.DatePicker;
 
 import java.util.Calendar;
 import java.util.Locale;
 
-import static com.google.common.base.Preconditions.checkNotNull;
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.fragment.app.DialogFragment;
+
 import static com.hideaki.kk_reminder.UtilClass.LOCALE;
+import static java.util.Objects.requireNonNull;
 
 public class DatePickerDialogFragment extends DialogFragment
   implements DatePickerDialog.OnDateSetListener {
@@ -36,7 +35,7 @@ public class DatePickerDialogFragment extends DialogFragment
     int day = MainEditFragment.final_cal.get(Calendar.DAY_OF_MONTH);
 
     MainActivity activity = (MainActivity)getActivity();
-    checkNotNull(activity);
+    requireNonNull(activity);
 
     if(activity.isDarkMode) {
       return new DatePickerDialog(activity, this, year, month, day);

@@ -6,16 +6,6 @@ import android.graphics.PorterDuff;
 import android.graphics.PorterDuffColorFilter;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
-
-import androidx.annotation.NonNull;
-import androidx.fragment.app.Fragment;
-import androidx.fragment.app.FragmentManager;
-import androidx.core.content.ContextCompat;
-import androidx.drawerlayout.widget.DrawerLayout;
-import androidx.appcompat.app.ActionBar;
-import androidx.appcompat.app.AlertDialog;
-import androidx.appcompat.widget.Toolbar;
-
 import android.view.Gravity;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
@@ -31,10 +21,19 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-import static com.google.common.base.Preconditions.checkNotNull;
+import androidx.annotation.NonNull;
+import androidx.appcompat.app.ActionBar;
+import androidx.appcompat.app.AlertDialog;
+import androidx.appcompat.widget.Toolbar;
+import androidx.core.content.ContextCompat;
+import androidx.drawerlayout.widget.DrawerLayout;
+import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentManager;
+
 import static com.hideaki.kk_reminder.UtilClass.ITEM;
 import static com.hideaki.kk_reminder.UtilClass.NOTES_COMPARATOR;
 import static com.hideaki.kk_reminder.UtilClass.getPxFromDp;
+import static java.util.Objects.requireNonNull;
 
 public class NotesChecklistModeFragment extends Fragment {
 
@@ -80,7 +79,7 @@ public class NotesChecklistModeFragment extends Fragment {
     this.setHasOptionsMenu(true);
 
     Bundle args = getArguments();
-    checkNotNull(args);
+    requireNonNull(args);
     item = (Item)args.getSerializable(ITEM);
 
     notesTodoListAdapter = new NotesTodoListAdapter(activity, this);
@@ -96,7 +95,7 @@ public class NotesChecklistModeFragment extends Fragment {
 
     if(MainEditFragment.is_notes_popping) {
       FragmentManager manager = getFragmentManager();
-      checkNotNull(manager);
+      requireNonNull(manager);
       manager.popBackStack();
     }
     View view = inflater.inflate(R.layout.notes_checklist_layout, container, false);
@@ -193,7 +192,7 @@ public class NotesChecklistModeFragment extends Fragment {
 
     Toolbar toolbar = activity.findViewById(R.id.toolbar_layout);
     Drawable drawable = toolbar.getOverflowIcon();
-    checkNotNull(drawable);
+    requireNonNull(drawable);
     drawable = drawable.mutate();
     drawable.setColorFilter(new PorterDuffColorFilter(
       activity.menu_item_color,
@@ -202,7 +201,7 @@ public class NotesChecklistModeFragment extends Fragment {
     toolbar.setOverflowIcon(drawable);
     activity.setSupportActionBar(toolbar);
     actionBar = activity.getSupportActionBar();
-    checkNotNull(actionBar);
+    requireNonNull(actionBar);
 
     activity.drawerToggle.setDrawerIndicatorEnabled(false);
     actionBar.setHomeAsUpIndicator(activity.upArrow);
@@ -226,7 +225,7 @@ public class NotesChecklistModeFragment extends Fragment {
 
     sortItem = menu.findItem(R.id.sort);
     Drawable drawable = ContextCompat.getDrawable(activity, R.drawable.ic_sort_24dp);
-    checkNotNull(drawable);
+    requireNonNull(drawable);
     drawable = drawable.mutate();
     drawable.setColorFilter(new PorterDuffColorFilter(
       activity.menu_item_color,
@@ -236,7 +235,7 @@ public class NotesChecklistModeFragment extends Fragment {
 
     editModeItem = menu.findItem(R.id.edit_mode);
     drawable = ContextCompat.getDrawable(activity, R.drawable.ic_edit_24dp);
-    checkNotNull(drawable);
+    requireNonNull(drawable);
     drawable = drawable.mutate();
     drawable.setColorFilter(new PorterDuffColorFilter(
       activity.menu_item_color,
@@ -464,7 +463,7 @@ public class NotesChecklistModeFragment extends Fragment {
 
         MainEditFragment.is_notes_popping = true;
         FragmentManager manager = getFragmentManager();
-        checkNotNull(manager);
+        requireNonNull(manager);
         manager.popBackStack();
 
         return true;

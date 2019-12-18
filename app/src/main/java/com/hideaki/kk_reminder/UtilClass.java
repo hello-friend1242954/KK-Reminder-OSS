@@ -28,7 +28,6 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.OutputStream;
 import java.lang.reflect.Field;
-import java.nio.charset.StandardCharsets;
 import java.util.Calendar;
 import java.util.Locale;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -88,6 +87,7 @@ class UtilClass {
 //  static final String STOPPED = "STOPPED";
   static final String BOOLEAN_GENERAL = "BOOLEAN_GENERAL";
   static final String BOOLEAN_GENERAL_COPY = "BOOLEAN_GENERAL_COPY";
+  static final String IS_QUERIED_PURCHASE_HISTORY = "IS_QUERIED_PURCHASE_HISTORY";
   static final String IS_RECREATED = "IS_RECREATED";
   static final String IS_ID_TABLE_FLOOD = "IS_ID_TABLE_FLOOD";
   static final String IS_DARK_MODE = "IS_DARK_MODE";

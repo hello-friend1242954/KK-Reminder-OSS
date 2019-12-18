@@ -36,10 +36,10 @@ import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
 
-import static com.google.common.base.Preconditions.checkNotNull;
 import static com.hideaki.kk_reminder.UtilClass.IS_EXPANDABLE_TODO;
 import static com.hideaki.kk_reminder.UtilClass.generateUniqueId;
 import static com.hideaki.kk_reminder.UtilClass.setCursorDrawableColor;
+import static java.util.Objects.requireNonNull;
 
 
 public class ActionBarFragment extends Fragment {
@@ -95,7 +95,7 @@ public class ActionBarFragment extends Fragment {
     Toolbar toolbar = activity.findViewById(R.id.toolbar_layout);
     activity.setSupportActionBar(toolbar);
     actionBar = activity.getSupportActionBar();
-    checkNotNull(actionBar);
+    requireNonNull(actionBar);
 
     activity.drawerToggle.setDrawerIndicatorEnabled(true);
     if(order == 3) {
@@ -188,7 +188,7 @@ public class ActionBarFragment extends Fragment {
         for(final Tag tag : activity.generalSettings.getTagList()) {
 
           Drawable drawable = ContextCompat.getDrawable(activity, R.drawable.ic_pallet_24dp);
-          checkNotNull(drawable);
+          requireNonNull(drawable);
           drawable = drawable.mutate();
           if(tag.getPrimary_color() != 0) {
             drawable.setColorFilter(new PorterDuffColorFilter(
@@ -433,7 +433,7 @@ public class ActionBarFragment extends Fragment {
               // 新しく追加したリストのリストア
               for(NonScheduledList list : activity.generalSettings.getNonScheduledLists()) {
                 Drawable drawable = ContextCompat.getDrawable(activity, R.drawable.ic_my_list_24dp);
-                checkNotNull(drawable);
+                requireNonNull(drawable);
                 drawable = drawable.mutate();
                 if(list.getColor() != 0) {
                   drawable.setColorFilter(new PorterDuffColorFilter(
@@ -596,7 +596,7 @@ public class ActionBarFragment extends Fragment {
   private void initTagSearchItem() {
 
     Drawable drawable = ContextCompat.getDrawable(activity, R.drawable.ic_pallet_24dp);
-    checkNotNull(drawable);
+    requireNonNull(drawable);
     drawable = drawable.mutate();
     drawable.setColorFilter(new PorterDuffColorFilter(
       activity.menu_item_color,
@@ -608,7 +608,7 @@ public class ActionBarFragment extends Fragment {
   private void initSortItem() {
 
     Drawable drawable = ContextCompat.getDrawable(activity, R.drawable.ic_sort_24dp);
-    checkNotNull(drawable);
+    requireNonNull(drawable);
     drawable = drawable.mutate();
     drawable.setColorFilter(new PorterDuffColorFilter(
       activity.menu_item_color,
@@ -620,7 +620,7 @@ public class ActionBarFragment extends Fragment {
   private void initAddItem() {
 
     Drawable drawable = ContextCompat.getDrawable(activity, R.drawable.ic_add_circle_24dp);
-    checkNotNull(drawable);
+    requireNonNull(drawable);
     drawable = drawable.mutate();
     drawable.setColorFilter(new PorterDuffColorFilter(
       activity.menu_item_color,
@@ -632,7 +632,7 @@ public class ActionBarFragment extends Fragment {
   private void initAlignTopItem() {
 
     Drawable drawable = ContextCompat.getDrawable(activity, R.drawable.ic_vertical_align_top_24dp);
-    checkNotNull(drawable);
+    requireNonNull(drawable);
     drawable = drawable.mutate();
     drawable.setColorFilter(new PorterDuffColorFilter(
       activity.menu_item_color,
@@ -656,7 +656,7 @@ public class ActionBarFragment extends Fragment {
 
     // アイコンの色
     Drawable drawable = ContextCompat.getDrawable(activity, R.drawable.ic_search_white_24dp);
-    checkNotNull(drawable);
+    requireNonNull(drawable);
     drawable = drawable.mutate();
     drawable.setColorFilter(new PorterDuffColorFilter(
       activity.menu_item_color,

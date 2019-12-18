@@ -9,17 +9,6 @@ import android.content.Intent;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
-
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
-import androidx.fragment.app.FragmentManager;
-import androidx.core.content.ContextCompat;
-import androidx.appcompat.app.ActionBar;
-import androidx.appcompat.app.AlertDialog;
-import androidx.preference.Preference;
-import androidx.preference.PreferenceScreen;
-import androidx.appcompat.widget.Toolbar;
-
 import android.text.format.DateFormat;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
@@ -51,10 +40,20 @@ import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 
-import static com.google.common.base.Preconditions.checkNotNull;
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.appcompat.app.ActionBar;
+import androidx.appcompat.app.AlertDialog;
+import androidx.appcompat.widget.Toolbar;
+import androidx.core.content.ContextCompat;
+import androidx.fragment.app.FragmentManager;
+import androidx.preference.Preference;
+import androidx.preference.PreferenceScreen;
+
 import static com.hideaki.kk_reminder.UtilClass.MENU_POSITION;
 import static com.hideaki.kk_reminder.UtilClass.REQUEST_CODE_SIGN_IN;
 import static com.hideaki.kk_reminder.UtilClass.SUBMENU_POSITION;
+import static java.util.Objects.requireNonNull;
 
 public class BackupAndRestoreFragment extends BasePreferenceFragmentCompat
   implements Preference.OnPreferenceClickListener {
@@ -120,7 +119,7 @@ public class BackupAndRestoreFragment extends BasePreferenceFragmentCompat
   ) {
 
     View view = super.onCreateView(inflater, container, savedInstanceState);
-    checkNotNull(view);
+    requireNonNull(view);
 
     if(activity.isDarkMode) {
       view.setBackgroundColor(activity.backgroundMaterialDarkColor);
@@ -132,7 +131,7 @@ public class BackupAndRestoreFragment extends BasePreferenceFragmentCompat
     Toolbar toolbar = activity.findViewById(R.id.toolbar_layout);
     activity.setSupportActionBar(toolbar);
     ActionBar actionBar = activity.getSupportActionBar();
-    checkNotNull(actionBar);
+    requireNonNull(actionBar);
 
     activity.drawerToggle.setDrawerIndicatorEnabled(false);
     actionBar.setHomeAsUpIndicator(activity.upArrow);
@@ -156,7 +155,7 @@ public class BackupAndRestoreFragment extends BasePreferenceFragmentCompat
   public boolean onOptionsItemSelected(@NonNull MenuItem item) {
 
     FragmentManager manager = getFragmentManager();
-    checkNotNull(manager);
+    requireNonNull(manager);
     manager.popBackStack();
     return super.onOptionsItemSelected(item);
   }
@@ -531,7 +530,7 @@ public class BackupAndRestoreFragment extends BasePreferenceFragmentCompat
         activity, Collections.singleton(DriveScopes.DRIVE_FILE));
 
       Account account = signInAccount.getAccount();
-      checkNotNull(account);
+      requireNonNull(account);
       credential.setSelectedAccount(account);
 
       Drive googleDriveService = new Drive.Builder(

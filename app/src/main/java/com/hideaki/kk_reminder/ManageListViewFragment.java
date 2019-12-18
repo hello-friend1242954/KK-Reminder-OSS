@@ -2,15 +2,6 @@ package com.hideaki.kk_reminder;
 
 import android.content.Context;
 import android.os.Bundle;
-
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
-import androidx.fragment.app.Fragment;
-import androidx.fragment.app.FragmentManager;
-import androidx.core.content.ContextCompat;
-import androidx.core.view.GravityCompat;
-import androidx.appcompat.app.AlertDialog;
-
 import android.view.Gravity;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
@@ -23,15 +14,23 @@ import android.widget.ListView;
 import com.google.android.gms.ads.AdRequest;
 import com.google.android.gms.ads.AdView;
 
-import static com.google.common.base.Preconditions.checkNotNull;
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.appcompat.app.AlertDialog;
+import androidx.core.content.ContextCompat;
+import androidx.core.view.GravityCompat;
+import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentManager;
+
 import static com.hideaki.kk_reminder.UtilClass.getPxFromDp;
+import static java.util.Objects.requireNonNull;
 
 public class ManageListViewFragment extends Fragment {
 
   static final String TAG = ManageListViewFragment.class.getSimpleName();
   private MainActivity activity;
   private ListView oldListView;
-  static int position;
+  private static int position;
   private static int offset;
 
   public static ManageListViewFragment newInstance() {
@@ -49,7 +48,7 @@ public class ManageListViewFragment extends Fragment {
     }
     else {
       FragmentManager manager = getFragmentManager();
-      checkNotNull(manager);
+      requireNonNull(manager);
       manager
         .beginTransaction()
         .remove(this)

@@ -6,18 +6,6 @@ import android.graphics.PorterDuff;
 import android.graphics.PorterDuffColorFilter;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
-
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
-import androidx.constraintlayout.widget.ConstraintLayout;
-import androidx.fragment.app.Fragment;
-import androidx.fragment.app.FragmentManager;
-import androidx.core.content.ContextCompat;
-import androidx.drawerlayout.widget.DrawerLayout;
-import androidx.appcompat.app.ActionBar;
-import androidx.appcompat.app.AlertDialog;
-import androidx.appcompat.widget.Toolbar;
-
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -34,9 +22,20 @@ import com.google.android.gms.ads.AdView;
 
 import java.util.ArrayList;
 
-import static com.google.common.base.Preconditions.checkNotNull;
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.appcompat.app.ActionBar;
+import androidx.appcompat.app.AlertDialog;
+import androidx.appcompat.widget.Toolbar;
+import androidx.constraintlayout.widget.ConstraintLayout;
+import androidx.core.content.ContextCompat;
+import androidx.drawerlayout.widget.DrawerLayout;
+import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentManager;
+
 import static com.hideaki.kk_reminder.UtilClass.getPxFromDp;
 import static com.hideaki.kk_reminder.UtilClass.setCursorDrawableColor;
+import static java.util.Objects.requireNonNull;
 
 public class TagEditListViewFragment extends Fragment implements View.OnClickListener {
 
@@ -69,7 +68,7 @@ public class TagEditListViewFragment extends Fragment implements View.OnClickLis
     }
     else {
       FragmentManager manager = getFragmentManager();
-      checkNotNull(manager);
+      requireNonNull(manager);
       manager
         .beginTransaction()
         .remove(this)
@@ -145,7 +144,7 @@ public class TagEditListViewFragment extends Fragment implements View.OnClickLis
     Toolbar toolbar = activity.findViewById(R.id.toolbar_layout);
     activity.setSupportActionBar(toolbar);
     actionBar = activity.getSupportActionBar();
-    checkNotNull(actionBar);
+    requireNonNull(actionBar);
 
     activity.drawerToggle.setDrawerIndicatorEnabled(false);
     actionBar.setHomeAsUpIndicator(activity.upArrow);
@@ -172,7 +171,7 @@ public class TagEditListViewFragment extends Fragment implements View.OnClickLis
     // 編集メニューの実装
     editItem = menu.findItem(R.id.edit);
     Drawable drawable = ContextCompat.getDrawable(activity, R.drawable.ic_edit_24dp);
-    checkNotNull(drawable);
+    requireNonNull(drawable);
     drawable = drawable.mutate();
     drawable.setColorFilter(new PorterDuffColorFilter(
       activity.menu_item_color,
@@ -183,7 +182,7 @@ public class TagEditListViewFragment extends Fragment implements View.OnClickLis
     // ソートメニューの実装
     sortItem = menu.findItem(R.id.sort);
     drawable = ContextCompat.getDrawable(activity, R.drawable.ic_sort_24dp);
-    checkNotNull(drawable);
+    requireNonNull(drawable);
     drawable = drawable.mutate();
     drawable.setColorFilter(new PorterDuffColorFilter(
       activity.menu_item_color,
@@ -261,7 +260,7 @@ public class TagEditListViewFragment extends Fragment implements View.OnClickLis
 
         ColorPickerListAdapter.from_list_tag_edit = false;
         FragmentManager manager = getFragmentManager();
-        checkNotNull(manager);
+        requireNonNull(manager);
         manager.popBackStack();
         return true;
       }
@@ -341,7 +340,7 @@ public class TagEditListViewFragment extends Fragment implements View.OnClickLis
 
         if(hasFocus) {
           Window dialogWindow = dialog.getWindow();
-          checkNotNull(dialogWindow);
+          requireNonNull(dialogWindow);
 
           dialogWindow.setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_VISIBLE);
         }

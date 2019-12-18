@@ -7,19 +7,19 @@ import android.content.Context;
 import android.content.Intent;
 import android.os.Build;
 
-import androidx.annotation.RequiresApi;
-
 import java.io.File;
 import java.io.IOException;
 import java.util.List;
 
-import static com.google.common.base.Preconditions.checkNotNull;
+import androidx.annotation.RequiresApi;
+
 import static com.hideaki.kk_reminder.UtilClass.ACTION_IN_NOTIFICATION;
 import static com.hideaki.kk_reminder.UtilClass.ITEM;
 import static com.hideaki.kk_reminder.UtilClass.copyDatabase;
 import static com.hideaki.kk_reminder.UtilClass.copySharedPreferences;
 import static com.hideaki.kk_reminder.UtilClass.deserialize;
 import static com.hideaki.kk_reminder.UtilClass.serialize;
+import static java.util.Objects.requireNonNull;
 
 public class StartupReceiver extends BroadcastReceiver {
 
@@ -62,7 +62,7 @@ public class StartupReceiver extends BroadcastReceiver {
     for(byte[] stream : streamList) {
 
       Item item = (Item)deserialize(stream);
-      checkNotNull(item);
+      requireNonNull(item);
 
       if(
         item.getDate().getTimeInMillis() > System.currentTimeMillis() &&
@@ -75,7 +75,7 @@ public class StartupReceiver extends BroadcastReceiver {
           context, (int)item.getId(), set_alarm, PendingIntent.FLAG_UPDATE_CURRENT);
 
         AlarmManager alarmManager = (AlarmManager)context.getSystemService(Context.ALARM_SERVICE);
-        checkNotNull(alarmManager);
+        requireNonNull(alarmManager);
 
         alarmManager.setAlarmClock(
           new AlarmManager.AlarmClockInfo(
@@ -103,7 +103,7 @@ public class StartupReceiver extends BroadcastReceiver {
     File file = directBootContext
       .getDatabasePath(MyDatabaseHelper.DATABASE_COPY)
       .getParentFile();
-    checkNotNull(file);
+    requireNonNull(file);
     String parentPath = file.getAbsolutePath();
 
     return new File(parentPath + "/" + fileName);

@@ -8,12 +8,6 @@ import android.graphics.PorterDuff;
 import android.graphics.PorterDuffColorFilter;
 import android.graphics.drawable.GradientDrawable;
 import android.os.Bundle;
-
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
-import androidx.fragment.app.DialogFragment;
-import androidx.appcompat.app.AlertDialog;
-
 import android.view.View;
 import android.view.Window;
 import android.view.WindowManager;
@@ -22,9 +16,14 @@ import android.widget.ImageView;
 
 import java.util.Locale;
 
-import static com.google.common.base.Preconditions.checkNotNull;
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.appcompat.app.AlertDialog;
+import androidx.fragment.app.DialogFragment;
+
 import static com.hideaki.kk_reminder.UtilClass.LOCALE;
 import static com.hideaki.kk_reminder.UtilClass.setCursorDrawableColor;
+import static java.util.Objects.requireNonNull;
 
 public class NotifyIntervalTimePickerDialogFragment extends DialogFragment {
 
@@ -42,7 +41,7 @@ public class NotifyIntervalTimePickerDialogFragment extends DialogFragment {
 
     View view = View.inflate(getContext(), R.layout.notify_interval_time_picker, null);
     final MainActivity activity = (MainActivity)getActivity();
-    checkNotNull(activity);
+    requireNonNull(activity);
 
     time = view.findViewById(R.id.time);
     setCursorDrawableColor(activity, time);
@@ -225,7 +224,7 @@ public class NotifyIntervalTimePickerDialogFragment extends DialogFragment {
 
         if(hasFocus) {
           Window dialogWindow = dialog.getWindow();
-          checkNotNull(dialogWindow);
+          requireNonNull(dialogWindow);
 
           dialogWindow.setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_VISIBLE);
         }

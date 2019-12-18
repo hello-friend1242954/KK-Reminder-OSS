@@ -3,16 +3,14 @@ package com.hideaki.kk_reminder;
 import android.app.Dialog;
 import android.app.TimePickerDialog;
 import android.os.Bundle;
+import android.widget.TextView;
+import android.widget.TimePicker;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.DialogFragment;
 import androidx.fragment.app.FragmentManager;
 
-import android.widget.TextView;
-import android.widget.TimePicker;
-
-import static com.google.common.base.Preconditions.checkNotNull;
 import static com.hideaki.kk_reminder.UtilClass.DEFAULT_MINUS_TIME_1_HOUR;
 import static com.hideaki.kk_reminder.UtilClass.DEFAULT_MINUS_TIME_1_MINUTE;
 import static com.hideaki.kk_reminder.UtilClass.DEFAULT_MINUS_TIME_2_HOUR;
@@ -25,6 +23,7 @@ import static com.hideaki.kk_reminder.UtilClass.DEFAULT_PLUS_TIME_2_HOUR;
 import static com.hideaki.kk_reminder.UtilClass.DEFAULT_PLUS_TIME_2_MINUTE;
 import static com.hideaki.kk_reminder.UtilClass.DEFAULT_PLUS_TIME_3_HOUR;
 import static com.hideaki.kk_reminder.UtilClass.DEFAULT_PLUS_TIME_3_MINUTE;
+import static java.util.Objects.requireNonNull;
 
 public class DefaultControlTimePickerDialogFragment extends DialogFragment
   implements TimePickerDialog.OnTimeSetListener {
@@ -59,7 +58,7 @@ public class DefaultControlTimePickerDialogFragment extends DialogFragment
   public Dialog onCreateDialog(@Nullable Bundle savedInstanceState) {
 
     activity = (MainActivity)getActivity();
-    checkNotNull(activity);
+    requireNonNull(activity);
 
     int hour;
     int minute;

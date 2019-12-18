@@ -29,7 +29,6 @@ import androidx.preference.Preference;
 import androidx.preference.PreferenceScreen;
 
 import static android.content.Context.MODE_PRIVATE;
-import static com.google.common.base.Preconditions.checkNotNull;
 import static com.hideaki.kk_reminder.UtilClass.DEFAULT_VIBRATION_PATTERN;
 import static com.hideaki.kk_reminder.UtilClass.STRING_GENERAL;
 import static com.hideaki.kk_reminder.UtilClass.VIBRATION_PATTERN;
@@ -37,6 +36,7 @@ import static com.hideaki.kk_reminder.UtilClass.getPxFromDp;
 import static com.hideaki.kk_reminder.UtilClass.getRegularizedVibrationStr;
 import static com.hideaki.kk_reminder.UtilClass.getVibrationPattern;
 import static com.hideaki.kk_reminder.UtilClass.setCursorDrawableColor;
+import static java.util.Objects.requireNonNull;
 
 public class DefaultVibrationEditFragment extends BasePreferenceFragmentCompat {
 
@@ -110,7 +110,7 @@ public class DefaultVibrationEditFragment extends BasePreferenceFragmentCompat {
               }
               long[] vibrationPattern = getVibrationPattern(vibrationStr);
               Vibrator vibrator = (Vibrator)activity.getSystemService(Context.VIBRATOR_SERVICE);
-              checkNotNull(vibrator);
+              requireNonNull(vibrator);
               if(android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
                 VibrationEffect effect =
                   VibrationEffect.createWaveform(vibrationPattern, -1);
@@ -153,7 +153,7 @@ public class DefaultVibrationEditFragment extends BasePreferenceFragmentCompat {
 
             if(hasFocus) {
               Window dialogWindow = dialog.getWindow();
-              checkNotNull(dialogWindow);
+              requireNonNull(dialogWindow);
 
               dialogWindow.setSoftInputMode(
                 WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_VISIBLE
@@ -176,7 +176,7 @@ public class DefaultVibrationEditFragment extends BasePreferenceFragmentCompat {
   ) {
 
     View view = super.onCreateView(inflater, container, savedInstanceState);
-    checkNotNull(view);
+    requireNonNull(view);
 
     if(activity.isDarkMode) {
       view.setBackgroundColor(activity.backgroundMaterialDarkColor);
@@ -188,7 +188,7 @@ public class DefaultVibrationEditFragment extends BasePreferenceFragmentCompat {
     Toolbar toolbar = activity.findViewById(R.id.toolbar_layout);
     activity.setSupportActionBar(toolbar);
     ActionBar actionBar = activity.getSupportActionBar();
-    checkNotNull(actionBar);
+    requireNonNull(actionBar);
 
     activity.drawerToggle.setDrawerIndicatorEnabled(false);
     actionBar.setHomeAsUpIndicator(activity.upArrow);
@@ -211,7 +211,7 @@ public class DefaultVibrationEditFragment extends BasePreferenceFragmentCompat {
   public boolean onOptionsItemSelected(@NonNull MenuItem item) {
 
     FragmentManager manager = getFragmentManager();
-    checkNotNull(manager);
+    requireNonNull(manager);
     manager.popBackStack();
     return super.onOptionsItemSelected(item);
   }

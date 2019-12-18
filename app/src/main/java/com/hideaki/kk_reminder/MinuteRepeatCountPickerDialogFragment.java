@@ -7,12 +7,6 @@ import android.graphics.PorterDuff;
 import android.graphics.PorterDuffColorFilter;
 import android.graphics.drawable.GradientDrawable;
 import android.os.Bundle;
-
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
-import androidx.fragment.app.DialogFragment;
-import androidx.appcompat.app.AlertDialog;
-
 import android.view.View;
 import android.view.Window;
 import android.view.WindowManager;
@@ -21,9 +15,14 @@ import android.widget.ImageView;
 
 import java.util.Locale;
 
-import static com.google.common.base.Preconditions.checkNotNull;
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.appcompat.app.AlertDialog;
+import androidx.fragment.app.DialogFragment;
+
 import static com.hideaki.kk_reminder.UtilClass.LOCALE;
 import static com.hideaki.kk_reminder.UtilClass.setCursorDrawableColor;
+import static java.util.Objects.requireNonNull;
 
 public class MinuteRepeatCountPickerDialogFragment extends DialogFragment {
 
@@ -41,7 +40,7 @@ public class MinuteRepeatCountPickerDialogFragment extends DialogFragment {
 
     View view = View.inflate(getContext(), R.layout.minute_repeat_count_picker, null);
     final MainActivity activity = (MainActivity)getActivity();
-    checkNotNull(activity);
+    requireNonNull(activity);
 
     count = view.findViewById(R.id.count);
     setCursorDrawableColor(activity, count);
@@ -178,7 +177,7 @@ public class MinuteRepeatCountPickerDialogFragment extends DialogFragment {
 
         if(hasFocus) {
           Window dialogWindow = dialog.getWindow();
-          checkNotNull(dialogWindow);
+          requireNonNull(dialogWindow);
 
           dialogWindow.setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_VISIBLE);
         }

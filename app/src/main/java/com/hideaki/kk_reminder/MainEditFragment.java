@@ -45,13 +45,13 @@ import androidx.transition.Transition;
 
 import static android.app.Activity.RESULT_OK;
 import static com.google.common.base.Preconditions.checkArgument;
-import static com.google.common.base.Preconditions.checkNotNull;
 import static com.hideaki.kk_reminder.UtilClass.ITEM;
 import static com.hideaki.kk_reminder.UtilClass.LIST;
 import static com.hideaki.kk_reminder.UtilClass.LOCALE;
 import static com.hideaki.kk_reminder.UtilClass.MENU_POSITION;
 import static com.hideaki.kk_reminder.UtilClass.REQUEST_CODE_RINGTONE_PICKER;
 import static com.hideaki.kk_reminder.UtilClass.generateUniqueId;
+import static java.util.Objects.requireNonNull;
 
 public class MainEditFragment extends BasePreferenceFragmentCompat
   implements Preference.OnPreferenceClickListener, Preference.OnPreferenceChangeListener {
@@ -74,8 +74,7 @@ public class MainEditFragment extends BasePreferenceFragmentCompat
   static DayRepeat dayRepeat;
   static MinuteRepeat minuteRepeat;
   private static boolean is_edit;
-  static int color;
-  static int order;
+  private static int order;
   static NonScheduledList list;
   private MainActivity activity;
   static List<Item> itemListToMove;
@@ -214,14 +213,14 @@ public class MainEditFragment extends BasePreferenceFragmentCompat
       setHasOptionsMenu(true);
 
       Bundle args = getArguments();
-      checkNotNull(args);
+      requireNonNull(args);
       if(order == 3) {
         list = (NonScheduledList)args.getSerializable(LIST);
-        checkNotNull(list);
+        requireNonNull(list);
       }
       else {
         item = (Item)args.getSerializable(ITEM);
-        checkNotNull(item);
+        requireNonNull(item);
       }
 
       // GeneralSettingsに影響を受ける部分の設定の初期化
@@ -312,7 +311,7 @@ public class MainEditFragment extends BasePreferenceFragmentCompat
     else {
       is_destroyed = true;
       FragmentManager manager = getFragmentManager();
-      checkNotNull(manager);
+      requireNonNull(manager);
       manager
         .beginTransaction()
         .remove(this)
@@ -340,11 +339,11 @@ public class MainEditFragment extends BasePreferenceFragmentCompat
     if(!is_destroyed) {
       if(MainEditFragment.is_main_popping) {
         FragmentManager manager = getFragmentManager();
-        checkNotNull(manager);
+        requireNonNull(manager);
         manager.popBackStack();
       }
       View view = super.onCreateView(inflater, container, savedInstanceState);
-      checkNotNull(view);
+      requireNonNull(view);
 
       if(activity.isDarkMode) {
         view.setBackgroundColor(activity.backgroundMaterialDarkColor);
@@ -380,7 +379,7 @@ public class MainEditFragment extends BasePreferenceFragmentCompat
       Toolbar toolbar = activity.findViewById(R.id.toolbar_layout);
       activity.setSupportActionBar(toolbar);
       ActionBar actionBar = activity.getSupportActionBar();
-      checkNotNull(actionBar);
+      requireNonNull(actionBar);
 
       activity.drawerToggle.setDrawerIndicatorEnabled(false);
       actionBar.setHomeAsUpIndicator(activity.upArrow);
@@ -484,7 +483,7 @@ public class MainEditFragment extends BasePreferenceFragmentCompat
     // 完了メニューの実装
     MenuItem done_item = menu.findItem(R.id.done);
     Drawable drawable = ContextCompat.getDrawable(activity, R.drawable.ic_check_circle_24dp);
-    checkNotNull(drawable);
+    requireNonNull(drawable);
     drawable = drawable.mutate();
     drawable.setColorFilter(new PorterDuffColorFilter(
       activity.menu_item_color,
@@ -496,7 +495,7 @@ public class MainEditFragment extends BasePreferenceFragmentCompat
     MenuItem delete_item = menu.findItem(R.id.delete);
     if(is_edit && !is_moving_task && !is_cloning_task && order != 4) {
       drawable = ContextCompat.getDrawable(activity, R.drawable.ic_delete_24dp);
-      checkNotNull(drawable);
+      requireNonNull(drawable);
       drawable = drawable.mutate();
       drawable.setColorFilter(new PorterDuffColorFilter(
         activity.menu_item_color,
@@ -632,7 +631,7 @@ public class MainEditFragment extends BasePreferenceFragmentCompat
                 for(NonScheduledList list : activity.generalSettings.getNonScheduledLists()) {
                   Drawable drawable =
                     ContextCompat.getDrawable(activity, R.drawable.ic_my_list_24dp);
-                  checkNotNull(drawable);
+                  requireNonNull(drawable);
                   drawable = drawable.mutate();
                   if(list.getColor() != 0) {
                     drawable.setColorFilter(new PorterDuffColorFilter(
@@ -663,7 +662,7 @@ public class MainEditFragment extends BasePreferenceFragmentCompat
               }
 
               FragmentManager manager = getFragmentManager();
-              checkNotNull(manager);
+              requireNonNull(manager);
               manager.popBackStack();
             }
           })
@@ -702,7 +701,7 @@ public class MainEditFragment extends BasePreferenceFragmentCompat
         if(!next_edit_exists) {
           is_main_popping = true;
           FragmentManager manager = getFragmentManager();
-          checkNotNull(manager);
+          requireNonNull(manager);
           manager.popBackStack();
         }
 
@@ -854,7 +853,7 @@ public class MainEditFragment extends BasePreferenceFragmentCompat
     this.setExitTransition(transition);
     next.setEnterTransition(transition);
     FragmentManager manager = getFragmentManager();
-    checkNotNull(manager);
+    requireNonNull(manager);
     manager
       .beginTransaction()
       .remove(this)
@@ -1020,7 +1019,7 @@ public class MainEditFragment extends BasePreferenceFragmentCompat
       // 新しく追加したリストのリストア
       for(NonScheduledList list : activity.generalSettings.getNonScheduledLists()) {
         Drawable drawable = ContextCompat.getDrawable(activity, R.drawable.ic_my_list_24dp);
-        checkNotNull(drawable);
+        requireNonNull(drawable);
         drawable = drawable.mutate();
         if(list.getColor() != 0) {
           drawable.setColorFilter(new PorterDuffColorFilter(
@@ -1064,7 +1063,7 @@ public class MainEditFragment extends BasePreferenceFragmentCompat
     if(!next_edit_exists) {
       is_main_popping = true;
       FragmentManager manager = getFragmentManager();
-      checkNotNull(manager);
+      requireNonNull(manager);
       manager.popBackStack();
     }
   }

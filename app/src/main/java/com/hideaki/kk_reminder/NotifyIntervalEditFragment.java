@@ -3,17 +3,6 @@ package com.hideaki.kk_reminder;
 import android.content.Context;
 import android.content.res.Resources;
 import android.os.Bundle;
-
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
-import androidx.fragment.app.FragmentManager;
-import androidx.core.content.ContextCompat;
-import androidx.appcompat.app.ActionBar;
-import androidx.preference.CheckBoxPreference;
-import androidx.preference.Preference;
-import androidx.preference.PreferenceScreen;
-import androidx.appcompat.widget.Toolbar;
-
 import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
@@ -21,8 +10,18 @@ import android.view.ViewGroup;
 
 import java.util.Locale;
 
-import static com.google.common.base.Preconditions.checkNotNull;
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.appcompat.app.ActionBar;
+import androidx.appcompat.widget.Toolbar;
+import androidx.core.content.ContextCompat;
+import androidx.fragment.app.FragmentManager;
+import androidx.preference.CheckBoxPreference;
+import androidx.preference.Preference;
+import androidx.preference.PreferenceScreen;
+
 import static com.hideaki.kk_reminder.UtilClass.LOCALE;
+import static java.util.Objects.requireNonNull;
 
 public class NotifyIntervalEditFragment extends BasePreferenceFragmentCompat
   implements Preference.OnPreferenceClickListener,
@@ -98,7 +97,7 @@ public class NotifyIntervalEditFragment extends BasePreferenceFragmentCompat
   ) {
 
     View view = super.onCreateView(inflater, container, savedInstanceState);
-    checkNotNull(view);
+    requireNonNull(view);
 
     if(activity.isDarkMode) {
       view.setBackgroundColor(activity.backgroundMaterialDarkColor);
@@ -110,7 +109,7 @@ public class NotifyIntervalEditFragment extends BasePreferenceFragmentCompat
     Toolbar toolbar = activity.findViewById(R.id.toolbar_layout);
     activity.setSupportActionBar(toolbar);
     ActionBar actionBar = activity.getSupportActionBar();
-    checkNotNull(actionBar);
+    requireNonNull(actionBar);
 
     activity.drawerToggle.setDrawerIndicatorEnabled(false);
     actionBar.setHomeAsUpIndicator(activity.upArrow);
@@ -219,7 +218,7 @@ public class NotifyIntervalEditFragment extends BasePreferenceFragmentCompat
   public boolean onOptionsItemSelected(@NonNull MenuItem item) {
 
     FragmentManager manager = getFragmentManager();
-    checkNotNull(manager);
+    requireNonNull(manager);
     manager.popBackStack();
     return super.onOptionsItemSelected(item);
   }

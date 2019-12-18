@@ -1900,8 +1900,6 @@ public class MyExpandableListAdapter extends BaseExpandableListAdapter implement
           catch(IndexOutOfBoundsException e) {
             e.printStackTrace();
             return null;
-//            notifyDataSetChanged();
-//            return children.get(j).get(i1 - 1);
           }
         }
         count++;
@@ -1914,8 +1912,6 @@ public class MyExpandableListAdapter extends BaseExpandableListAdapter implement
     catch(IndexOutOfBoundsException e) {
       e.printStackTrace();
       return null;
-//      notifyDataSetChanged();
-//      return children.get(i).get(i1 - 1);
     }
   }
 

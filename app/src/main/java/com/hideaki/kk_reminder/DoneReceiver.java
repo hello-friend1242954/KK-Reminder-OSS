@@ -15,7 +15,6 @@ import java.util.TreeSet;
 
 import static android.content.Context.MODE_PRIVATE;
 import static android.content.Context.NOTIFICATION_SERVICE;
-import static com.google.common.base.Preconditions.checkNotNull;
 import static com.hideaki.kk_reminder.StartupReceiver.getDynamicContext;
 import static com.hideaki.kk_reminder.StartupReceiver.getIsDirectBootContext;
 import static com.hideaki.kk_reminder.UtilClass.ACTION_IN_NOTIFICATION;
@@ -34,6 +33,7 @@ import static com.hideaki.kk_reminder.UtilClass.copyDatabase;
 import static com.hideaki.kk_reminder.UtilClass.copySharedPreferences;
 import static com.hideaki.kk_reminder.UtilClass.deserialize;
 import static com.hideaki.kk_reminder.UtilClass.serialize;
+import static java.util.Objects.requireNonNull;
 
 public class DoneReceiver extends BroadcastReceiver {
 
@@ -46,7 +46,7 @@ public class DoneReceiver extends BroadcastReceiver {
 
     this.context = context;
     Item item = (Item)deserialize(intent.getByteArrayExtra(ITEM));
-    checkNotNull(item);
+    requireNonNull(item);
 
     accessor = new DBAccessor(getDynamicContext(context), getIsDirectBootContext(context));
 
@@ -57,13 +57,13 @@ public class DoneReceiver extends BroadcastReceiver {
     );
     Set<String> id_table =
       stringPreferences.getStringSet(NOTIFICATION_ID_TABLE, new TreeSet<String>());
-    checkNotNull(id_table);
+    requireNonNull(id_table);
     int parent_id = intent.getIntExtra(PARENT_NOTIFICATION_ID, 0);
     int child_id = intent.getIntExtra(CHILD_NOTIFICATION_ID, 0);
     String channelId = intent.getStringExtra(CHANNEL_ID);
     NotificationManager manager =
       (NotificationManager)context.getSystemService(NOTIFICATION_SERVICE);
-    checkNotNull(manager);
+    requireNonNull(manager);
 
     for(int i = 1; i <= child_id; i++) {
       manager.cancel(parent_id + i);
@@ -888,13 +888,13 @@ public class DoneReceiver extends BroadcastReceiver {
       else {
         tmp = (Calendar)now.clone();
         // itemに登録されている日にちが今月の日にちの最大値を超えている場合、今月の日にちの最大値を設定する
-        if(tmp.getActualMaximum(Calendar.DAY_OF_MONTH) <
-          item.getDate().get(Calendar.DAY_OF_MONTH)) {
-          tmp.set(Calendar.DAY_OF_MONTH, tmp.getActualMaximum(Calendar.DAY_OF_MONTH));
-        }
-        else {
-          tmp.set(Calendar.DAY_OF_MONTH, item.getDate().get(Calendar.DAY_OF_MONTH));
-        }
+        tmp.set(
+          Calendar.DAY_OF_MONTH,
+          Math.min(
+            tmp.getActualMaximum(Calendar.DAY_OF_MONTH),
+            item.getDate().get(Calendar.DAY_OF_MONTH)
+          )
+        );
         tmp.set(Calendar.HOUR_OF_DAY, item.getDate().get(Calendar.HOUR_OF_DAY));
         tmp.set(Calendar.MINUTE, item.getDate().get(Calendar.MINUTE));
         tmp.set(Calendar.SECOND, 0);
@@ -1020,7 +1020,7 @@ public class DoneReceiver extends BroadcastReceiver {
         context, (int)item.getId(), intent, PendingIntent.FLAG_UPDATE_CURRENT);
 
       AlarmManager alarmManager = (AlarmManager)context.getSystemService(Context.ALARM_SERVICE);
-      checkNotNull(alarmManager);
+      requireNonNull(alarmManager);
 
       alarmManager.setAlarmClock(
         new AlarmManager.AlarmClockInfo(item.getDate().getTimeInMillis(), null), sender);
@@ -1035,7 +1035,7 @@ public class DoneReceiver extends BroadcastReceiver {
         context, (int)item.getId(), intent, PendingIntent.FLAG_UPDATE_CURRENT);
 
       AlarmManager alarmManager = (AlarmManager)context.getSystemService(Context.ALARM_SERVICE);
-      checkNotNull(alarmManager);
+      requireNonNull(alarmManager);
 
       alarmManager.cancel(sender);
       sender.cancel();

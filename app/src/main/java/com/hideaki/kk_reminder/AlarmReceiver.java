@@ -26,7 +26,6 @@ import androidx.core.content.ContextCompat;
 
 import static android.content.Context.MODE_PRIVATE;
 import static android.content.Context.NOTIFICATION_SERVICE;
-import static com.google.common.base.Preconditions.checkNotNull;
 import static com.hideaki.kk_reminder.StartupReceiver.getDynamicContext;
 import static com.hideaki.kk_reminder.StartupReceiver.getIsDirectBootContext;
 import static com.hideaki.kk_reminder.UtilClass.BOOLEAN_GENERAL;
@@ -55,6 +54,7 @@ import static com.hideaki.kk_reminder.UtilClass.currentTimeMinutes;
 import static com.hideaki.kk_reminder.UtilClass.deserialize;
 import static com.hideaki.kk_reminder.UtilClass.getVibrationPattern;
 import static com.hideaki.kk_reminder.UtilClass.serialize;
+import static java.util.Objects.requireNonNull;
 
 public class AlarmReceiver extends BroadcastReceiver {
 
@@ -77,7 +77,7 @@ public class AlarmReceiver extends BroadcastReceiver {
 
     this.context = context;
     Item item = (Item)deserialize(intent.getByteArrayExtra(ITEM));
-    checkNotNull(item);
+    requireNonNull(item);
 
     accessor = new DBAccessor(getDynamicContext(context), getIsDirectBootContext(context));
 
@@ -115,7 +115,7 @@ public class AlarmReceiver extends BroadcastReceiver {
     );
     Set<String> id_table =
       stringPreferences.getStringSet(NOTIFICATION_ID_TABLE, new TreeSet<String>());
-    checkNotNull(id_table);
+    requireNonNull(id_table);
     boolean isIdTableFlood = booleanPreferences.getBoolean(IS_ID_TABLE_FLOOD, false);
     int parent_id = intent.getIntExtra(PARENT_NOTIFICATION_ID, 0);
     if(parent_id == 0) {
@@ -186,7 +186,7 @@ public class AlarmReceiver extends BroadcastReceiver {
     // タスクごとに異なるNotificationChannelを利用して通知音を区別する
     NotificationManager manager =
       (NotificationManager)context.getSystemService(NOTIFICATION_SERVICE);
-    checkNotNull(manager);
+    requireNonNull(manager);
     // あるIDで一度でも通知チャンネルを作ってしまうと、例えチャンネルを消しても再び作成したチャンネルのIDに
     // 同じものが使われていると通知チャンネルのアップデートができないので、使い捨てかつ重複しないように現在時刻
     // を通知チャンネルのIDとしている
@@ -302,7 +302,7 @@ public class AlarmReceiver extends BroadcastReceiver {
 
     // ロックされている場合、画面を点ける
     PowerManager powerManager = (PowerManager)context.getSystemService(Context.POWER_SERVICE);
-    checkNotNull(powerManager);
+    requireNonNull(powerManager);
     PowerManager.WakeLock wakeLock = powerManager.newWakeLock(
       PowerManager.FULL_WAKE_LOCK |
         PowerManager.ACQUIRE_CAUSES_WAKEUP |
@@ -328,7 +328,7 @@ public class AlarmReceiver extends BroadcastReceiver {
         + item.getNotify_interval().getMinute() * MINUTE;
 
       AlarmManager alarmManager = (AlarmManager)context.getSystemService(Context.ALARM_SERVICE);
-      checkNotNull(alarmManager);
+      requireNonNull(alarmManager);
 
       alarmManager.setAlarmClock(
         new AlarmManager.AlarmClockInfo(reset_schedule, null), recursive_sender);

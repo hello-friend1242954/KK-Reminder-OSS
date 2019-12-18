@@ -3,12 +3,6 @@ package com.hideaki.kk_reminder;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Color;
-
-import androidx.core.content.ContextCompat;
-import androidx.appcompat.app.AlertDialog;
-import androidx.appcompat.view.ActionMode;
-import androidx.cardview.widget.CardView;
-
 import android.text.format.DateFormat;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -31,9 +25,14 @@ import java.util.Locale;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import static com.google.common.base.Preconditions.checkNotNull;
+import androidx.appcompat.app.AlertDialog;
+import androidx.appcompat.view.ActionMode;
+import androidx.cardview.widget.CardView;
+import androidx.core.content.ContextCompat;
+
 import static com.hideaki.kk_reminder.UtilClass.LINE_SEPARATOR;
 import static com.hideaki.kk_reminder.UtilClass.LOCALE;
+import static java.util.Objects.requireNonNull;
 
 public class DoneListAdapter extends BaseAdapter implements Filterable {
 
@@ -560,7 +559,7 @@ public class DoneListAdapter extends BaseAdapter implements Filterable {
       }
 
       viewHolder = new ViewHolder();
-      checkNotNull(convertView);
+      requireNonNull(convertView);
       if(order == 0) {
         viewHolder.clock_image = convertView.findViewById(R.id.clock_image);
         viewHolder.time = convertView.findViewById(R.id.date);

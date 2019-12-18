@@ -2,18 +2,6 @@ package com.hideaki.kk_reminder;
 
 import android.content.Context;
 import android.os.Bundle;
-
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
-import androidx.transition.Fade;
-import androidx.transition.Transition;
-import androidx.fragment.app.FragmentManager;
-import androidx.core.content.ContextCompat;
-import androidx.appcompat.app.ActionBar;
-import androidx.preference.CheckBoxPreference;
-import androidx.preference.PreferenceScreen;
-import androidx.appcompat.widget.Toolbar;
-
 import android.text.format.DateFormat;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
@@ -25,8 +13,19 @@ import com.takisoft.fix.support.v7.preference.PreferenceFragmentCompat;
 import java.util.Calendar;
 import java.util.Locale;
 
-import static com.google.common.base.Preconditions.checkNotNull;
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.appcompat.app.ActionBar;
+import androidx.appcompat.widget.Toolbar;
+import androidx.core.content.ContextCompat;
+import androidx.fragment.app.FragmentManager;
+import androidx.preference.CheckBoxPreference;
+import androidx.preference.PreferenceScreen;
+import androidx.transition.Fade;
+import androidx.transition.Transition;
+
 import static com.hideaki.kk_reminder.UtilClass.LOCALE;
+import static java.util.Objects.requireNonNull;
 
 public class DayRepeatEditFragment extends BasePreferenceFragmentCompat
   implements MyCheckBoxPreference.MyCheckBoxPreferenceCheckedChangeListener {
@@ -48,7 +47,7 @@ public class DayRepeatEditFragment extends BasePreferenceFragmentCompat
   static String label_str_everyyear;
   static String label_str_custom;
   private int mask_num;
-  MainActivity activity;
+  private MainActivity activity;
 
   public static DayRepeatEditFragment newInstance() {
 
@@ -94,7 +93,7 @@ public class DayRepeatEditFragment extends BasePreferenceFragmentCompat
   ) {
 
     View view = super.onCreateView(inflater, container, savedInstanceState);
-    checkNotNull(view);
+    requireNonNull(view);
 
     if(activity.isDarkMode) {
       view.setBackgroundColor(activity.backgroundMaterialDarkColor);
@@ -106,7 +105,7 @@ public class DayRepeatEditFragment extends BasePreferenceFragmentCompat
     Toolbar toolbar = activity.findViewById(R.id.toolbar_layout);
     activity.setSupportActionBar(toolbar);
     ActionBar actionBar = activity.getSupportActionBar();
-    checkNotNull(actionBar);
+    requireNonNull(actionBar);
 
     activity.drawerToggle.setDrawerIndicatorEnabled(false);
     actionBar.setHomeAsUpIndicator(activity.upArrow);
@@ -238,7 +237,7 @@ public class DayRepeatEditFragment extends BasePreferenceFragmentCompat
   public boolean onOptionsItemSelected(@NonNull MenuItem item) {
 
     FragmentManager manager = getFragmentManager();
-    checkNotNull(manager);
+    requireNonNull(manager);
     manager.popBackStack();
     return super.onOptionsItemSelected(item);
   }
@@ -250,7 +249,7 @@ public class DayRepeatEditFragment extends BasePreferenceFragmentCompat
     this.setExitTransition(transition);
     next.setEnterTransition(transition);
     FragmentManager manager = getFragmentManager();
-    checkNotNull(manager);
+    requireNonNull(manager);
     manager
       .beginTransaction()
       .remove(this)

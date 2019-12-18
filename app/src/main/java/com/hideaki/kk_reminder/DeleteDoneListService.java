@@ -7,7 +7,7 @@ import androidx.annotation.Nullable;
 
 import static com.hideaki.kk_reminder.UtilClass.ITEM;
 import static com.hideaki.kk_reminder.UtilClass.deserialize;
-import static com.google.common.base.Preconditions.checkNotNull;
+import static java.util.Objects.requireNonNull;
 
 public class DeleteDoneListService extends IntentService {
 
@@ -28,9 +28,9 @@ public class DeleteDoneListService extends IntentService {
   @Override
   protected void onHandleIntent(@Nullable Intent intent) {
 
-    checkNotNull(intent);
+    requireNonNull(intent);
     Item item = (Item)deserialize(intent.getByteArrayExtra(ITEM));
-    checkNotNull(item);
+    requireNonNull(item);
     deleteDB(item, MyDatabaseHelper.DONE_TABLE);
   }
 

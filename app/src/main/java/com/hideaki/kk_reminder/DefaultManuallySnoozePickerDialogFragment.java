@@ -4,19 +4,18 @@ import android.app.Dialog;
 import android.app.TimePickerDialog;
 import android.content.res.Resources;
 import android.os.Bundle;
+import android.widget.TimePicker;
+
+import java.util.Locale;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.DialogFragment;
 
-import android.widget.TimePicker;
-
-import java.util.Locale;
-
-import static com.google.common.base.Preconditions.checkNotNull;
 import static com.hideaki.kk_reminder.UtilClass.LOCALE;
 import static com.hideaki.kk_reminder.UtilClass.SNOOZE_DEFAULT_HOUR;
 import static com.hideaki.kk_reminder.UtilClass.SNOOZE_DEFAULT_MINUTE;
+import static java.util.Objects.requireNonNull;
 
 public class DefaultManuallySnoozePickerDialogFragment extends DialogFragment
   implements TimePickerDialog.OnTimeSetListener {
@@ -36,7 +35,7 @@ public class DefaultManuallySnoozePickerDialogFragment extends DialogFragment
   public Dialog onCreateDialog(@Nullable Bundle savedInstanceState) {
 
     activity = (MainActivity)getActivity();
-    checkNotNull(activity);
+    requireNonNull(activity);
 
     int hour = activity.snooze_default_hour;
     int minute = activity.snooze_default_minute;

@@ -14,7 +14,7 @@ import androidx.appcompat.widget.Toolbar;
 import androidx.core.content.ContextCompat;
 import androidx.fragment.app.FragmentManager;
 
-import static com.google.common.base.Preconditions.checkNotNull;
+import static java.util.Objects.requireNonNull;
 
 public class DefaultControlTimeEditFragment extends BasePreferenceFragmentCompat {
 
@@ -47,7 +47,7 @@ public class DefaultControlTimeEditFragment extends BasePreferenceFragmentCompat
   ) {
 
     View view = super.onCreateView(inflater, container, savedInstanceState);
-    checkNotNull(view);
+    requireNonNull(view);
 
     if(activity.isDarkMode) {
       view.setBackgroundColor(activity.backgroundMaterialDarkColor);
@@ -59,7 +59,7 @@ public class DefaultControlTimeEditFragment extends BasePreferenceFragmentCompat
     Toolbar toolbar = activity.findViewById(R.id.toolbar_layout);
     activity.setSupportActionBar(toolbar);
     ActionBar actionBar = activity.getSupportActionBar();
-    checkNotNull(actionBar);
+    requireNonNull(actionBar);
 
     activity.drawerToggle.setDrawerIndicatorEnabled(false);
     actionBar.setHomeAsUpIndicator(activity.upArrow);
@@ -73,7 +73,7 @@ public class DefaultControlTimeEditFragment extends BasePreferenceFragmentCompat
   public boolean onOptionsItemSelected(@NonNull MenuItem item) {
 
     FragmentManager manager = getFragmentManager();
-    checkNotNull(manager);
+    requireNonNull(manager);
     manager.popBackStack();
     return super.onOptionsItemSelected(item);
   }

@@ -1,7 +1,6 @@
 package com.hideaki.kk_reminder;
 
 import android.content.Context;
-import android.content.SharedPreferences;
 import android.content.res.Configuration;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
@@ -27,11 +26,10 @@ import androidx.preference.PreferenceScreen;
 import androidx.transition.Fade;
 import androidx.transition.Transition;
 
-import static com.google.common.base.Preconditions.checkNotNull;
-import static com.hideaki.kk_reminder.UtilClass.BOOLEAN_GENERAL;
 import static com.hideaki.kk_reminder.UtilClass.IS_DARK_MODE;
 import static com.hideaki.kk_reminder.UtilClass.IS_DARK_THEME_FOLLOW_SYSTEM;
 import static com.hideaki.kk_reminder.UtilClass.PLAY_SLIDE_ANIMATION;
+import static java.util.Objects.requireNonNull;
 
 public class GeneralSettingsFragment extends BasePreferenceFragmentCompat
   implements Preference.OnPreferenceClickListener,
@@ -59,7 +57,7 @@ public class GeneralSettingsFragment extends BasePreferenceFragmentCompat
     }
     else {
       FragmentManager manager = getFragmentManager();
-      checkNotNull(manager);
+      requireNonNull(manager);
       manager
         .beginTransaction()
         .remove(this)
@@ -125,7 +123,7 @@ public class GeneralSettingsFragment extends BasePreferenceFragmentCompat
   ) {
 
     View view = super.onCreateView(inflater, container, savedInstanceState);
-    checkNotNull(view);
+    requireNonNull(view);
 
     if(activity.isDarkMode) {
       view.setBackgroundColor(activity.backgroundMaterialDarkColor);
@@ -137,7 +135,7 @@ public class GeneralSettingsFragment extends BasePreferenceFragmentCompat
     Toolbar toolbar = activity.findViewById(R.id.toolbar_layout);
     activity.setSupportActionBar(toolbar);
     ActionBar actionBar = activity.getSupportActionBar();
-    checkNotNull(actionBar);
+    requireNonNull(actionBar);
 
     activity.drawerToggle.setDrawerIndicatorEnabled(true);
     actionBar.setTitle(R.string.settings);
@@ -228,7 +226,7 @@ public class GeneralSettingsFragment extends BasePreferenceFragmentCompat
     this.setExitTransition(transition);
     next.setEnterTransition(transition);
     FragmentManager manager = getFragmentManager();
-    checkNotNull(manager);
+    requireNonNull(manager);
     manager
       .beginTransaction()
       .remove(this)

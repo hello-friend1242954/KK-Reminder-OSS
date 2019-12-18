@@ -6,14 +6,6 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.res.ColorStateList;
 import android.os.Handler;
-
-import com.google.android.material.snackbar.Snackbar;
-
-import androidx.core.content.ContextCompat;
-import androidx.appcompat.app.AlertDialog;
-import androidx.appcompat.view.ActionMode;
-import androidx.cardview.widget.CardView;
-
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -31,6 +23,8 @@ import android.widget.TableLayout;
 import android.widget.TableRow;
 import android.widget.TextView;
 
+import com.google.android.material.snackbar.Snackbar;
+
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Collections;
@@ -38,9 +32,14 @@ import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import static com.google.common.base.Preconditions.checkNotNull;
+import androidx.appcompat.app.AlertDialog;
+import androidx.appcompat.view.ActionMode;
+import androidx.cardview.widget.CardView;
+import androidx.core.content.ContextCompat;
+
 import static com.hideaki.kk_reminder.UtilClass.LINE_SEPARATOR;
 import static com.hideaki.kk_reminder.UtilClass.NON_SCHEDULED_ITEM_COMPARATOR;
+import static java.util.Objects.requireNonNull;
 
 public class MyListAdapter extends BaseAdapter implements Filterable {
 
@@ -228,7 +227,7 @@ public class MyListAdapter extends BaseAdapter implements Filterable {
             notifyDataSetChanged();
 
             View parentView = activity.findViewById(android.R.id.content);
-            checkNotNull(parentView);
+            requireNonNull(parentView);
             Snackbar
               .make(
                 parentView,

@@ -25,8 +25,8 @@ import androidx.core.view.GravityCompat;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 
-import static com.google.common.base.Preconditions.checkNotNull;
 import static com.hideaki.kk_reminder.UtilClass.getPxFromDp;
+import static java.util.Objects.requireNonNull;
 
 public class ExpandableListViewFragment extends Fragment
   implements PinnedHeaderExpandableListView.OnHeaderUpdateListener {
@@ -40,6 +40,7 @@ public class ExpandableListViewFragment extends Fragment
   static long updatedItemId = 0;
   static boolean isGetTagNull = false;
   private static int nullPointerCount = 0;
+  private AdView adView;
 
   public static ExpandableListViewFragment newInstance() {
 
@@ -63,7 +64,7 @@ public class ExpandableListViewFragment extends Fragment
       }
       else {
         FragmentManager manager = getFragmentManager();
-        checkNotNull(manager);
+        requireNonNull(manager);
         manager
           .beginTransaction()
           .remove(this)
@@ -205,7 +206,7 @@ public class ExpandableListViewFragment extends Fragment
       }
     });
 
-    AdView adView = view.findViewById(R.id.adView);
+    adView = view.findViewById(R.id.adView);
     if(activity.is_premium) {
       adView.setVisibility(View.GONE);
     }
@@ -215,6 +216,13 @@ public class ExpandableListViewFragment extends Fragment
     }
 
     return view;
+  }
+
+  void disableAdView() {
+
+    if(adView != null) {
+      adView.setVisibility(View.GONE);
+    }
   }
 
   void setPosition() {

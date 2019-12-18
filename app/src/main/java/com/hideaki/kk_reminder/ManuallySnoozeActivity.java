@@ -26,7 +26,6 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.app.AppCompatDelegate;
 import androidx.core.content.ContextCompat;
 
-import static com.google.common.base.Preconditions.checkNotNull;
 import static com.hideaki.kk_reminder.StartupReceiver.getDynamicContext;
 import static com.hideaki.kk_reminder.StartupReceiver.getIsDirectBootContext;
 import static com.hideaki.kk_reminder.UtilClass.ACTION_IN_NOTIFICATION;
@@ -40,8 +39,8 @@ import static com.hideaki.kk_reminder.UtilClass.DESTROYED;
 import static com.hideaki.kk_reminder.UtilClass.HOUR;
 import static com.hideaki.kk_reminder.UtilClass.INT_GENERAL;
 import static com.hideaki.kk_reminder.UtilClass.INT_GENERAL_COPY;
-import static com.hideaki.kk_reminder.UtilClass.IS_DARK_THEME_FOLLOW_SYSTEM;
 import static com.hideaki.kk_reminder.UtilClass.IS_DARK_MODE;
+import static com.hideaki.kk_reminder.UtilClass.IS_DARK_THEME_FOLLOW_SYSTEM;
 import static com.hideaki.kk_reminder.UtilClass.ITEM;
 import static com.hideaki.kk_reminder.UtilClass.LOCALE;
 import static com.hideaki.kk_reminder.UtilClass.MINUTE;
@@ -56,6 +55,7 @@ import static com.hideaki.kk_reminder.UtilClass.copySharedPreferences;
 import static com.hideaki.kk_reminder.UtilClass.currentTimeMinutes;
 import static com.hideaki.kk_reminder.UtilClass.deserialize;
 import static com.hideaki.kk_reminder.UtilClass.serialize;
+import static java.util.Objects.requireNonNull;
 
 public class ManuallySnoozeActivity extends AppCompatActivity implements View.OnClickListener {
 
@@ -83,7 +83,7 @@ public class ManuallySnoozeActivity extends AppCompatActivity implements View.On
     // AlarmReceiverからItemとNotificationIDを受け取る
     Intent intent = getIntent();
     item = (Item)deserialize(intent.getByteArrayExtra(ITEM));
-    checkNotNull(item);
+    requireNonNull(item);
 
     // SharedPreferencesからダークモードかどうかを取得
     SharedPreferences booleanPreferences =
@@ -115,7 +115,7 @@ public class ManuallySnoozeActivity extends AppCompatActivity implements View.On
     int child_id = intent.getIntExtra(CHILD_NOTIFICATION_ID, 0);
     String channelId = intent.getStringExtra(CHANNEL_ID);
     NotificationManager manager = (NotificationManager)getSystemService(NOTIFICATION_SERVICE);
-    checkNotNull(manager);
+    requireNonNull(manager);
 
     for(int i = 1; i <= child_id; i++) {
       manager.cancel(parent_id + i);
@@ -123,7 +123,7 @@ public class ManuallySnoozeActivity extends AppCompatActivity implements View.On
     if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
       manager.deleteNotificationChannel(channelId);
     }
-    checkNotNull(id_table);
+    requireNonNull(id_table);
     id_table.remove(Integer.toBinaryString(parent_id));
     stringPreferences
       .edit()
@@ -271,7 +271,7 @@ public class ManuallySnoozeActivity extends AppCompatActivity implements View.On
         this, (int)item.getId(), intent, PendingIntent.FLAG_UPDATE_CURRENT);
 
       AlarmManager alarmManager = (AlarmManager)getSystemService(Context.ALARM_SERVICE);
-      checkNotNull(alarmManager);
+      requireNonNull(alarmManager);
 
       alarmManager.setAlarmClock(
         new AlarmManager.AlarmClockInfo(
@@ -291,7 +291,7 @@ public class ManuallySnoozeActivity extends AppCompatActivity implements View.On
         this, (int)item.getId(), intent, PendingIntent.FLAG_UPDATE_CURRENT);
 
       AlarmManager alarmManager = (AlarmManager)getSystemService(Context.ALARM_SERVICE);
-      checkNotNull(alarmManager);
+      requireNonNull(alarmManager);
 
       alarmManager.cancel(sender);
       sender.cancel();

@@ -2,11 +2,6 @@ package com.hideaki.kk_reminder;
 
 import android.content.DialogInterface;
 import android.graphics.PorterDuff;
-
-import androidx.constraintlayout.widget.ConstraintLayout;
-import androidx.core.content.ContextCompat;
-import androidx.appcompat.app.AlertDialog;
-
 import android.graphics.PorterDuffColorFilter;
 import android.view.View;
 import android.view.ViewGroup;
@@ -21,9 +16,13 @@ import android.widget.TextView;
 import java.util.ArrayList;
 import java.util.List;
 
-import static com.google.common.base.Preconditions.checkNotNull;
+import androidx.appcompat.app.AlertDialog;
+import androidx.constraintlayout.widget.ConstraintLayout;
+import androidx.core.content.ContextCompat;
+
 import static com.hideaki.kk_reminder.UtilClass.getPxFromDp;
 import static com.hideaki.kk_reminder.UtilClass.setCursorDrawableColor;
+import static java.util.Objects.requireNonNull;
 
 public class TagEditListAdapter extends BaseAdapter {
 
@@ -148,7 +147,7 @@ public class TagEditListAdapter extends BaseAdapter {
 
                 if(hasFocus) {
                   Window dialogWindow = dialog.getWindow();
-                  checkNotNull(dialogWindow);
+                  requireNonNull(dialogWindow);
 
                   dialogWindow.setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_VISIBLE);
                 }

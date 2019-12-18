@@ -3,17 +3,16 @@ package com.hideaki.kk_reminder;
 import android.app.Dialog;
 import android.app.TimePickerDialog;
 import android.os.Bundle;
+import android.widget.TimePicker;
+
+import java.util.Locale;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.DialogFragment;
 
-import android.widget.TimePicker;
-
-import java.util.Locale;
-
-import static com.google.common.base.Preconditions.checkNotNull;
 import static com.hideaki.kk_reminder.UtilClass.LOCALE;
+import static java.util.Objects.requireNonNull;
 
 public class MinuteRepeatDurationPickerDialogFragment extends DialogFragment
   implements TimePickerDialog.OnTimeSetListener {
@@ -36,7 +35,7 @@ public class MinuteRepeatDurationPickerDialogFragment extends DialogFragment
     int minute = MainEditFragment.minuteRepeat.getOrg_duration_minute();
 
     activity = (MainActivity)getActivity();
-    checkNotNull(activity);
+    requireNonNull(activity);
 
     if(activity.isDarkMode) {
       return new TimePickerDialog(activity, this, hour, minute, true);

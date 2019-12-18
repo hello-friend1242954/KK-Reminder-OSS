@@ -7,9 +7,6 @@ import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.PixelFormat;
 import android.graphics.drawable.GradientDrawable;
-
-import androidx.core.content.ContextCompat;
-
 import android.util.AttributeSet;
 import android.view.Gravity;
 import android.view.MotionEvent;
@@ -19,7 +16,9 @@ import android.widget.AdapterView;
 import android.widget.ImageView;
 import android.widget.ListView;
 
-import static com.google.common.base.Preconditions.checkNotNull;
+import androidx.core.content.ContextCompat;
+
+import static java.util.Objects.requireNonNull;
 
 public class SortableListView extends ListView {
 
@@ -199,7 +198,7 @@ public class SortableListView extends ListView {
     else {
       drawable = (GradientDrawable)ContextCompat.getDrawable(activity, R.drawable.my_frame);
     }
-    checkNotNull(drawable);
+    requireNonNull(drawable);
     drawable = (GradientDrawable)drawable.mutate();
     drawable.setStroke(3, activity.accent_color);
     drawable.setCornerRadius(8.0f);

@@ -19,13 +19,13 @@ import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 
-import static com.google.common.base.Preconditions.checkNotNull;
+import static java.util.Objects.requireNonNull;
 
 public class ColorPickerListViewFragment extends Fragment {
 
   static final String TAG = ColorPickerListViewFragment.class.getSimpleName();
   private MainActivity activity;
-  static int order;
+  private static int order;
   static int tag_position;
 
   public static ColorPickerListViewFragment newInstance() {
@@ -61,7 +61,7 @@ public class ColorPickerListViewFragment extends Fragment {
     }
     else {
       FragmentManager manager = getFragmentManager();
-      checkNotNull(manager);
+      requireNonNull(manager);
       manager
         .beginTransaction()
         .remove(this)
@@ -152,7 +152,7 @@ public class ColorPickerListViewFragment extends Fragment {
     Toolbar toolbar = activity.findViewById(R.id.toolbar_layout);
     activity.setSupportActionBar(toolbar);
     ActionBar actionBar = activity.getSupportActionBar();
-    checkNotNull(actionBar);
+    requireNonNull(actionBar);
 
     activity.drawerToggle.setDrawerIndicatorEnabled(false);
     actionBar.setHomeAsUpIndicator(activity.upArrow);
@@ -183,7 +183,7 @@ public class ColorPickerListViewFragment extends Fragment {
           activity.recreate();
         }
         FragmentManager manager = getFragmentManager();
-        checkNotNull(manager);
+        requireNonNull(manager);
         manager.popBackStack();
         return true;
       }
