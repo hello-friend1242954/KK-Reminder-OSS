@@ -19,8 +19,8 @@ import static java.util.Objects.requireNonNull;
 
 public class DayRepeatCustomPickerDialogFragment extends DialogFragment {
 
-  private final String[] SCALE_LIST_JA = {"日", "週", "月", "年"};
-  private final String[] SCALE_LIST_EN = {"Day", "Week", "Month", "Year"};
+  private static final String[] SCALE_LIST_JA = {"日", "週", "月", "年"};
+  private static final String[] SCALE_LIST_EN = {"Day", "Week", "Month", "Year"};
 
   private DayRepeatCustomPickerFragment dayRepeatCustomPickerFragment;
   private NumberPicker interval;
@@ -66,11 +66,11 @@ public class DayRepeatCustomPickerDialogFragment extends DialogFragment {
         @Override
         public void onClick(DialogInterface dialog, int which) {
 
-          int interval_val = interval.getValue();
-          int scale_val = scale.getValue();
+          int intervalValue = interval.getValue();
+          int scaleValue = scale.getValue();
 
-          MainEditFragment.dayRepeat.setInterval(interval_val);
-          MainEditFragment.dayRepeat.setScale(scale_val);
+          MainEditFragment.dayRepeat.setInterval(intervalValue);
+          MainEditFragment.dayRepeat.setScale(scaleValue);
 
           // Scaleの表示処理
           String intervalLabel = "";
@@ -83,12 +83,12 @@ public class DayRepeatCustomPickerDialogFragment extends DialogFragment {
 
             case 1: {
 
-              if(LOCALE.equals(Locale.JAPAN) && interval_val == 1) {
+              if(LOCALE.equals(Locale.JAPAN) && intervalValue == 1) {
                 intervalLabel = getString(R.string.everyday);
               }
               else {
                 intervalLabel =
-                  res.getQuantityString(R.plurals.per_day, interval_val, interval_val);
+                  res.getQuantityString(R.plurals.per_day, intervalValue, intervalValue);
               }
 
               break;
@@ -99,12 +99,12 @@ public class DayRepeatCustomPickerDialogFragment extends DialogFragment {
                 dayRepeatCustomPickerFragment.week
               );
 
-              if(LOCALE.equals(Locale.JAPAN) && interval_val == 1) {
-                intervalLabel = getString(R.string.everyweek);
+              if(LOCALE.equals(Locale.JAPAN) && intervalValue == 1) {
+                intervalLabel = getString(R.string.every_week);
               }
               else {
                 intervalLabel =
-                  res.getQuantityString(R.plurals.per_week, interval_val, interval_val);
+                  res.getQuantityString(R.plurals.per_week, intervalValue, intervalValue);
               }
 
               break;
@@ -112,14 +112,14 @@ public class DayRepeatCustomPickerDialogFragment extends DialogFragment {
             case 3: {
 
               dayRepeatCustomPickerFragment.rootPreferenceScreen.addPreference(
-                dayRepeatCustomPickerFragment.days_of_month
+                dayRepeatCustomPickerFragment.daysOfMonth
               );
               dayRepeatCustomPickerFragment.rootPreferenceScreen.addPreference(
-                dayRepeatCustomPickerFragment.on_the_month
+                dayRepeatCustomPickerFragment.onTheMonth
               );
-              if(MainEditFragment.dayRepeat.isDays_of_month_setted()) {
+              if(MainEditFragment.dayRepeat.isDaysOfMonthSet()) {
                 dayRepeatCustomPickerFragment.rootPreferenceScreen.addPreference(
-                  dayRepeatCustomPickerFragment.days_of_month_picker
+                  dayRepeatCustomPickerFragment.daysOfMonthPicker
                 );
               }
               else {
@@ -128,37 +128,37 @@ public class DayRepeatCustomPickerDialogFragment extends DialogFragment {
                 );
               }
 
-              if(LOCALE.equals(Locale.JAPAN) && interval_val == 1) {
-                intervalLabel = getString(R.string.everymonth);
+              if(LOCALE.equals(Locale.JAPAN) && intervalValue == 1) {
+                intervalLabel = getString(R.string.every_month);
               }
               else {
                 intervalLabel =
-                  res.getQuantityString(R.plurals.per_month, interval_val, interval_val);
+                  res.getQuantityString(R.plurals.per_month, intervalValue, intervalValue);
               }
 
               // onTheMonthPickerのラベルを初期化
               String label = "";
-              if(!MainEditFragment.dayRepeat.isDays_of_month_setted()) {
-                if(MainEditFragment.dayRepeat.getOrdinal_number() < 5) {
+              if(!MainEditFragment.dayRepeat.isDaysOfMonthSet()) {
+                if(MainEditFragment.dayRepeat.getOrdinalNumber() < 5) {
                   if(LOCALE.equals(Locale.JAPAN)) {
-                    label += "第" + MainEditFragment.dayRepeat.getOrdinal_number();
+                    label += "第" + MainEditFragment.dayRepeat.getOrdinalNumber();
                   }
                   else {
-                    int ordinal_num = MainEditFragment.dayRepeat.getOrdinal_number();
-                    String ordinal_str = ordinal_num + "";
-                    if(ordinal_num == 1) {
-                      ordinal_str += "st";
+                    int ordinalNumber = MainEditFragment.dayRepeat.getOrdinalNumber();
+                    String ordinalStr = ordinalNumber + "";
+                    if(ordinalNumber == 1) {
+                      ordinalStr += "st";
                     }
-                    else if(ordinal_num == 2) {
-                      ordinal_str += "nd";
+                    else if(ordinalNumber == 2) {
+                      ordinalStr += "nd";
                     }
-                    else if(ordinal_num == 3) {
-                      ordinal_str += "rd";
+                    else if(ordinalNumber == 3) {
+                      ordinalStr += "rd";
                     }
                     else {
-                      ordinal_str += "th";
+                      ordinalStr += "th";
                     }
-                    label += ordinal_str + " ";
+                    label += ordinalStr + " ";
                   }
                 }
                 else {
@@ -170,21 +170,21 @@ public class DayRepeatCustomPickerDialogFragment extends DialogFragment {
                   }
                 }
 
-                if(MainEditFragment.dayRepeat.getOn_the_month().ordinal() < 7) {
+                if(MainEditFragment.dayRepeat.getOnTheMonth().ordinal() < 7) {
                   if(LOCALE.equals(Locale.JAPAN)) {
                     label += DayRepeatCustomPickerFragment
                       .DAY_OF_WEEK_LIST_JA[MainEditFragment.dayRepeat
-                      .getOn_the_month()
+                      .getOnTheMonth()
                       .ordinal()] + "曜日";
                   }
                   else {
                     label += DayRepeatCustomPickerFragment
                       .DAY_OF_WEEK_LIST_EN[MainEditFragment.dayRepeat
-                      .getOn_the_month()
+                      .getOnTheMonth()
                       .ordinal()];
                   }
                 }
-                else if(MainEditFragment.dayRepeat.getOn_the_month().ordinal() == 7) {
+                else if(MainEditFragment.dayRepeat.getOnTheMonth().ordinal() == 7) {
                   if(LOCALE.equals(Locale.JAPAN)) {
                     label += "平日";
                   }
@@ -192,7 +192,7 @@ public class DayRepeatCustomPickerDialogFragment extends DialogFragment {
                     label += "Weekday";
                   }
                 }
-                else if(MainEditFragment.dayRepeat.getOn_the_month().ordinal() == 8) {
+                else if(MainEditFragment.dayRepeat.getOnTheMonth().ordinal() == 8) {
                   if(LOCALE.equals(Locale.JAPAN)) {
                     label += "週末";
                   }
@@ -211,12 +211,12 @@ public class DayRepeatCustomPickerDialogFragment extends DialogFragment {
               dayRepeatCustomPickerFragment.rootPreferenceScreen.addPreference(
                 dayRepeatCustomPickerFragment.year);
 
-              if(LOCALE.equals(Locale.JAPAN) && interval_val == 1) {
-                intervalLabel = getString(R.string.everyyear);
+              if(LOCALE.equals(Locale.JAPAN) && intervalValue == 1) {
+                intervalLabel = getString(R.string.every_year);
               }
               else {
                 intervalLabel =
-                  res.getQuantityString(R.plurals.per_year, interval_val, interval_val);
+                  res.getQuantityString(R.plurals.per_year, intervalValue, intervalValue);
               }
 
               break;
@@ -240,8 +240,8 @@ public class DayRepeatCustomPickerDialogFragment extends DialogFragment {
       @Override
       public void onShow(DialogInterface dialogInterface) {
 
-        dialog.getButton(AlertDialog.BUTTON_POSITIVE).setTextColor(activity.accent_color);
-        dialog.getButton(AlertDialog.BUTTON_NEUTRAL).setTextColor(activity.accent_color);
+        dialog.getButton(AlertDialog.BUTTON_POSITIVE).setTextColor(activity.accentColor);
+        dialog.getButton(AlertDialog.BUTTON_NEUTRAL).setTextColor(activity.accentColor);
       }
     });
 

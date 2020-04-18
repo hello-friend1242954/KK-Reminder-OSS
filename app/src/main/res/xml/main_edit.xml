@@ -53,6 +53,10 @@
         <com.hideaki.kk_reminder.TwoLineTitlePreference
             android:key="pick_alarm"
             android:title="@string/pick_alarm"/>
+
+        <PreferenceScreen
+            android:title="@string/default_vibration"
+            android:key="vibration"/>
     </com.hideaki.kk_reminder.MyPreferenceCategory>
 
     <com.hideaki.kk_reminder.MyPreferenceCategory

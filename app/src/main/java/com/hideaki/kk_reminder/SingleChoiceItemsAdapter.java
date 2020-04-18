@@ -13,15 +13,15 @@ import java.util.List;
 public class SingleChoiceItemsAdapter extends BaseAdapter {
 
   private List<String> items;
-  static int checked_position;
-  private static boolean is_first;
-  private static boolean manually_checked;
+  static int checkedPosition;
+  private static boolean isFirst;
+  private static boolean isManuallyChecked;
 
   SingleChoiceItemsAdapter(String[] items) {
 
     this.items = Arrays.asList(items);
-    checked_position = 0;
-    is_first = true;
+    checkedPosition = 0;
+    isFirst = true;
   }
 
   private static class ViewHolder {
@@ -57,13 +57,13 @@ public class SingleChoiceItemsAdapter extends BaseAdapter {
     @Override
     public void onChange(AnimCheckBox view, boolean checked) {
 
-      if(checked && manually_checked) {
-        is_first = false;
-        checked_position = position;
+      if(checked && isManuallyChecked) {
+        isFirst = false;
+        checkedPosition = position;
         notifyDataSetChanged();
       }
-      else if(!checked && manually_checked) {
-        is_first = false;
+      else if(!checked && isManuallyChecked) {
+        isFirst = false;
         notifyDataSetChanged();
       }
     }
@@ -119,9 +119,9 @@ public class SingleChoiceItemsAdapter extends BaseAdapter {
     viewHolder.title.setText(title);
 
     // チェック状態の初期化
-    if(position != checked_position) {
-      manually_checked = false;
-      if(is_first) {
+    if(position != checkedPosition) {
+      isManuallyChecked = false;
+      if(isFirst) {
         viewHolder.checkBox.setChecked(false, false);
       }
       else {
@@ -129,15 +129,15 @@ public class SingleChoiceItemsAdapter extends BaseAdapter {
       }
     }
     else {
-      manually_checked = false;
-      if(is_first) {
+      isManuallyChecked = false;
+      if(isFirst) {
         viewHolder.checkBox.setChecked(true, false);
       }
       else {
         viewHolder.checkBox.setChecked(true);
       }
     }
-    manually_checked = true;
+    isManuallyChecked = true;
 
     return convertView;
   }

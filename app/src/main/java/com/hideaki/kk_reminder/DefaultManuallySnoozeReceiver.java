@@ -49,7 +49,7 @@ public class DefaultManuallySnoozeReceiver extends BroadcastReceiver {
   public void onReceive(Context context, Intent intent) {
 
     this.context = context;
-    Item item = (Item)deserialize(intent.getByteArrayExtra(ITEM));
+    ItemAdapter item = new ItemAdapter(deserialize(intent.getByteArrayExtra(ITEM)));
     requireNonNull(item);
 
     accessor = new DBAccessor(getDynamicContext(context), getIsDirectBootContext(context));
@@ -59,26 +59,26 @@ public class DefaultManuallySnoozeReceiver extends BroadcastReceiver {
       getIsDirectBootContext(context) ? STRING_GENERAL_COPY : STRING_GENERAL,
       MODE_PRIVATE
     );
-    Set<String> id_table =
+    Set<String> idTable =
       stringPreferences.getStringSet(NOTIFICATION_ID_TABLE, new TreeSet<String>());
-    requireNonNull(id_table);
-    int parent_id = intent.getIntExtra(PARENT_NOTIFICATION_ID, 0);
-    int child_id = intent.getIntExtra(CHILD_NOTIFICATION_ID, 0);
+    requireNonNull(idTable);
+    int parentId = intent.getIntExtra(PARENT_NOTIFICATION_ID, 0);
+    int childId = intent.getIntExtra(CHILD_NOTIFICATION_ID, 0);
     String channelId = intent.getStringExtra(CHANNEL_ID);
     NotificationManager manager =
       (NotificationManager)context.getSystemService(NOTIFICATION_SERVICE);
     requireNonNull(manager);
 
-    for(int i = 1; i <= child_id; i++) {
-      manager.cancel(parent_id + i);
+    for(int i = 1; i <= childId; i++) {
+      manager.cancel(parentId + i);
     }
     if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
       manager.deleteNotificationChannel(channelId);
     }
-    id_table.remove(Integer.toBinaryString(parent_id));
+    idTable.remove(Integer.toBinaryString(parentId));
     stringPreferences
       .edit()
-      .putStringSet(NOTIFICATION_ID_TABLE, id_table)
+      .putStringSet(NOTIFICATION_ID_TABLE, idTable)
       .apply();
 
     if(!getIsDirectBootContext(context)) {
@@ -89,15 +89,15 @@ public class DefaultManuallySnoozeReceiver extends BroadcastReceiver {
       getIsDirectBootContext(context) ? INT_GENERAL_COPY : INT_GENERAL,
       MODE_PRIVATE
     );
-    int snooze_default_hour = intPreferences.getInt(SNOOZE_DEFAULT_HOUR, 0);
-    int snooze_default_minute = intPreferences.getInt(SNOOZE_DEFAULT_MINUTE, 15);
-    long default_snooze = snooze_default_hour * HOUR + snooze_default_minute * MINUTE;
+    int snoozeDefaultHour = intPreferences.getInt(SNOOZE_DEFAULT_HOUR, 0);
+    int snoozeDefaultMinute = intPreferences.getInt(SNOOZE_DEFAULT_MINUTE, 15);
+    long defaultSnooze = snoozeDefaultHour * HOUR + snoozeDefaultMinute * MINUTE;
 
-    if(item.getTime_altered() == 0) {
-      item.setOrg_date((Calendar)item.getDate().clone());
+    if(item.getAlteredTime() == 0) {
+      item.setOrgDate((Calendar)item.getDate().clone());
     }
-    item.getDate().setTimeInMillis(currentTimeMinutes() + default_snooze);
-    item.addTime_altered(default_snooze);
+    item.getDate().setTimeInMillis(currentTimeMinutes() + defaultSnooze);
+    item.addAlteredTime(defaultSnooze);
 
     // 更新
     deleteAlarm(item);
@@ -116,14 +116,14 @@ public class DefaultManuallySnoozeReceiver extends BroadcastReceiver {
     }
   }
 
-  public void setAlarm(Item item) {
+  public void setAlarm(ItemAdapter item) {
 
     if(item.getDate().getTimeInMillis() > System.currentTimeMillis() &&
-      item.getWhich_list_belongs() == 0) {
-      item.getNotify_interval().setTime(item.getNotify_interval().getOrg_time());
+      item.getWhichListBelongs() == 0) {
+      item.getNotifyInterval().setTime(item.getNotifyInterval().getOrgTime());
       Intent intent = new Intent(context, AlarmReceiver.class);
-      byte[] ob_array = serialize(item);
-      intent.putExtra(ITEM, ob_array);
+      byte[] obArray = serialize(item.getItem());
+      intent.putExtra(ITEM, obArray);
       PendingIntent sender = PendingIntent.getBroadcast(
         context, (int)item.getId(), intent, PendingIntent.FLAG_UPDATE_CURRENT);
 
@@ -135,9 +135,9 @@ public class DefaultManuallySnoozeReceiver extends BroadcastReceiver {
     }
   }
 
-  public void deleteAlarm(Item item) {
+  public void deleteAlarm(ItemAdapter item) {
 
-    if(isAlarmSetted(item)) {
+    if(isAlarmSet(item)) {
       Intent intent = new Intent(context, AlarmReceiver.class);
       PendingIntent sender = PendingIntent.getBroadcast(
         context, (int)item.getId(), intent, PendingIntent.FLAG_UPDATE_CURRENT);
@@ -150,7 +150,7 @@ public class DefaultManuallySnoozeReceiver extends BroadcastReceiver {
     }
   }
 
-  public boolean isAlarmSetted(Item item) {
+  public boolean isAlarmSet(ItemAdapter item) {
 
     Intent intent = new Intent(context, AlarmReceiver.class);
     PendingIntent sender = PendingIntent.getBroadcast(
@@ -159,8 +159,8 @@ public class DefaultManuallySnoozeReceiver extends BroadcastReceiver {
     return sender != null;
   }
 
-  public void updateDB(Item item, String table) {
+  public void updateDB(ItemAdapter item, String table) {
 
-    accessor.executeUpdate(item.getId(), serialize(item), table);
+    accessor.executeUpdate(item.getId(), serialize(item.getItem()), table);
   }
 }

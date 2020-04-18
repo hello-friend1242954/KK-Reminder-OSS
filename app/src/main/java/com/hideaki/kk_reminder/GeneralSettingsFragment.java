@@ -75,7 +75,6 @@ public class GeneralSettingsFragment extends BasePreferenceFragmentCompat
     PreferenceScreen defaultNewTask = (PreferenceScreen)findPreference("new_task");
     PreferenceScreen manuallySnooze = (PreferenceScreen)findPreference("manually_snooze");
     animation = (CheckBoxPreference)findPreference("animation");
-    PreferenceScreen vibration = (PreferenceScreen)findPreference("vibration");
     PreferenceCategory adsCategory = (PreferenceCategory)findPreference("ads_category");
     PreferenceScreen disableAds = (PreferenceScreen)findPreference("disable_ads");
     PreferenceScreen primaryColor = (PreferenceScreen)findPreference("primary_color");
@@ -90,7 +89,6 @@ public class GeneralSettingsFragment extends BasePreferenceFragmentCompat
     defaultNewTask.setOnPreferenceClickListener(this);
     manuallySnooze.setOnPreferenceClickListener(this);
     ((MyCheckBoxPreference)animation).setOnMyCheckBoxPreferenceCheckedChangeListener(this);
-    vibration.setOnPreferenceClickListener(this);
     disableAds.setOnPreferenceClickListener(this);
     primaryColor.setOnPreferenceClickListener(this);
     secondaryColor.setOnPreferenceClickListener(this);
@@ -100,7 +98,7 @@ public class GeneralSettingsFragment extends BasePreferenceFragmentCompat
     backup.setOnPreferenceClickListener(this);
     about.setOnPreferenceClickListener(this);
 
-    if(activity.is_premium) {
+    if(activity.isPremium) {
       getPreferenceScreen().removePreference(adsCategory);
     }
   }
@@ -141,7 +139,7 @@ public class GeneralSettingsFragment extends BasePreferenceFragmentCompat
     actionBar.setTitle(R.string.settings);
 
     // チェック状態の初期化
-    if(activity.play_slide_animation) {
+    if(activity.isPlaySlideAnimation) {
       animation.setChecked(true);
     }
     else {
@@ -186,22 +184,18 @@ public class GeneralSettingsFragment extends BasePreferenceFragmentCompat
         transitionFragment(DefaultManuallySnoozeFragment.newInstance());
         return true;
       }
-      case "vibration": {
-        transitionFragment(DefaultVibrationEditFragment.newInstance());
-        return true;
-      }
       case "disable_ads": {
         activity.promotionDialog.show();
         return true;
       }
       case "primary_color": {
-        ColorPickerListAdapter.is_general_settings = true;
+        ColorPickerListAdapter.isGeneralSettings = true;
         activity.showColorPickerListViewFragment();
         return true;
       }
       case "secondary_color": {
-        ColorPickerListAdapter.is_general_settings = true;
-        activity.generalSettings.getTheme().setColor_primary(false);
+        ColorPickerListAdapter.isGeneralSettings = true;
+        activity.generalSettings.getTheme().setIsColorPrimary(false);
         activity.showColorPickerListViewFragment();
         return true;
       }
@@ -241,7 +235,7 @@ public class GeneralSettingsFragment extends BasePreferenceFragmentCompat
     switch(key) {
       case "animation": {
         animation.setChecked(checked);
-        if(activity.play_slide_animation != checked) {
+        if(activity.isPlaySlideAnimation != checked) {
           activity.setBooleanGeneralInSharedPreferences(
             PLAY_SLIDE_ANIMATION, checked
           );

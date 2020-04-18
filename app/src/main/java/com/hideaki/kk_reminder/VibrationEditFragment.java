@@ -2,9 +2,9 @@ package com.hideaki.kk_reminder;
 
 import android.content.Context;
 import android.content.DialogInterface;
-import android.content.SharedPreferences;
 import android.graphics.PorterDuff;
 import android.graphics.PorterDuffColorFilter;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.VibrationEffect;
 import android.os.Vibrator;
@@ -28,25 +28,22 @@ import androidx.fragment.app.FragmentManager;
 import androidx.preference.Preference;
 import androidx.preference.PreferenceScreen;
 
-import static android.content.Context.MODE_PRIVATE;
 import static com.hideaki.kk_reminder.UtilClass.DEFAULT_VIBRATION_PATTERN;
-import static com.hideaki.kk_reminder.UtilClass.STRING_GENERAL;
-import static com.hideaki.kk_reminder.UtilClass.VIBRATION_PATTERN;
 import static com.hideaki.kk_reminder.UtilClass.getPxFromDp;
 import static com.hideaki.kk_reminder.UtilClass.getRegularizedVibrationStr;
 import static com.hideaki.kk_reminder.UtilClass.getVibrationPattern;
 import static com.hideaki.kk_reminder.UtilClass.setCursorDrawableColor;
 import static java.util.Objects.requireNonNull;
 
-public class DefaultVibrationEditFragment extends BasePreferenceFragmentCompat {
+public class VibrationEditFragment extends BasePreferenceFragmentCompat {
 
   private MainActivity activity;
   private PreferenceScreen label;
   private String vibrationStr;
 
-  public static DefaultVibrationEditFragment newInstance() {
+  public static VibrationEditFragment newInstance() {
 
-    return new DefaultVibrationEditFragment();
+    return new VibrationEditFragment();
   }
 
   @Override
@@ -59,12 +56,10 @@ public class DefaultVibrationEditFragment extends BasePreferenceFragmentCompat {
   @Override
   public void onCreatePreferencesFix(@Nullable Bundle savedInstanceState, String rootKey) {
 
-    addPreferencesFromResource(R.xml.default_vibration);
+    addPreferencesFromResource(R.xml.vibration);
     setHasOptionsMenu(true);
 
-    SharedPreferences stringPreferences =
-      activity.getSharedPreferences(STRING_GENERAL, MODE_PRIVATE);
-    vibrationStr = stringPreferences.getString(VIBRATION_PATTERN, DEFAULT_VIBRATION_PATTERN);
+    vibrationStr = MainEditFragment.item.getVibrationPattern();
     label = (PreferenceScreen)findPreference("label");
     label.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
       @Override
@@ -76,7 +71,7 @@ public class DefaultVibrationEditFragment extends BasePreferenceFragmentCompat {
         final EditText editText = new EditText(activity);
         setCursorDrawableColor(activity, editText);
         editText.getBackground().mutate().setColorFilter(new PorterDuffColorFilter(
-          activity.accent_color,
+          activity.accentColor,
           PorterDuff.Mode.SRC_IN
         ));
         editText.setText(vibrationStr);
@@ -111,7 +106,7 @@ public class DefaultVibrationEditFragment extends BasePreferenceFragmentCompat {
               long[] vibrationPattern = getVibrationPattern(vibrationStr);
               Vibrator vibrator = (Vibrator)activity.getSystemService(Context.VIBRATOR_SERVICE);
               requireNonNull(vibrator);
-              if(android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
+              if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
                 VibrationEffect effect =
                   VibrationEffect.createWaveform(vibrationPattern, -1);
                 vibrator.vibrate(effect);
@@ -120,11 +115,7 @@ public class DefaultVibrationEditFragment extends BasePreferenceFragmentCompat {
                 vibrator.vibrate(vibrationPattern, -1);
               }
 
-              activity
-                .getSharedPreferences(STRING_GENERAL, MODE_PRIVATE)
-                .edit()
-                .putString(VIBRATION_PATTERN, vibrationStr)
-                .apply();
+              MainEditFragment.item.setVibrationPattern(vibrationStr);
             }
           })
           .setNeutralButton(R.string.cancel, new DialogInterface.OnClickListener() {
@@ -139,8 +130,8 @@ public class DefaultVibrationEditFragment extends BasePreferenceFragmentCompat {
           @Override
           public void onShow(DialogInterface dialogInterface) {
 
-            dialog.getButton(AlertDialog.BUTTON_POSITIVE).setTextColor(activity.accent_color);
-            dialog.getButton(AlertDialog.BUTTON_NEUTRAL).setTextColor(activity.accent_color);
+            dialog.getButton(AlertDialog.BUTTON_POSITIVE).setTextColor(activity.accentColor);
+            dialog.getButton(AlertDialog.BUTTON_NEUTRAL).setTextColor(activity.accentColor);
           }
         });
 

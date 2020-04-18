@@ -12,7 +12,7 @@ public class CheckableTextView extends androidx.appcompat.widget.AppCompatTextVi
 
   private static final int[] CHECKED_STATE_SET = {android.R.attr.state_checked};
 
-  private boolean mChecked;
+  private boolean isChecked;
 
   public CheckableTextView(Context context, @Nullable AttributeSet attrs) {
 
@@ -22,8 +22,8 @@ public class CheckableTextView extends androidx.appcompat.widget.AppCompatTextVi
   @Override
   public void setChecked(boolean checked) {
 
-    if(mChecked != checked) {
-      mChecked = !mChecked;
+    if(isChecked != checked) {
+      isChecked = !isChecked;
     }
     refreshDrawableState();
   }
@@ -31,13 +31,13 @@ public class CheckableTextView extends androidx.appcompat.widget.AppCompatTextVi
   @Override
   public boolean isChecked() {
 
-    return mChecked;
+    return isChecked;
   }
 
   @Override
   public void toggle() {
 
-    setChecked(!mChecked);
+    setChecked(!isChecked);
   }
 
   @Override

@@ -43,23 +43,23 @@ public class DefaultTextSizeModelPreference extends Preference {
 
     Calendar now = Calendar.getInstance();
     now.add(Calendar.MINUTE, 1);
-    String set_time;
+    String setTime;
     if(LOCALE.equals(Locale.JAPAN)) {
-      set_time = (String)DateFormat.format("M月d日(E) k:mm", now);
+      setTime = (String)DateFormat.format("M月d日(E) k:mm", now);
     }
     else {
-      set_time = (String)DateFormat.format("M/d (E) k:mm", now);
+      setTime = (String)DateFormat.format("M/d (E) k:mm", now);
     }
 
-    set_time += " (";
+    setTime += " (";
     if(!LOCALE.equals(Locale.JAPAN)) {
-      set_time += " ";
+      setTime += " ";
     }
-    set_time += activity.getString(R.string.within_one_minute);
+    setTime += activity.getString(R.string.within_one_minute);
     if(!LOCALE.equals(Locale.JAPAN)) {
-      set_time += " ";
+      setTime += " ";
     }
-    set_time += ")";
+    setTime += ")";
 
     if(activity.isDarkMode) {
       childCard.setBackgroundColor(activity.backgroundFloatingMaterialDarkColor);
@@ -74,9 +74,9 @@ public class DefaultTextSizeModelPreference extends Preference {
         textView.setTextColor(activity.secondaryTextMaterialDarkColor);
       }
     }
-    date.setText(set_time);
+    date.setText(setTime);
     detail.setText(R.string.default_detail);
-    detail.setTextSize(activity.text_size);
+    detail.setTextSize(activity.textSize);
     repeat.setText(R.string.non_repeat);
     tag.setVisibility(View.GONE);
   }

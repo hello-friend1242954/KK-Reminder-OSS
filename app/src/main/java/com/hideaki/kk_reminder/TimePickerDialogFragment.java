@@ -28,8 +28,8 @@ public class TimePickerDialogFragment extends DialogFragment
   @Override
   public Dialog onCreateDialog(@Nullable Bundle savedInstanceState) {
 
-    int hour = MainEditFragment.final_cal.get(Calendar.HOUR_OF_DAY);
-    int minute = MainEditFragment.final_cal.get(Calendar.MINUTE);
+    int hour = MainEditFragment.finalCal.get(Calendar.HOUR_OF_DAY);
+    int minute = MainEditFragment.finalCal.get(Calendar.MINUTE);
 
     MainActivity activity = (MainActivity)getActivity();
     requireNonNull(activity);
@@ -40,7 +40,7 @@ public class TimePickerDialogFragment extends DialogFragment
     else {
       return new TimePickerDialog(
         activity,
-        activity.dialog_style_id,
+        activity.dialogStyleId,
         this,
         hour,
         minute,
@@ -52,8 +52,8 @@ public class TimePickerDialogFragment extends DialogFragment
   @Override
   public void onTimeSet(TimePicker view, int hourOfDay, int minute) {
 
-    MainEditFragment.final_cal.set(Calendar.HOUR_OF_DAY, hourOfDay);
-    MainEditFragment.final_cal.set(Calendar.MINUTE, minute);
-    mainEditFragment.timePicker.setTitle(DateFormat.format("kk:mm", MainEditFragment.final_cal));
+    MainEditFragment.finalCal.set(Calendar.HOUR_OF_DAY, hourOfDay);
+    MainEditFragment.finalCal.set(Calendar.MINUTE, minute);
+    mainEditFragment.timePicker.setTitle(DateFormat.format("kk:mm", MainEditFragment.finalCal));
   }
 }

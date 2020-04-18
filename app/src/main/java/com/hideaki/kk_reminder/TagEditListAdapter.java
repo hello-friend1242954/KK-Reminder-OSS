@@ -26,24 +26,24 @@ import static java.util.Objects.requireNonNull;
 
 public class TagEditListAdapter extends BaseAdapter {
 
-  static List<Tag> tagList;
+  static List<TagAdapter> tagList;
   private MainActivity activity;
-  DragListener dragListener;
+  MyDragListener myDragListener;
   private int draggingPosition = -1;
-  static boolean is_sorting;
+  static boolean isSorting;
   static int order;
-  private static boolean manually_checked;
-  static long checked_item_id; // チェックの入っているItemのid値を保持する
-  static boolean is_editing;
-  static boolean is_first;
+  private static boolean isManuallyChecked;
+  static long checkedItemId; // チェックの入っているItemのid値を保持する
+  static boolean isEditing;
+  static boolean isFirst;
 
-  TagEditListAdapter(List<Tag> tagList, MainActivity activity) {
+  TagEditListAdapter(List<TagAdapter> tagList, MainActivity activity) {
 
     TagEditListAdapter.tagList = tagList;
     this.activity = activity;
-    dragListener = new DragListener();
-    is_sorting = false;
-    is_editing = false;
+    myDragListener = new MyDragListener();
+    isSorting = false;
+    isEditing = false;
   }
 
   private static class ViewHolder {
@@ -60,10 +60,10 @@ public class TagEditListAdapter extends BaseAdapter {
     implements View.OnClickListener, AnimCheckBox.OnCheckedChangeListener {
 
     private int position;
-    private Tag tag;
+    private TagAdapter tag;
     private ViewHolder viewHolder;
 
-    MyOnClickListener(int position, Tag tag, ViewHolder viewHolder) {
+    MyOnClickListener(int position, TagAdapter tag, ViewHolder viewHolder) {
 
       this.position = position;
       this.tag = tag;
@@ -73,7 +73,7 @@ public class TagEditListAdapter extends BaseAdapter {
     @Override
     public void onClick(View v) {
 
-      if(!is_editing && !is_sorting) {
+      if(!isEditing && !isSorting) {
         if(!viewHolder.checkBox.isChecked()) {
           viewHolder.checkBox.setChecked(true);
         }
@@ -92,7 +92,7 @@ public class TagEditListAdapter extends BaseAdapter {
             final EditText editText = new EditText(activity);
             setCursorDrawableColor(activity, editText);
             editText.getBackground().mutate().setColorFilter(new PorterDuffColorFilter(
-              activity.accent_color,
+              activity.accentColor,
               PorterDuff.Mode.SRC_IN
             ));
             editText.setText(tag.getName());
@@ -133,8 +133,8 @@ public class TagEditListAdapter extends BaseAdapter {
               @Override
               public void onShow(DialogInterface dialogInterface) {
 
-                dialog.getButton(AlertDialog.BUTTON_POSITIVE).setTextColor(activity.accent_color);
-                dialog.getButton(AlertDialog.BUTTON_NEUTRAL).setTextColor(activity.accent_color);
+                dialog.getButton(AlertDialog.BUTTON_POSITIVE).setTextColor(activity.accentColor);
+                dialog.getButton(AlertDialog.BUTTON_NEUTRAL).setTextColor(activity.accentColor);
               }
             });
 
@@ -159,7 +159,7 @@ public class TagEditListAdapter extends BaseAdapter {
           }
           case R.id.tag_pallet: {
 
-            ColorPickerListViewFragment.tag_position = position;
+            ColorPickerListViewFragment.tagPosition = position;
             activity.showColorPickerListViewFragment();
             break;
           }
@@ -172,22 +172,23 @@ public class TagEditListAdapter extends BaseAdapter {
                 @Override
                 public void onClick(DialogInterface dialog, int which) {
 
-                  if(tag.getId() == checked_item_id) {
+                  if(tag.getId() == checkedItemId) {
                     if(order == 0 || order == 1 || order == 4) {
-                      MainEditFragment.item.setWhich_tag_belongs(0);
+                      MainEditFragment.item.setWhichTagBelongs(0);
                     }
                     else if(order == 3) {
-                      MainEditFragment.list.setWhich_tag_belongs(0);
+                      MainEditFragment.list.setWhichTagBelongs(0);
                     }
-                    checked_item_id = 0;
+                    checkedItemId = 0;
                   }
 
-                  activity.generalSettings.getTagList().remove(position);
-                  int size = activity.generalSettings.getTagList().size();
+                  activity.generalSettings.removeTag(position);
+                  List<TagAdapter> tagAdapterList = activity.generalSettings.getTagList();
+                  int size = tagAdapterList.size();
                   for(int i = 0; i < size; i++) {
-                    activity.generalSettings.getTagList().get(i).setOrder(i);
+                    tagAdapterList.get(i).setOrder(i);
                   }
-                  tagList = new ArrayList<>(activity.generalSettings.getTagList());
+                  tagList = new ArrayList<>(tagAdapterList);
                   notifyDataSetChanged();
 
                   activity.updateSettingsDB();
@@ -205,8 +206,8 @@ public class TagEditListAdapter extends BaseAdapter {
               @Override
               public void onShow(DialogInterface dialogInterface) {
 
-                dialog.getButton(AlertDialog.BUTTON_POSITIVE).setTextColor(activity.accent_color);
-                dialog.getButton(AlertDialog.BUTTON_NEUTRAL).setTextColor(activity.accent_color);
+                dialog.getButton(AlertDialog.BUTTON_POSITIVE).setTextColor(activity.accentColor);
+                dialog.getButton(AlertDialog.BUTTON_NEUTRAL).setTextColor(activity.accentColor);
               }
             });
 
@@ -221,25 +222,25 @@ public class TagEditListAdapter extends BaseAdapter {
     @Override
     public void onChange(AnimCheckBox view, boolean checked) {
 
-      if(checked && manually_checked) {
-        is_first = false;
+      if(checked && isManuallyChecked) {
+        isFirst = false;
         if(order == 0 || order == 1 || order == 4) {
-          MainEditFragment.item.setWhich_tag_belongs(tag.getId());
+          MainEditFragment.item.setWhichTagBelongs(tag.getId());
         }
         else if(order == 3) {
-          MainEditFragment.list.setWhich_tag_belongs(tag.getId());
+          MainEditFragment.list.setWhichTagBelongs(tag.getId());
         }
-        checked_item_id = tag.getId();
+        checkedItemId = tag.getId();
         notifyDataSetChanged();
       }
-      else if(!checked && manually_checked) {
-        is_first = false;
+      else if(!checked && isManuallyChecked) {
+        isFirst = false;
         notifyDataSetChanged();
       }
     }
   }
 
-  class DragListener extends SortableListView.SimpleDragListener {
+  class MyDragListener extends SortableListView.SimpleDragListener {
 
     @Override
     public int onStartDrag(int position) {
@@ -257,7 +258,7 @@ public class TagEditListAdapter extends BaseAdapter {
         return positionFrom;
       }
 
-      Tag tag = tagList.get(positionFrom);
+      TagAdapter tag = tagList.get(positionFrom);
       tagList.remove(positionFrom);
       if(positionTo == 0) {
         positionTo = 1;
@@ -321,7 +322,7 @@ public class TagEditListAdapter extends BaseAdapter {
     }
 
     // 現在のビュー位置でのtagの取得とリスナーの初期化
-    Tag tag = (Tag)getItem(position);
+    TagAdapter tag = (TagAdapter)getItem(position);
     MyOnClickListener listener = new MyOnClickListener(position, tag, viewHolder);
 
     // リスナーの設定
@@ -331,9 +332,9 @@ public class TagEditListAdapter extends BaseAdapter {
     viewHolder.checkBox.setOnCheckedChangeListener(listener);
 
     // チェック状態の初期化
-    if(tag.getId() != checked_item_id) {
-      manually_checked = false;
-      if(is_first) {
+    if(tag.getId() != checkedItemId) {
+      isManuallyChecked = false;
+      if(isFirst) {
         viewHolder.checkBox.setChecked(false, false);
       }
       else {
@@ -341,15 +342,15 @@ public class TagEditListAdapter extends BaseAdapter {
       }
     }
     else {
-      manually_checked = false;
-      if(is_first) {
+      isManuallyChecked = false;
+      if(isFirst) {
         viewHolder.checkBox.setChecked(true, false);
       }
       else {
         viewHolder.checkBox.setChecked(true);
       }
     }
-    manually_checked = true;
+    isManuallyChecked = true;
 
     // 各種表示処理
     if(activity.isDarkMode) {
@@ -362,23 +363,23 @@ public class TagEditListAdapter extends BaseAdapter {
     if(tag.getId() == 0) {
       viewHolder.pallet.setVisibility(View.GONE);
     }
-    else if(tag.getPrimary_color() == 0) {
+    else if(tag.getPrimaryColor() == 0) {
       viewHolder.pallet.setVisibility(View.VISIBLE);
       viewHolder.pallet.setColorFilter(ContextCompat.getColor(activity, R.color.iconGray));
     }
     else {
       viewHolder.pallet.setVisibility(View.VISIBLE);
-      viewHolder.pallet.setColorFilter(tag.getPrimary_color());
+      viewHolder.pallet.setColorFilter(tag.getPrimaryColor());
     }
 
     // タグの左にあるアイコンの表示設定
-    if(is_editing || is_sorting) {
+    if(isEditing || isSorting) {
       viewHolder.checkBox.setVisibility(View.GONE);
       if(tag.getId() != 0) {
-        if(is_editing) {
+        if(isEditing) {
           viewHolder.delete.setVisibility(View.VISIBLE);
         }
-        else if(is_sorting) {
+        else if(isSorting) {
           viewHolder.orderIcon.setVisibility(View.VISIBLE);
         }
       }

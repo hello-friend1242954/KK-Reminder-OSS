@@ -12,6 +12,7 @@ import android.graphics.drawable.VectorDrawable;
 import android.media.RingtoneManager;
 import android.net.Uri;
 import android.os.Build;
+import android.util.Log;
 import android.widget.EditText;
 import android.widget.TextView;
 
@@ -43,7 +44,7 @@ class UtilClass {
 
   }
 
-  private static final AtomicInteger uniqueId = new AtomicInteger(1);
+  private static final AtomicInteger UNIQUE_ID = new AtomicInteger(1);
   static final ScheduledItemComparator SCHEDULED_ITEM_COMPARATOR = new ScheduledItemComparator();
   static final NonScheduledItemComparator NON_SCHEDULED_ITEM_COMPARATOR =
     new NonScheduledItemComparator();
@@ -87,6 +88,7 @@ class UtilClass {
 //  static final String STOPPED = "STOPPED";
   static final String BOOLEAN_GENERAL = "BOOLEAN_GENERAL";
   static final String BOOLEAN_GENERAL_COPY = "BOOLEAN_GENERAL_COPY";
+  static final String IS_COPIED_FROM_OLD_VERSION = "IS_COPIED_FROM_OLD_VERSION";
   static final String IS_QUERIED_PURCHASE_HISTORY = "IS_QUERIED_PURCHASE_HISTORY";
   static final String IS_RECREATED = "IS_RECREATED";
   static final String IS_ID_TABLE_FLOOD = "IS_ID_TABLE_FLOOD";
@@ -97,8 +99,7 @@ class UtilClass {
   static final String IS_PREMIUM = "IS_PREMIUM";
   static final String STRING_GENERAL = "STRING_GENERAL";
   static final String STRING_GENERAL_COPY = "STRING_GENERAL_COPY";
-  static final String VIBRATION_PATTERN = "VIBRATION_PATTERN";
-  static final String DEFAULT_VIBRATION_PATTERN = "0, 250, 250, 250";
+  static final String DEFAULT_VIBRATION_PATTERN = "0, 400, 220, 450";
   static final String CHANNEL_ID = "CHANNEL_ID";
   static final String NOTIFICATION_ID_TABLE = "NOTIFICATION_ID_TABLE";
   static final String PARENT_NOTIFICATION_ID = "PARENT_NOTIFICATION_ID";
@@ -106,8 +107,9 @@ class UtilClass {
   static final String LINE_SEPARATOR = System.getProperty("line.separator");
   static final String PRODUCT_ID_PREMIUM = "com.hideaki.premium";
   static final int REQUEST_CODE_SIGN_IN = 1;
-  static long MINUTE = 60 * 1000;
-  static long HOUR = 60 * 60 * 1000;
+  static final long MINUTE = 60 * 1000;
+  static final long HOUR = 60 * 60 * 1000;
+  @SuppressWarnings("FieldNamingConvention")
   static Locale LOCALE = Locale.getDefault();
 
   static String readFileFromAssets(Context context, String fileName) {
@@ -126,7 +128,7 @@ class UtilClass {
       }
     }
     catch(IOException e) {
-      e.printStackTrace();
+      Log.e("readFileFromAssets", Log.getStackTraceString(e));
     }
 
     return text.toString();
@@ -184,6 +186,7 @@ class UtilClass {
 
     if(Build.VERSION.SDK_INT <= Build.VERSION_CODES.P) {
       try {
+        @SuppressWarnings("JavaReflectionMemberAccess")
         Field f = TextView.class.getDeclaredField("mCursorDrawableRes");
         f.setAccessible(true);
         if(activity.isDarkMode) {
@@ -280,12 +283,12 @@ class UtilClass {
   static int generateUniqueId() {
 
     for(; ; ) {
-      final int result = uniqueId.get();
-      int new_value = result + 1;
-      if(new_value == Integer.MAX_VALUE) {
-        new_value = 1;
+      final int result = UNIQUE_ID.get();
+      int newValue = result + 1;
+      if(newValue == Integer.MAX_VALUE) {
+        newValue = 1;
       }
-      if(uniqueId.compareAndSet(result, new_value)) {
+      if(UNIQUE_ID.compareAndSet(result, newValue)) {
         return result;
       }
     }
@@ -302,7 +305,7 @@ class UtilClass {
       oos.close();
     }
     catch(IOException e) {
-      e.printStackTrace();
+      Log.e("serialize", Log.getStackTraceString(e));
     }
 
     return baos.toByteArray();
@@ -323,7 +326,7 @@ class UtilClass {
         ois.close();
       }
       catch(IOException | ClassNotFoundException e) {
-        e.printStackTrace();
+        Log.e("deserialize", Log.getStackTraceString(e));
       }
 
       return data;
@@ -346,7 +349,7 @@ class UtilClass {
           context.startService(intent);
         }
         catch(IllegalStateException e) {
-          e.printStackTrace();
+          Log.e("copyDatabase", Log.getStackTraceString(e));
           copyDatabaseKernel(context, false);
         }
       }
@@ -366,7 +369,7 @@ class UtilClass {
           context.startService(intent);
         }
         catch(IllegalStateException e) {
-          e.printStackTrace();
+          Log.e("copySharedPreferences", Log.getStackTraceString(e));
           copySharedPreferencesKernel(context, false);
         }
       }
@@ -381,11 +384,11 @@ class UtilClass {
 
     // データベースの複製を作る
     // 引数のcontextは必ず通常の(directBootContextでない)Contextを指定すること
-    Context direct_boot_context = context.createDeviceProtectedStorageContext();
+    Context directBootContext = context.createDeviceProtectedStorageContext();
     String databasePath;
     if(isFromDirectBootContext) {
       databasePath =
-        direct_boot_context.getDatabasePath(MyDatabaseHelper.DATABASE_COPY).getAbsolutePath();
+        directBootContext.getDatabasePath(MyDatabaseHelper.DATABASE_COPY).getAbsolutePath();
     }
     else {
       databasePath = context.getDatabasePath(MyDatabaseHelper.DATABASE).getAbsolutePath();
@@ -396,6 +399,7 @@ class UtilClass {
 
     if(file.exists()) {
       try {
+        @SuppressWarnings("LocalVariableNamingConvention")
         String BASE_NAME = isFromDirectBootContext ?
           MyDatabaseHelper.DATABASE : MyDatabaseHelper.DATABASE_COPY;
         os = new FileOutputStream(file.getParent() + "/" + BASE_NAME);
@@ -410,7 +414,7 @@ class UtilClass {
         os.flush();
       }
       catch(Exception e) {
-        e.printStackTrace();
+        Log.e("copyDatabaseKernel", Log.getStackTraceString(e));
       }
       finally {
         try {
@@ -422,17 +426,17 @@ class UtilClass {
           }
         }
         catch(Exception e) {
-          e.printStackTrace();
+          Log.e("copyDatabaseKernel", Log.getStackTraceString(e));
         }
       }
     }
 
     // 指定されたContext上で複製したデータベースを他方のContextへ移動する
     if(isFromDirectBootContext) {
-      context.moveDatabaseFrom(direct_boot_context, MyDatabaseHelper.DATABASE);
+      context.moveDatabaseFrom(directBootContext, MyDatabaseHelper.DATABASE);
     }
     else {
-      direct_boot_context.moveDatabaseFrom(context, MyDatabaseHelper.DATABASE_COPY);
+      directBootContext.moveDatabaseFrom(context, MyDatabaseHelper.DATABASE_COPY);
     }
   }
 
@@ -441,7 +445,7 @@ class UtilClass {
 
     // SharedPreferencesの複製を作る
     // 引数のcontextは必ず通常の(directBootContextでない)Contextを指定すること
-    Context direct_boot_context = context.createDeviceProtectedStorageContext();
+    Context directBootContext = context.createDeviceProtectedStorageContext();
     final String sharedPreferencesDirectory =
       context.getFilesDir().getParent() + "/shared_prefs/";
     final String[] sharedPreferencesFiles = {INT_GENERAL, BOOLEAN_GENERAL, STRING_GENERAL};
@@ -459,6 +463,7 @@ class UtilClass {
 
       if(file.exists()) {
         try {
+          @SuppressWarnings("LocalVariableNamingConvention")
           String BASE_NAME = isFromDirectBootContext ?
             sharedPreferencesFile + ".xml" : sharedPreferencesFile + "_COPY.xml";
           os = new FileOutputStream(file.getParent() + "/" + BASE_NAME);
@@ -473,7 +478,7 @@ class UtilClass {
           os.flush();
         }
         catch(Exception e) {
-          e.printStackTrace();
+          Log.e("copySharedPreKernel", Log.getStackTraceString(e));
         }
         finally {
           try {
@@ -485,17 +490,17 @@ class UtilClass {
             }
           }
           catch(Exception e) {
-            e.printStackTrace();
+            Log.e("copySharedPreKernel", Log.getStackTraceString(e));
           }
         }
       }
 
       // 指定されたContext上で複製したSharedPreferencesを他方のContextへ移動する
       if(isFromDirectBootContext) {
-        context.moveSharedPreferencesFrom(direct_boot_context, sharedPreferencesFile);
+        context.moveSharedPreferencesFrom(directBootContext, sharedPreferencesFile);
       }
       else {
-        direct_boot_context.moveSharedPreferencesFrom(
+        directBootContext.moveSharedPreferencesFrom(
           context,
           sharedPreferencesFile + "_COPY"
         );

@@ -14,7 +14,7 @@ import androidx.fragment.app.DialogFragment;
 import static com.hideaki.kk_reminder.UtilClass.LOCALE;
 import static java.util.Objects.requireNonNull;
 
-public class ManuallySnoozePickerDiaglogFragment extends DialogFragment
+public class ManuallySnoozePickerDialogFragment extends DialogFragment
   implements TimePickerDialog.OnTimeSetListener {
 
   private ManuallySnoozeActivity activity;
@@ -26,8 +26,8 @@ public class ManuallySnoozePickerDiaglogFragment extends DialogFragment
     activity = (ManuallySnoozeActivity)getActivity();
     requireNonNull(activity);
 
-    int hour = activity.custom_hour;
-    int minute = activity.custom_minute;
+    int hour = activity.customHour;
+    int minute = activity.customMinute;
 
     return new TimePickerDialog(activity, this, hour, minute, true);
   }
@@ -36,29 +36,29 @@ public class ManuallySnoozePickerDiaglogFragment extends DialogFragment
   public void onTimeSet(TimePicker timePicker, int hourOfDay, int minute) {
 
     if(hourOfDay == 0 && minute == 0) {
-      activity.custom_hour = 24;
+      activity.customHour = 24;
     }
     else {
-      activity.custom_hour = hourOfDay;
+      activity.customHour = hourOfDay;
     }
-    activity.custom_minute = minute;
+    activity.customMinute = minute;
 
     activity.summary = "";
-    if(activity.custom_hour != 0) {
+    if(activity.customHour != 0) {
       activity.summary += getResources().getQuantityString(
         R.plurals.hour,
-        activity.custom_hour,
-        activity.custom_hour
+        activity.customHour,
+        activity.customHour
       );
       if(!LOCALE.equals(Locale.JAPAN)) {
         activity.summary += " ";
       }
     }
-    if(activity.custom_minute != 0) {
+    if(activity.customMinute != 0) {
       activity.summary += getResources().getQuantityString(
         R.plurals.minute,
-        activity.custom_minute,
-        activity.custom_minute
+        activity.customMinute,
+        activity.customMinute
       );
       if(!LOCALE.equals(Locale.JAPAN)) {
         activity.summary += " ";

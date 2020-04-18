@@ -34,6 +34,7 @@ import androidx.appcompat.widget.SearchView;
 import androidx.appcompat.widget.Toolbar;
 import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.core.content.ContextCompat;
+import androidx.drawerlayout.widget.DrawerLayout;
 import androidx.fragment.app.Fragment;
 
 import static com.hideaki.kk_reminder.UtilClass.IS_EXPANDABLE_TODO;
@@ -55,9 +56,9 @@ public class ActionBarFragment extends Fragment {
   private MenuItem tagSearchItem;
   private MenuItem sortItem;
   long checkedTag;
-  List<List<Item>> filteredLists;
-  List<Item> filteredList;
-  List<NonScheduledList> nonScheduledLists;
+  List<List<ItemAdapter>> filteredLists;
+  List<ItemAdapter> filteredList;
+  List<NonScheduledListAdapter> nonScheduledLists;
   private String filteredText;
   private MenuItem toggleItem;
   private TextView todo;
@@ -185,14 +186,14 @@ public class ActionBarFragment extends Fragment {
         PopupMenu popupMenu = new PopupMenu(activity, tagSearchView);
         final Menu menu = popupMenu.getMenu();
 
-        for(final Tag tag : activity.generalSettings.getTagList()) {
+        for(final TagAdapter tag : activity.generalSettings.getTagList()) {
 
           Drawable drawable = ContextCompat.getDrawable(activity, R.drawable.ic_pallet_24dp);
           requireNonNull(drawable);
           drawable = drawable.mutate();
-          if(tag.getPrimary_color() != 0) {
+          if(tag.getPrimaryColor() != 0) {
             drawable.setColorFilter(new PorterDuffColorFilter(
-              tag.getPrimary_color(),
+              tag.getPrimaryColor(),
               PorterDuff.Mode.SRC_IN
             ));
           }
@@ -227,10 +228,10 @@ public class ActionBarFragment extends Fragment {
                         activity.getChildren(MyDatabaseHelper.TODO_TABLE);
 
                       filteredLists = new ArrayList<>();
-                      for(List<Item> itemList : MyExpandableListAdapter.children) {
-                        List<Item> filteredList = new ArrayList<>();
-                        for(Item filteredItem : itemList) {
-                          if(filteredItem.getWhich_tag_belongs() == tag.getId()) {
+                      for(List<ItemAdapter> itemList : MyExpandableListAdapter.children) {
+                        List<ItemAdapter> filteredList = new ArrayList<>();
+                        for(ItemAdapter filteredItem : itemList) {
+                          if(filteredItem.getWhichTagBelongs() == tag.getId()) {
                             filteredList.add(filteredItem);
                           }
                         }
@@ -249,8 +250,8 @@ public class ActionBarFragment extends Fragment {
                       DoneListAdapter.itemList = activity.getDoneItem();
 
                       filteredList = new ArrayList<>();
-                      for(Item filteredItem : DoneListAdapter.itemList) {
-                        if(filteredItem.getWhich_tag_belongs() == tag.getId()) {
+                      for(ItemAdapter filteredItem : DoneListAdapter.itemList) {
+                        if(filteredItem.getWhichTagBelongs() == tag.getId()) {
                           filteredList.add(filteredItem);
                         }
                       }
@@ -275,8 +276,8 @@ public class ActionBarFragment extends Fragment {
                         activity.getNonScheduledItem(MyDatabaseHelper.TODO_TABLE);
 
                       filteredList = new ArrayList<>();
-                      for(Item filteredItem : MyListAdapter.itemList) {
-                        if(filteredItem.getWhich_tag_belongs() == tag.getId()) {
+                      for(ItemAdapter filteredItem : MyListAdapter.itemList) {
+                        if(filteredItem.getWhichTagBelongs() == tag.getId()) {
                           filteredList.add(filteredItem);
                         }
                       }
@@ -292,8 +293,8 @@ public class ActionBarFragment extends Fragment {
                       DoneListAdapter.itemList = activity.getDoneItem();
 
                       filteredList = new ArrayList<>();
-                      for(Item filteredItem : DoneListAdapter.itemList) {
-                        if(filteredItem.getWhich_tag_belongs() == tag.getId()) {
+                      for(ItemAdapter filteredItem : DoneListAdapter.itemList) {
+                        if(filteredItem.getWhichTagBelongs() == tag.getId()) {
                           filteredList.add(filteredItem);
                         }
                       }
@@ -313,8 +314,8 @@ public class ActionBarFragment extends Fragment {
                     );
 
                     nonScheduledLists = new ArrayList<>();
-                    for(NonScheduledList list : ManageListAdapter.nonScheduledLists) {
-                      if(list.getWhich_tag_belongs() == tag.getId()) {
+                    for(NonScheduledListAdapter list : ManageListAdapter.nonScheduledLists) {
+                      if(list.getWhichTagBelongs() == tag.getId()) {
                         nonScheduledLists.add(list);
                       }
                     }
@@ -368,14 +369,16 @@ public class ActionBarFragment extends Fragment {
       case R.id.sort: {
 
         if(order == 1) {
-          MyListAdapter.is_sorting = !MyListAdapter.is_sorting;
-          if(MyListAdapter.is_sorting) {
+          MyListAdapter.isSorting = !MyListAdapter.isSorting;
+          if(MyListAdapter.isSorting) {
+            activity.drawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_LOCKED_CLOSED);
             actionBar.setDisplayHomeAsUpEnabled(false);
             searchItem.setVisible(false);
             addItem.setVisible(false);
             toggleItem.setVisible(false);
           }
           else {
+            activity.drawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_UNLOCKED);
             actionBar.setDisplayHomeAsUpEnabled(true);
             searchItem.setVisible(true);
             addItem.setVisible(true);
@@ -383,7 +386,7 @@ public class ActionBarFragment extends Fragment {
 
             int size = MyListAdapter.itemList.size();
             for(int i = 0; i < size; i++) {
-              Item tmpItem = MyListAdapter.itemList.get(i);
+              ItemAdapter tmpItem = MyListAdapter.itemList.get(i);
               if(tmpItem.getOrder() != i) {
                 tmpItem.setOrder(i);
                 activity.updateDB(tmpItem, MyDatabaseHelper.TODO_TABLE);
@@ -394,29 +397,31 @@ public class ActionBarFragment extends Fragment {
           activity.listAdapter.notifyDataSetChanged();
         }
         else if(order == 3) {
-          ManageListAdapter.is_sorting = !ManageListAdapter.is_sorting;
-          if(ManageListAdapter.is_sorting) {
+          ManageListAdapter.isSorting = !ManageListAdapter.isSorting;
+          if(ManageListAdapter.isSorting) {
+            activity.drawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_LOCKED_CLOSED);
             actionBar.setDisplayHomeAsUpEnabled(false);
             searchItem.setVisible(false);
             addItem.setVisible(false);
           }
           else {
+            activity.drawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_UNLOCKED);
             actionBar.setDisplayHomeAsUpEnabled(true);
             searchItem.setVisible(true);
             addItem.setVisible(true);
 
             activity.generalSettings.setNonScheduledLists(new ArrayList<>(ManageListAdapter.nonScheduledLists));
             int size = ManageListAdapter.nonScheduledLists.size();
-            boolean is_updated = false;
+            boolean isUpdated = false;
             for(int i = 0; i < size; i++) {
-              NonScheduledList list = activity.generalSettings.getNonScheduledLists().get(i);
+              NonScheduledListAdapter list = activity.generalSettings.getNonScheduledLists().get(i);
               if(list.getOrder() != i) {
                 list.setOrder(i);
-                is_updated = true;
+                isUpdated = true;
               }
             }
 
-            if(is_updated) {
+            if(isUpdated) {
 
               // 一旦reminder_listグループ内のアイテムをすべて消してから元に戻すことで新しく追加したリストの順番を追加した順に並び替える
 
@@ -431,7 +436,7 @@ public class ActionBarFragment extends Fragment {
                 .setCheckable(false);
 
               // 新しく追加したリストのリストア
-              for(NonScheduledList list : activity.generalSettings.getNonScheduledLists()) {
+              for(NonScheduledListAdapter list : activity.generalSettings.getNonScheduledLists()) {
                 Drawable drawable = ContextCompat.getDrawable(activity, R.drawable.ic_my_list_24dp);
                 requireNonNull(drawable);
                 drawable = drawable.mutate();
@@ -524,7 +529,7 @@ public class ActionBarFragment extends Fragment {
             activity.generalSettings
               .getNonScheduledLists()
               .get(activity.whichMenuOpen - 1)
-              .setTodo(true);
+              .setIsTodo(true);
             activity.updateSettingsDB();
             activity.showListViewFragment();
 
@@ -562,7 +567,7 @@ public class ActionBarFragment extends Fragment {
             activity.generalSettings
               .getNonScheduledLists()
               .get(activity.whichMenuOpen - 1)
-              .setTodo(false);
+              .setIsTodo(false);
             activity.updateSettingsDB();
             activity.showDoneListViewFragment();
 
@@ -575,22 +580,22 @@ public class ActionBarFragment extends Fragment {
 
   private void setTodoPushedColor() {
 
-    todoDrawable.setColor(activity.status_bar_color);
-    doneDrawable.setColor(activity.menu_background_color);
-    todoDrawable.setStroke(3, activity.accent_color);
-    doneDrawable.setStroke(3, activity.menu_item_color);
-    todo.setTextColor(activity.accent_color);
-    done.setTextColor(activity.menu_item_color);
+    todoDrawable.setColor(activity.statusBarColor);
+    doneDrawable.setColor(activity.menuBackgroundColor);
+    todoDrawable.setStroke(3, activity.accentColor);
+    doneDrawable.setStroke(3, activity.menuItemColor);
+    todo.setTextColor(activity.accentColor);
+    done.setTextColor(activity.menuItemColor);
   }
 
   private void setDonePushedColor() {
 
-    todoDrawable.setColor(activity.menu_background_color);
-    doneDrawable.setColor(activity.status_bar_color);
-    todoDrawable.setStroke(3, activity.menu_item_color);
-    doneDrawable.setStroke(3, activity.accent_color);
-    todo.setTextColor(activity.menu_item_color);
-    done.setTextColor(activity.accent_color);
+    todoDrawable.setColor(activity.menuBackgroundColor);
+    doneDrawable.setColor(activity.statusBarColor);
+    todoDrawable.setStroke(3, activity.menuItemColor);
+    doneDrawable.setStroke(3, activity.accentColor);
+    todo.setTextColor(activity.menuItemColor);
+    done.setTextColor(activity.accentColor);
   }
 
   private void initTagSearchItem() {
@@ -599,7 +604,7 @@ public class ActionBarFragment extends Fragment {
     requireNonNull(drawable);
     drawable = drawable.mutate();
     drawable.setColorFilter(new PorterDuffColorFilter(
-      activity.menu_item_color,
+      activity.menuItemColor,
       PorterDuff.Mode.SRC_IN
     ));
     tagSearchItem.setIcon(drawable);
@@ -611,7 +616,7 @@ public class ActionBarFragment extends Fragment {
     requireNonNull(drawable);
     drawable = drawable.mutate();
     drawable.setColorFilter(new PorterDuffColorFilter(
-      activity.menu_item_color,
+      activity.menuItemColor,
       PorterDuff.Mode.SRC_IN
     ));
     sortItem.setIcon(drawable);
@@ -623,7 +628,7 @@ public class ActionBarFragment extends Fragment {
     requireNonNull(drawable);
     drawable = drawable.mutate();
     drawable.setColorFilter(new PorterDuffColorFilter(
-      activity.menu_item_color,
+      activity.menuItemColor,
       PorterDuff.Mode.SRC_IN
     ));
     addItem.setIcon(drawable);
@@ -635,7 +640,7 @@ public class ActionBarFragment extends Fragment {
     requireNonNull(drawable);
     drawable = drawable.mutate();
     drawable.setColorFilter(new PorterDuffColorFilter(
-      activity.menu_item_color,
+      activity.menuItemColor,
       PorterDuff.Mode.SRC_IN
     ));
     alignTop.setIcon(drawable);
@@ -643,15 +648,16 @@ public class ActionBarFragment extends Fragment {
 
   private void initSearchItem() {
 
-    int search_color;
-    if(activity.menu_item_color == Color.parseColor("#000000")) {
-      search_color = Color.parseColor("#595757");
+    int searchColor;
+    if(activity.menuItemColor == Color.parseColor("#000000")) {
+      searchColor = Color.parseColor("#595757");
     }
-    else if(activity.menu_item_color == Color.parseColor("#FFFFFF")) {
-      search_color = Color.parseColor("#C9CACA");
+    else if(activity.menuItemColor == Color.parseColor("#FFFFFF")) {
+      //noinspection SpellCheckingInspection
+      searchColor = Color.parseColor("#C9CACA");
     }
     else {
-      search_color = activity.menu_item_color;
+      searchColor = activity.menuItemColor;
     }
 
     // アイコンの色
@@ -659,7 +665,7 @@ public class ActionBarFragment extends Fragment {
     requireNonNull(drawable);
     drawable = drawable.mutate();
     drawable.setColorFilter(new PorterDuffColorFilter(
-      activity.menu_item_color,
+      activity.menuItemColor,
       PorterDuff.Mode.SRC_IN
     ));
     ImageView searchIcon = searchView.findViewById(androidx.appcompat.R.id.search_button);
@@ -669,12 +675,12 @@ public class ActionBarFragment extends Fragment {
     // カーソルの色
     setCursorDrawableColor(activity, searchTextView);
     // 検索中文字の色
-    searchTextView.setTextColor(activity.menu_item_color);
+    searchTextView.setTextColor(activity.menuItemColor);
     // 閉じるボタンの色
     ImageView searchClose = searchView.findViewById(androidx.appcompat.R.id.search_close_btn);
-    searchClose.setColorFilter(search_color);
+    searchClose.setColorFilter(searchColor);
     // ヒントの色
-    String strColor = String.format("#%06X", 0xFFFFFF & search_color);
+    String strColor = String.format("#%06X", 0xFFFFFF & searchColor);
     searchView.setQueryHint(Html.fromHtml(
       "<font color = " +
         strColor +

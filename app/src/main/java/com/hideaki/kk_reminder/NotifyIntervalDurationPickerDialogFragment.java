@@ -43,7 +43,7 @@ public class NotifyIntervalDurationPickerDialogFragment extends DialogFragment
     else {
       return new TimePickerDialog(
         activity,
-        activity.dialog_style_id,
+        activity.dialogStyleId,
         this,
         hour,
         minute,
@@ -63,7 +63,7 @@ public class NotifyIntervalDurationPickerDialogFragment extends DialogFragment
     }
     MainEditFragment.notifyInterval.setMinute(minute);
 
-    NotifyInterval interval = MainEditFragment.notifyInterval;
+    NotifyIntervalAdapter interval = MainEditFragment.notifyInterval;
     Resources res = getResources();
     String summary;
     String title = "";
@@ -81,12 +81,12 @@ public class NotifyIntervalDurationPickerDialogFragment extends DialogFragment
         title += tmp;
       }
       summary += getString(R.string.per);
-      if(interval.getOrg_time() == -1) {
+      if(interval.getOrgTime() == -1) {
         summary += getString(R.string.infinite_times_notify);
       }
       else {
-        summary += res.getQuantityString(R.plurals.times_notify, interval.getOrg_time(),
-          interval.getOrg_time()
+        summary += res.getQuantityString(R.plurals.times_notify, interval.getOrgTime(),
+          interval.getOrgTime()
         );
       }
     }
@@ -105,9 +105,9 @@ public class NotifyIntervalDurationPickerDialogFragment extends DialogFragment
         summary += tmp;
         title += tmp;
       }
-      if(interval.getOrg_time() != -1) {
-        summary += res.getQuantityString(R.plurals.times_notify, interval.getOrg_time(),
-          interval.getOrg_time()
+      if(interval.getOrgTime() != -1) {
+        summary += res.getQuantityString(R.plurals.times_notify, interval.getOrgTime(),
+          interval.getOrgTime()
         ) + " ";
       }
       summary += getString(R.string.unless_complete_task);
@@ -115,7 +115,7 @@ public class NotifyIntervalDurationPickerDialogFragment extends DialogFragment
 
     notifyIntervalEditFragment.duration.setTitle(title);
 
-    if(interval.getOrg_time() == 0) {
+    if(interval.getOrgTime() == 0) {
       notifyIntervalEditFragment.label.setSummary(getString(R.string.non_notify));
 
       MainEditFragment.notifyInterval.setLabel(getString(R.string.none));

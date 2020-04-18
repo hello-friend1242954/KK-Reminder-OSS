@@ -17,7 +17,7 @@ public class DayRepeatCustomYearPickerPreference extends Preference
   implements AnimCheckBox.OnCheckedChangeListener, View.OnClickListener {
 
   private AnimCheckBox checkBox;
-  private int mask_num;
+  private int maskNum;
   static int year;
 
   public DayRepeatCustomYearPickerPreference(Context context, AttributeSet attrs) {
@@ -33,17 +33,17 @@ public class DayRepeatCustomYearPickerPreference extends Preference
 
     year = MainEditFragment.dayRepeat.getYear();
 
-    TableLayout year_table = (TableLayout)holder.findViewById(R.id.year_table);
+    TableLayout yearTable = (TableLayout)holder.findViewById(R.id.year_table);
     if(year == 0) {
-      mask_num = MainEditFragment.final_cal.get(Calendar.MONTH);
-      year |= (1 << mask_num);
+      maskNum = MainEditFragment.finalCal.get(Calendar.MONTH);
+      year |= (1 << maskNum);
       MainEditFragment.dayRepeat.setYear(year);
     }
-    int year_table_size = year_table.getChildCount();
-    for(int i = 0; i < year_table_size; i++) {
-      TableRow tableRow = (TableRow)year_table.getChildAt(i);
-      int table_row_size = tableRow.getChildCount();
-      for(int j = 0; j < table_row_size; j++) {
+    int yearTableSize = yearTable.getChildCount();
+    for(int i = 0; i < yearTableSize; i++) {
+      TableRow tableRow = (TableRow)yearTable.getChildAt(i);
+      int tableRowSize = tableRow.getChildCount();
+      for(int j = 0; j < tableRowSize; j++) {
         ConstraintLayout constraintLayout = (ConstraintLayout)tableRow.getChildAt(j);
         checkBox = (AnimCheckBox)constraintLayout.getChildAt(0);
         if((year & (1 << (i * 4 + j))) != 0) {
@@ -59,15 +59,15 @@ public class DayRepeatCustomYearPickerPreference extends Preference
   public void onChange(AnimCheckBox view, boolean checked) {
 
     checkBox = view;
-    mask_num = Integer.parseInt(checkBox.getTag().toString());
+    maskNum = Integer.parseInt(checkBox.getTag().toString());
 
     if(checkBox.isChecked()) {
-      year |= (1 << mask_num);
+      year |= (1 << maskNum);
     }
     else {
-      year &= ~(1 << mask_num);
+      year &= ~(1 << maskNum);
       if(year == 0) {
-        year |= (1 << mask_num);
+        year |= (1 << maskNum);
         checkBox.setChecked(true);
       }
     }

@@ -27,8 +27,7 @@ public class SortableListView extends ListView {
   private static final Bitmap.Config DRAG_BITMAP_CONFIG = Bitmap.Config.ARGB_8888;
 
   private MainActivity activity;
-  private boolean sortable = false;
-  private boolean is_dragging = false;
+  private boolean isDragging = false;
   private DragListener dragListener = new SimpleDragListener();
   private int bitmapBackgroundColor = Color.argb(0, 0xFF, 0xFF, 0xFF);
   private Bitmap dragBitmap = null;
@@ -64,14 +63,6 @@ public class SortableListView extends ListView {
   }
 
   /**
-   * ソートモードの切替
-   */
-  public void setSortable(boolean sortable) {
-
-    this.sortable = sortable;
-  }
-
-  /**
    * ソート中アイテムの背景色を設定
    */
   @Override
@@ -91,19 +82,12 @@ public class SortableListView extends ListView {
   @Override
   public boolean onInterceptTouchEvent(MotionEvent ev) {
 
-    if(TagEditListAdapter.is_sorting) {
+    if(TagEditListAdapter.isSorting) {
       return eventToPosition(ev) != 0;
     }
-    return MyListAdapter.is_sorting || ManageListAdapter.is_sorting ||
+    return MyListAdapter.isSorting || ManageListAdapter.isSorting ||
       NotesTodoListAdapter.isSorting
       || super.onInterceptTouchEvent(ev);
-  }
-
-  @Override
-  public boolean performClick() {
-
-    super.performClick();
-    return true;
   }
 
   /**
@@ -113,7 +97,12 @@ public class SortableListView extends ListView {
   @Override
   public boolean onTouchEvent(MotionEvent event) {
 
-    if(!sortable) {
+    if(
+      !MyListAdapter.isSorting &&
+        !ManageListAdapter.isSorting &&
+        !TagEditListAdapter.isSorting &&
+        !NotesTodoListAdapter.isSorting
+    ) {
       return super.onTouchEvent(event);
     }
 
@@ -166,7 +155,7 @@ public class SortableListView extends ListView {
     if(positionFrom < 0) {
       return false;
     }
-    is_dragging = true;
+    isDragging = true;
 
     // View, Canvas, WindowManagerの取得・生成
     final View view = getChildByIndex(positionFrom);
@@ -200,7 +189,7 @@ public class SortableListView extends ListView {
     }
     requireNonNull(drawable);
     drawable = (GradientDrawable)drawable.mutate();
-    drawable.setStroke(3, activity.accent_color);
+    drawable.setStroke(3, activity.accentColor);
     drawable.setCornerRadius(8.0f);
     dragImageView.setBackground(drawable);
     dragImageView.setElevation(10.0f);
@@ -220,7 +209,7 @@ public class SortableListView extends ListView {
    */
   private boolean duringDrag(MotionEvent event) {
 
-    if(!is_dragging || dragImageView == null) {
+    if(!isDragging || dragImageView == null) {
       return false;
     }
 
@@ -282,7 +271,7 @@ public class SortableListView extends ListView {
    */
   private boolean stopDrag(MotionEvent event, boolean isDrop) {
 
-    if(!is_dragging) {
+    if(!isDragging) {
       return false;
     }
 
@@ -290,11 +279,11 @@ public class SortableListView extends ListView {
       dragListener.onStopDrag(positionFrom, eventToPosition(event));
     }
 
-    is_dragging = false;
+    isDragging = false;
     if(dragImageView != null) {
       getWindowManager().removeView(dragImageView);
       dragImageView = null;
-      // リサイクルするとたまに死ぬけどタイミング分からない by vvakame
+      // リサイクルするとたまに死ぬけどタイミング分からない
       // dragBitmap.recycle();
       dragBitmap = null;
 
@@ -347,10 +336,10 @@ public class SortableListView extends ListView {
    */
   protected void updateLayoutParams(int rawY) {
 
-    if(MyListAdapter.is_sorting || ManageListAdapter.is_sorting) {
+    if(MyListAdapter.isSorting || ManageListAdapter.isSorting) {
       layoutParams.y = rawY - 112;
     }
-    else if(TagEditListAdapter.is_sorting) {
+    else if(TagEditListAdapter.isSorting) {
       layoutParams.y = rawY - 100;
     }
     else if(NotesTodoListAdapter.isSorting) {

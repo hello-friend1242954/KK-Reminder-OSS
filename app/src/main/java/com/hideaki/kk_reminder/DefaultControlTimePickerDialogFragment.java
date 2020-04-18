@@ -89,7 +89,7 @@ public class DefaultControlTimePickerDialogFragment extends DialogFragment
     else {
       return new TimePickerDialog(
         activity,
-        activity.dialog_style_id,
+        activity.dialogStyleId,
         this,
         hour,
         minute,
@@ -98,6 +98,7 @@ public class DefaultControlTimePickerDialogFragment extends DialogFragment
     }
   }
 
+  @SuppressWarnings("LocalVariableNamingConvention")
   @Override
   public void onTimeSet(TimePicker view, int hourOfDay, int minute) {
 

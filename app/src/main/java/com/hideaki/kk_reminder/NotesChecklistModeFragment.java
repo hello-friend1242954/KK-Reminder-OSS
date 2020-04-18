@@ -38,7 +38,7 @@ import static java.util.Objects.requireNonNull;
 public class NotesChecklistModeFragment extends Fragment {
 
   static final String TAG = NotesChecklistModeFragment.class.getSimpleName();
-  static Item item = null;
+  static ItemAdapter item = null;
   private MainActivity activity;
   NotesTodoListAdapter notesTodoListAdapter;
   NotesDoneListAdapter notesDoneListAdapter;
@@ -51,15 +51,15 @@ public class NotesChecklistModeFragment extends Fragment {
   MenuItem deleteItem;
   MenuItem unselectItem;
   MenuItem sortItem;
-  private boolean is_empty_view_added;
+  private boolean isEmptyViewAdded;
   private View emptyView;
 
-  public static NotesChecklistModeFragment newInstance(Item item) {
+  public static NotesChecklistModeFragment newInstance(ItemAdapter item) {
 
     NotesChecklistModeFragment fragment = new NotesChecklistModeFragment();
 
     Bundle args = new Bundle();
-    args.putSerializable(ITEM, item);
+    args.putSerializable(ITEM, item.getItem());
     fragment.setArguments(args);
 
     return fragment;
@@ -80,7 +80,7 @@ public class NotesChecklistModeFragment extends Fragment {
 
     Bundle args = getArguments();
     requireNonNull(args);
-    item = (Item)args.getSerializable(ITEM);
+    item = new ItemAdapter(args.getSerializable(ITEM));
 
     notesTodoListAdapter = new NotesTodoListAdapter(activity, this);
     notesDoneListAdapter = new NotesDoneListAdapter(activity, this);
@@ -93,7 +93,7 @@ public class NotesChecklistModeFragment extends Fragment {
     Bundle savedInstanceState
   ) {
 
-    if(MainEditFragment.is_notes_popping) {
+    if(MainEditFragment.isNotesPopping) {
       FragmentManager manager = getFragmentManager();
       requireNonNull(manager);
       manager.popBackStack();
@@ -122,7 +122,7 @@ public class NotesChecklistModeFragment extends Fragment {
             return true;
           }
 
-          MainEditFragment.is_notes_popping = true;
+          MainEditFragment.isNotesPopping = true;
         }
 
         return false;
@@ -132,7 +132,7 @@ public class NotesChecklistModeFragment extends Fragment {
     // NotesTodoListとNotesDoneListの保持するnotesListの初期化
     NotesTodoListAdapter.notesList = new ArrayList<>();
     NotesDoneListAdapter.notesList = new ArrayList<>();
-    for(Notes notes : item.getNotesList()) {
+    for(NotesAdapter notes : item.getNotesList()) {
       if(notes.isChecked()) {
         NotesDoneListAdapter.notesList.add(notes);
       }
@@ -148,31 +148,30 @@ public class NotesChecklistModeFragment extends Fragment {
     sortableListView = view.findViewById(R.id.notes_todo);
     todoHeader = View.inflate(activity, R.layout.notes_todo_list_header, null);
     todoHeader.setOnClickListener(null);
-    todoHeader.setBackgroundColor(activity.accent_color);
+    todoHeader.setBackgroundColor(activity.accentColor);
     TextView todoHeaderTitle = todoHeader.findViewById(R.id.todo);
-    todoHeaderTitle.setTextColor(activity.secondary_text_color);
+    todoHeaderTitle.setTextColor(activity.secondaryTextColor);
     if(NotesTodoListAdapter.notesList.size() != 0 && sortableListView.getHeaderViewsCount() == 0
       && !NotesTodoListAdapter.isSorting) {
       sortableListView.addHeaderView(todoHeader);
     }
-    sortableListView.setDragListener(notesTodoListAdapter.dragListener);
-    sortableListView.setSortable(true);
+    sortableListView.setDragListener(notesTodoListAdapter.myDragListener);
     sortableListView.setAdapter(notesTodoListAdapter);
 
     // NotesDoneListの初期化
     listView = view.findViewById(R.id.notes_done);
     doneHeader = View.inflate(activity, R.layout.notes_done_list_header, null);
     doneHeader.setOnClickListener(null);
-    doneHeader.setBackgroundColor(activity.accent_color);
+    doneHeader.setBackgroundColor(activity.accentColor);
     TextView doneHeaderTitle = doneHeader.findViewById(R.id.done);
-    doneHeaderTitle.setTextColor(activity.secondary_text_color);
+    doneHeaderTitle.setTextColor(activity.secondaryTextColor);
     if(NotesDoneListAdapter.notesList.size() != 0 && listView.getHeaderViewsCount() == 0) {
       listView.addHeaderView(doneHeader);
     }
     listView.setAdapter(notesDoneListAdapter);
 
     emptyView = View.inflate(activity, R.layout.notes_list_empty_layout, null);
-    is_empty_view_added = false;
+    isEmptyViewAdded = false;
     if(NotesChecklistModeFragment.item.getNotesList().size() == 0) {
       LinearLayout linearLayout = new LinearLayout(activity);
       linearLayout.setOrientation(LinearLayout.VERTICAL);
@@ -187,7 +186,7 @@ public class NotesChecklistModeFragment extends Fragment {
       int paddingPx = getPxFromDp(activity, 75);
       linearLayout.setPadding(0, 0, 0, paddingPx);
       ((ViewGroup)sortableListView.getParent()).addView(linearLayout, layoutParams);
-      is_empty_view_added = true;
+      isEmptyViewAdded = true;
     }
 
     Toolbar toolbar = activity.findViewById(R.id.toolbar_layout);
@@ -195,7 +194,7 @@ public class NotesChecklistModeFragment extends Fragment {
     requireNonNull(drawable);
     drawable = drawable.mutate();
     drawable.setColorFilter(new PorterDuffColorFilter(
-      activity.menu_item_color,
+      activity.menuItemColor,
       PorterDuff.Mode.SRC_IN
     ));
     toolbar.setOverflowIcon(drawable);
@@ -228,7 +227,7 @@ public class NotesChecklistModeFragment extends Fragment {
     requireNonNull(drawable);
     drawable = drawable.mutate();
     drawable.setColorFilter(new PorterDuffColorFilter(
-      activity.menu_item_color,
+      activity.menuItemColor,
       PorterDuff.Mode.SRC_IN
     ));
     sortItem.setIcon(drawable);
@@ -238,7 +237,7 @@ public class NotesChecklistModeFragment extends Fragment {
     requireNonNull(drawable);
     drawable = drawable.mutate();
     drawable.setColorFilter(new PorterDuffColorFilter(
-      activity.menu_item_color,
+      activity.menuItemColor,
       PorterDuff.Mode.SRC_IN
     ));
     editModeItem.setIcon(drawable);
@@ -290,8 +289,10 @@ public class NotesChecklistModeFragment extends Fragment {
 
               NotesChecklistModeFragment.item.setNotesList(new ArrayList<>(NotesTodoListAdapter.notesList));
 
-              if(NotesChecklistModeFragment.item.getNotesList().size() == 0 &&
-                !is_empty_view_added) {
+              if(
+                NotesChecklistModeFragment.item.getNotesList().size() == 0 &&
+                  !isEmptyViewAdded
+              ) {
                 LinearLayout linearLayout = new LinearLayout(activity);
                 linearLayout.setOrientation(LinearLayout.VERTICAL);
                 LinearLayout.LayoutParams layoutParams =
@@ -305,7 +306,7 @@ public class NotesChecklistModeFragment extends Fragment {
                 int paddingPx = getPxFromDp(activity, 75);
                 linearLayout.setPadding(0, 0, 0, paddingPx);
                 ((ViewGroup)sortableListView.getParent()).addView(linearLayout, layoutParams);
-                is_empty_view_added = true;
+                isEmptyViewAdded = true;
               }
 
               if(activity.isItemExists(
@@ -315,8 +316,9 @@ public class NotesChecklistModeFragment extends Fragment {
                 activity.updateDB(NotesChecklistModeFragment.item, MyDatabaseHelper.TODO_TABLE);
               }
               else {
-                MainEditFragment.item.setNotesList(new ArrayList<>(NotesChecklistModeFragment.item
-                  .getNotesList()));
+                MainEditFragment.item.setNotesList(
+                  new ArrayList<>(NotesChecklistModeFragment.item.getNotesList())
+                );
               }
             }
           })
@@ -332,8 +334,8 @@ public class NotesChecklistModeFragment extends Fragment {
           @Override
           public void onShow(DialogInterface dialogInterface) {
 
-            dialog.getButton(AlertDialog.BUTTON_POSITIVE).setTextColor(activity.accent_color);
-            dialog.getButton(AlertDialog.BUTTON_NEUTRAL).setTextColor(activity.accent_color);
+            dialog.getButton(AlertDialog.BUTTON_POSITIVE).setTextColor(activity.accentColor);
+            dialog.getButton(AlertDialog.BUTTON_NEUTRAL).setTextColor(activity.accentColor);
           }
         });
 
@@ -343,8 +345,8 @@ public class NotesChecklistModeFragment extends Fragment {
       }
       case R.id.unselect_all_items: {
 
-        for(Notes notes : NotesDoneListAdapter.notesList) {
-          notes.setChecked(false);
+        for(NotesAdapter notes : NotesDoneListAdapter.notesList) {
+          notes.setIsChecked(false);
           NotesTodoListAdapter.notesList.add(notes);
         }
         Collections.sort(NotesTodoListAdapter.notesList, NOTES_COMPARATOR);
@@ -367,14 +369,16 @@ public class NotesChecklistModeFragment extends Fragment {
           activity.updateDB(NotesChecklistModeFragment.item, MyDatabaseHelper.TODO_TABLE);
         }
         else {
-          MainEditFragment.item.setNotesList(new ArrayList<>(NotesChecklistModeFragment.item.getNotesList()));
+          MainEditFragment.item.setNotesList(
+            new ArrayList<>(NotesChecklistModeFragment.item.getNotesList())
+          );
         }
 
         return true;
       }
       case R.id.edit_mode: {
 
-        NotesChecklistModeFragment.item.setChecklist_mode(false);
+        NotesChecklistModeFragment.item.setChecklistMode(false);
         activity.updateDB(NotesChecklistModeFragment.item, MyDatabaseHelper.TODO_TABLE);
         activity.showNotesFragment(NotesChecklistModeFragment.item);
         return true;
@@ -408,32 +412,32 @@ public class NotesChecklistModeFragment extends Fragment {
           listView.setVisibility(View.VISIBLE);
 
 
-          List<Notes> doneList = NotesDoneListAdapter.notesList;
+          List<NotesAdapter> doneList = NotesDoneListAdapter.notesList;
           List<Integer> doneOrderList = new ArrayList<>();
-          for(Notes notes : doneList) {
+          for(NotesAdapter notes : doneList) {
             doneOrderList.add(notes.getOrder());
           }
 
           List<Integer> sortedIndex = new ArrayList<>();
-          int all_list_size = NotesChecklistModeFragment.item.getNotesList().size();
-          for(int i = 0; i < all_list_size; i++) {
+          int allListSize = NotesChecklistModeFragment.item.getNotesList().size();
+          for(int i = 0; i < allListSize; i++) {
             sortedIndex.add(i);
           }
 
-          int done_list_size = doneList.size();
-          for(int i = 0; i < done_list_size; i++) {
+          int doneListSize = doneList.size();
+          for(int i = 0; i < doneListSize; i++) {
             sortedIndex.remove(doneOrderList.get(i));
           }
           Collections.sort(sortedIndex);
 
-          List<Notes> notesList = NotesTodoListAdapter.notesList;
+          List<NotesAdapter> notesList = NotesTodoListAdapter.notesList;
           int size = notesList.size();
-          boolean is_updated = false;
+          boolean isUpdated = false;
           for(int i = 0; i < size; i++) {
-            Notes notes = notesList.get(i);
+            NotesAdapter notes = notesList.get(i);
             if(notes.getOrder() != sortedIndex.get(i)) {
               notes.setOrder(sortedIndex.get(i));
-              is_updated = true;
+              isUpdated = true;
             }
           }
 
@@ -441,7 +445,7 @@ public class NotesChecklistModeFragment extends Fragment {
           notesList.addAll(NotesDoneListAdapter.notesList);
           Collections.sort(notesList, NOTES_COMPARATOR);
 
-          if(is_updated) {
+          if(isUpdated) {
             NotesChecklistModeFragment.item.setNotesList(new ArrayList<>(notesList));
             if(activity.isItemExists(
               NotesChecklistModeFragment.item,
@@ -450,7 +454,9 @@ public class NotesChecklistModeFragment extends Fragment {
               activity.updateDB(NotesChecklistModeFragment.item, MyDatabaseHelper.TODO_TABLE);
             }
             else {
-              MainEditFragment.item.setNotesList(new ArrayList<>(NotesChecklistModeFragment.item.getNotesList()));
+              MainEditFragment.item.setNotesList(
+                new ArrayList<>(NotesChecklistModeFragment.item.getNotesList())
+              );
             }
           }
         }
@@ -461,7 +467,7 @@ public class NotesChecklistModeFragment extends Fragment {
       }
       case android.R.id.home: {
 
-        MainEditFragment.is_notes_popping = true;
+        MainEditFragment.isNotesPopping = true;
         FragmentManager manager = getFragmentManager();
         requireNonNull(manager);
         manager.popBackStack();

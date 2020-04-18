@@ -30,6 +30,7 @@ class DriveServiceHelper {
     this.driveService = driveService;
   }
 
+  @SuppressWarnings("SameParameterValue")
   Task<List<FileList>> queryFiles(final String mimeType) {
 
     return Tasks.call(executor, new Callable<List<FileList>>() {
@@ -57,6 +58,7 @@ class DriveServiceHelper {
     });
   }
 
+  @SuppressWarnings("SameParameterValue")
   Task<FileList> queryFolder(final String folderName) {
 
     return Tasks.call(executor, new Callable<FileList>() {
@@ -104,6 +106,7 @@ class DriveServiceHelper {
     });
   }
 
+  @SuppressWarnings("SameParameterValue")
   Task<File> createFolder(final String folderName, @Nullable final String folderId) {
 
     return Tasks.call(executor, new Callable<File>() {

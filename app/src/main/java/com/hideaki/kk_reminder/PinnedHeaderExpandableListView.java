@@ -24,17 +24,17 @@ public class PinnedHeaderExpandableListView extends ExpandableListView implement
     void updatePinnedHeader(View headerView, int firstVisibleGroupPos);
   }
 
-  private View mHeaderView;
-  private int mHeaderWidth;
-  private int mHeaderHeight;
+  private View headerView;
+  private int headerWidth;
+  private int headerHeight;
 
-  private View mTouchTarget;
+  private View touchTarget;
 
-  private OnScrollListener mScrollListener;
-  private OnHeaderUpdateListener mHeaderUpdateListener;
+  private OnScrollListener scrollListener;
+  private OnHeaderUpdateListener headerUpdateListener;
 
-  private boolean mActionDownHappened = false;
-  protected boolean mIsHeaderGroupClickable = true;
+  private boolean actionDownHappened = false;
+  protected boolean isHeaderGroupClickable = true;
 
 
   public PinnedHeaderExpandableListView(Context context) {
@@ -65,10 +65,10 @@ public class PinnedHeaderExpandableListView extends ExpandableListView implement
   public void setOnScrollListener(OnScrollListener l) {
 
     if(l != this) {
-      mScrollListener = l;
+      scrollListener = l;
     }
     else {
-      mScrollListener = null;
+      scrollListener = null;
     }
     super.setOnScrollListener(this);
   }
@@ -87,22 +87,22 @@ public class PinnedHeaderExpandableListView extends ExpandableListView implement
     boolean isHeaderGroupClickable
   ) {
 
-    mIsHeaderGroupClickable = isHeaderGroupClickable;
+    this.isHeaderGroupClickable = isHeaderGroupClickable;
     super.setOnGroupClickListener(onGroupClickListener);
   }
 
   public void setOnHeaderUpdateListener(OnHeaderUpdateListener listener) {
 
-    mHeaderUpdateListener = listener;
+    headerUpdateListener = listener;
     if(listener == null) {
-      mHeaderView = null;
-      mHeaderWidth = mHeaderHeight = 0;
+      headerView = null;
+      headerWidth = headerHeight = 0;
       return;
     }
-    mHeaderView = listener.getPinnedHeader();
+    headerView = listener.getPinnedHeader();
     int firstVisiblePos = getFirstVisiblePosition();
     int firstVisibleGroupPos = getPackedPositionGroup(getExpandableListPosition(firstVisiblePos));
-    listener.updatePinnedHeader(mHeaderView, firstVisibleGroupPos);
+    listener.updatePinnedHeader(headerView, firstVisibleGroupPos);
     requestLayout();
     postInvalidate();
   }
@@ -111,31 +111,31 @@ public class PinnedHeaderExpandableListView extends ExpandableListView implement
   protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
 
     super.onMeasure(widthMeasureSpec, heightMeasureSpec);
-    if(mHeaderView == null) {
+    if(headerView == null) {
       return;
     }
-    measureChild(mHeaderView, widthMeasureSpec, heightMeasureSpec);
-    mHeaderWidth = mHeaderView.getMeasuredWidth();
-    mHeaderHeight = mHeaderView.getMeasuredHeight();
+    measureChild(headerView, widthMeasureSpec, heightMeasureSpec);
+    headerWidth = headerView.getMeasuredWidth();
+    headerHeight = headerView.getMeasuredHeight();
   }
 
   @Override
   protected void onLayout(boolean changed, int l, int t, int r, int b) {
 
     super.onLayout(changed, l, t, r, b);
-    if(mHeaderView == null) {
+    if(headerView == null) {
       return;
     }
-    int delta = mHeaderView.getTop();
-    mHeaderView.layout(0, delta, mHeaderWidth, mHeaderHeight + delta);
+    int delta = headerView.getTop();
+    headerView.layout(0, delta, headerWidth, headerHeight + delta);
   }
 
   @Override
   protected void dispatchDraw(Canvas canvas) {
 
     super.dispatchDraw(canvas);
-    if(mHeaderView != null) {
-      drawChild(canvas, mHeaderView, getDrawingTime());
+    if(headerView != null) {
+      drawChild(canvas, headerView, getDrawingTime());
     }
   }
 
@@ -145,20 +145,20 @@ public class PinnedHeaderExpandableListView extends ExpandableListView implement
     int x = (int)ev.getX();
     int y = (int)ev.getY();
     int pos = pointToPosition(x, y);
-    if(mHeaderView != null && y >= mHeaderView.getTop() && y <= mHeaderView.getBottom()) {
+    if(headerView != null && y >= headerView.getTop() && y <= headerView.getBottom()) {
       if(ev.getAction() == MotionEvent.ACTION_DOWN) {
-        mTouchTarget = getTouchTarget(mHeaderView, x, y);
-        mActionDownHappened = true;
+        touchTarget = getTouchTarget(headerView, x, y);
+        actionDownHappened = true;
       }
       else if(ev.getAction() == MotionEvent.ACTION_UP) {
-        View touchTarget = getTouchTarget(mHeaderView, x, y);
-        if(touchTarget == mTouchTarget && mTouchTarget.isClickable()) {
-          mTouchTarget.performClick();
-          invalidate(new Rect(0, 0, mHeaderWidth, mHeaderHeight));
+        View touchTarget = getTouchTarget(headerView, x, y);
+        if(touchTarget == this.touchTarget && this.touchTarget.isClickable()) {
+          this.touchTarget.performClick();
+          invalidate(new Rect(0, 0, headerWidth, headerHeight));
         }
-        else if(mIsHeaderGroupClickable) {
+        else if(isHeaderGroupClickable) {
           int groupPosition = getPackedPositionGroup(getExpandableListPosition(pos));
-          if(groupPosition != INVALID_POSITION && mActionDownHappened) {
+          if(groupPosition != INVALID_POSITION && actionDownHappened) {
             if(isGroupExpanded(groupPosition)) {
               collapseGroup(groupPosition);
             }
@@ -167,7 +167,7 @@ public class PinnedHeaderExpandableListView extends ExpandableListView implement
             }
           }
         }
-        mActionDownHappened = false;
+        actionDownHappened = false;
       }
       return true;
     }
@@ -213,12 +213,12 @@ public class PinnedHeaderExpandableListView extends ExpandableListView implement
   public void requestRefreshHeader() {
 
     refreshHeader();
-    invalidate(new Rect(0, 0, mHeaderWidth, mHeaderHeight));
+    invalidate(new Rect(0, 0, headerWidth, headerHeight));
   }
 
   protected void refreshHeader() {
 
-    if(mHeaderView == null) {
+    if(headerView == null) {
       return;
     }
     int firstVisiblePos = getFirstVisiblePosition();
@@ -231,29 +231,29 @@ public class PinnedHeaderExpandableListView extends ExpandableListView implement
       if(view == null) {
         return;
       }
-      if(view.getTop() <= mHeaderHeight) {
-        int delta = mHeaderHeight - view.getTop();
-        mHeaderView.layout(0, -delta, mHeaderWidth, mHeaderHeight - delta);
+      if(view.getTop() <= headerHeight) {
+        int delta = headerHeight - view.getTop();
+        headerView.layout(0, -delta, headerWidth, headerHeight - delta);
       }
       else {
         // note it, when cause bug, remove it
-        mHeaderView.layout(0, 0, mHeaderWidth, mHeaderHeight);
+        headerView.layout(0, 0, headerWidth, headerHeight);
       }
     }
     else {
-      mHeaderView.layout(0, 0, mHeaderWidth, mHeaderHeight);
+      headerView.layout(0, 0, headerWidth, headerHeight);
     }
 
-    if(mHeaderUpdateListener != null) {
-      mHeaderUpdateListener.updatePinnedHeader(mHeaderView, firstVisibleGroupPos);
+    if(headerUpdateListener != null) {
+      headerUpdateListener.updatePinnedHeader(headerView, firstVisibleGroupPos);
     }
   }
 
   @Override
   public void onScrollStateChanged(AbsListView view, int scrollState) {
 
-    if(mScrollListener != null) {
-      mScrollListener.onScrollStateChanged(view, scrollState);
+    if(scrollListener != null) {
+      scrollListener.onScrollStateChanged(view, scrollState);
     }
   }
 
@@ -266,8 +266,8 @@ public class PinnedHeaderExpandableListView extends ExpandableListView implement
     if(totalItemCount > 0) {
       refreshHeader();
     }
-    if(mScrollListener != null) {
-      mScrollListener.onScroll(view, firstVisibleItem, visibleItemCount, totalItemCount);
+    if(scrollListener != null) {
+      scrollListener.onScroll(view, firstVisibleItem, visibleItemCount, totalItemCount);
     }
   }
 }

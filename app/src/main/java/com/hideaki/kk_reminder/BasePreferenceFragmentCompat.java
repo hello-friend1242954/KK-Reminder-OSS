@@ -88,8 +88,8 @@ public abstract class BasePreferenceFragmentCompat extends PreferenceFragmentCom
       MainActivity activity = (MainActivity)getActivity();
       requireNonNull(activity);
 
-      dialog.getButton(AlertDialog.BUTTON_POSITIVE).setTextColor(activity.accent_color);
-      dialog.getButton(AlertDialog.BUTTON_NEGATIVE).setTextColor(activity.accent_color);
+      dialog.getButton(AlertDialog.BUTTON_POSITIVE).setTextColor(activity.accentColor);
+      dialog.getButton(AlertDialog.BUTTON_NEGATIVE).setTextColor(activity.accentColor);
     }
     else {
       super.onDisplayPreferenceDialog(preference);

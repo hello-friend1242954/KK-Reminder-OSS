@@ -1,18 +1,21 @@
-<resources>
+<resources xmlns:tools="http://schemas.android.com/tools">
 
-    <string name="version_value">3.6.3.0</string>
+    <string name="version_value">4.0.0.0</string>
     <string name="app_id">******************</string>
     <string name="ad_unit_id">******************</string>
     <string name="app_name">KK Reminder</string>
     <string name="app_promotion">KK Reminder  -  notify persistently</string>
     <string name="app_url">https://play.google.com/store/apps/details?id=com.hideaki.kk_reminder</string>
+    <string name="backup_progress_bar_title">Backup Data</string>
+    <string name="restore_progress_bar_title">Restore Data</string>
+    <string name="copy_from_old_version_progress_bar_title">Database Update</string>
     <string name="update_info">Update Info</string>
     <string name="align_top">Go to top of the list</string>
     <string name="past">Past</string>
     <string name="today">Today</string>
     <string name="tomorrow">Tomorrow</string>
-    <string name="this_week">This week</string>
-    <string name="future">Future</string>
+    <string name="within_a_week">Within a week</string>
+    <string name="in_a_week_or_later">In a week or later</string>
     <string name="minus5m">-5m</string>
     <string name="plus5m">+5m</string>
     <string name="minus1h">-1h</string>
@@ -126,8 +129,8 @@
     <string name="play_slide_animation">Slide animation of cards</string>
     <string name="play_slide_animation_summary">Whether playing sliding animation of cards when scrolling</string>
     <string name="default_vibration">Vibration pattern</string>
-    <string name="default_vibration_summary">example: 0, 500\nIf pattern is not set correctly, or nothing is set, default pattern will be applied</string>
-    <string name="vibration_hint">0, 500</string>
+    <string name="default_vibration_summary" tools:ignore="TypographyEllipsis">example: 0, 250, 500, 200\nSet vibration off/on interval in turn by the millisecond (1/1000 second) such as \'NON VIBE TIME\', \'VIBE TIME\', \'NON VIBE TIME\', ... If pattern is not set correctly, or nothing is set, default pattern will be applied</string>
+    <string name="vibration_hint">0, 250, 500, 200</string>
     <string name="default_vibration_hint">Default vibration pattern</string>
     <string name="custom_vibration_hint">Custom vibration pattern</string>
     <string name="theme">Theme</string>
@@ -238,10 +241,10 @@
     <string name="notification_interval">Notification Interval</string>
     <string name="description_for_notify_custom">If you set -1 time, System notifies forever, or if you set 0 time, System notifies only one time. If you set both hour and minute to 0, System regards it as 24 hours</string>
     <string name="everyday">Every day</string>
-    <string name="everyweekday">Every weekday (Mon - Fri)</string>
-    <string name="everyweek">Every week</string>
-    <string name="everymonth">Every month</string>
-    <string name="everyyear">Every year</string>
+    <string name="every_weekday">Every weekday (Mon - Fri)</string>
+    <string name="every_week">Every week</string>
+    <string name="every_month">Every month</string>
+    <string name="every_year">Every year</string>
     <string name="custom">Custom</string>
     <string name="non_repeat">No repeat</string>
     <string name="days_of_month">Days of month</string>

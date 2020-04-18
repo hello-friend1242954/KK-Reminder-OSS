@@ -29,10 +29,6 @@
 
         <PreferenceScreen
             android:summary="@string/play_slide_animation_summary"/>
-
-        <PreferenceScreen
-            android:title="@string/default_vibration"
-            android:key="vibration"/>
     </com.hideaki.kk_reminder.MyPreferenceCategory>
 
     <com.hideaki.kk_reminder.MyPreferenceCategory

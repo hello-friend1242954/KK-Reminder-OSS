@@ -87,8 +87,8 @@ public class DefaultManuallySnoozeFragment extends BasePreferenceFragmentCompat 
     actionBar.setTitle(R.string.default_manually_snooze);
 
     // 時間表示の初期化
-    int hour = activity.snooze_default_hour;
-    int minute = activity.snooze_default_minute;
+    int hour = activity.snoozeDefaultHour;
+    int minute = activity.snoozeDefaultMinute;
     String summary = "";
     if(hour != 0) {
       summary += getResources().getQuantityString(R.plurals.hour, hour, hour);

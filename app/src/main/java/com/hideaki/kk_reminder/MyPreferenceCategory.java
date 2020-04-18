@@ -12,20 +12,23 @@ import com.takisoft.fix.support.v7.preference.PreferenceCategory;
 
 public class MyPreferenceCategory extends PreferenceCategory {
 
-  MainActivity activity;
+  private MainActivity activity;
 
+  @SuppressWarnings("unused")
   public MyPreferenceCategory(Context context, AttributeSet attrs, int defStyleAttr) {
 
     super(context, attrs, defStyleAttr);
     activity = (MainActivity)((ContextWrapper)context).getBaseContext();
   }
 
+  @SuppressWarnings("unused")
   public MyPreferenceCategory(Context context, AttributeSet attrs) {
 
     super(context, attrs);
     activity = (MainActivity)((ContextWrapper)context).getBaseContext();
   }
 
+  @SuppressWarnings("unused")
   public MyPreferenceCategory(Context context) {
 
     super(context);
@@ -38,7 +41,7 @@ public class MyPreferenceCategory extends PreferenceCategory {
     super.onBindViewHolder(holder);
     TextView titleView = (TextView)holder.findViewById(android.R.id.title);
     if(titleView != null) {
-      titleView.setTextColor(activity.accent_color);
+      titleView.setTextColor(activity.accentColor);
     }
   }
 }

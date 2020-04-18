@@ -6,6 +6,7 @@ import android.graphics.PorterDuff;
 import android.graphics.PorterDuffColorFilter;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -38,8 +39,8 @@ import static java.util.Objects.requireNonNull;
 public class NotesEditModeFragment extends Fragment {
 
   static final String TAG = NotesEditModeFragment.class.getSimpleName();
-  private static Item item = null;
-  private static boolean is_editing;
+  private static ItemAdapter item = null;
+  private static boolean isEditing;
   private MainActivity activity;
   private MenuItem doneItem;
   private MenuItem checklistModeItem;
@@ -48,12 +49,12 @@ public class NotesEditModeFragment extends Fragment {
   private MenuItem clearNotesItem;
   private String notes;
 
-  public static NotesEditModeFragment newInstance(Item item) {
+  public static NotesEditModeFragment newInstance(ItemAdapter item) {
 
     NotesEditModeFragment fragment = new NotesEditModeFragment();
 
     Bundle args = new Bundle();
-    args.putSerializable(ITEM, item);
+    args.putSerializable(ITEM, item.getItem());
     fragment.setArguments(args);
 
     return fragment;
@@ -74,7 +75,7 @@ public class NotesEditModeFragment extends Fragment {
 
     Bundle args = getArguments();
     requireNonNull(args);
-    item = (Item)args.getSerializable(ITEM);
+    item = new ItemAdapter(args.getSerializable(ITEM));
   }
 
   @Override
@@ -84,7 +85,7 @@ public class NotesEditModeFragment extends Fragment {
     Bundle savedInstanceState
   ) {
 
-    if(MainEditFragment.is_notes_popping) {
+    if(MainEditFragment.isNotesPopping) {
       FragmentManager manager = getFragmentManager();
       requireNonNull(manager);
       manager.popBackStack();
@@ -105,7 +106,7 @@ public class NotesEditModeFragment extends Fragment {
 
         if(keyCode == KeyEvent.KEYCODE_BACK && event.getAction() == KeyEvent.ACTION_UP) {
 
-          if(is_editing) {
+          if(isEditing) {
             new AlertDialog.Builder(activity)
               .setTitle(R.string.is_editing_title)
               .setMessage(R.string.is_editing_message)
@@ -114,7 +115,7 @@ public class NotesEditModeFragment extends Fragment {
             return true;
           }
 
-          MainEditFragment.is_notes_popping = true;
+          MainEditFragment.isNotesPopping = true;
         }
 
         return false;
@@ -134,7 +135,7 @@ public class NotesEditModeFragment extends Fragment {
     memo = view.findViewById(R.id.notes);
     setCursorDrawableColor(activity, memo);
     memo.getBackground().mutate().setColorFilter(new PorterDuffColorFilter(
-      activity.accent_color,
+      activity.accentColor,
       PorterDuff.Mode.SRC_IN
     ));
     memo.setOnFocusChangeListener(new View.OnFocusChangeListener() {
@@ -142,12 +143,12 @@ public class NotesEditModeFragment extends Fragment {
       public void onFocusChange(View v, boolean hasFocus) {
 
         if(hasFocus) {
-          is_editing = true;
+          isEditing = true;
           Drawable drawable = ContextCompat.getDrawable(activity, R.drawable.ic_cancel_24dp);
           requireNonNull(drawable);
           drawable = drawable.mutate();
           drawable.setColorFilter(new PorterDuffColorFilter(
-            activity.menu_item_color,
+            activity.menuItemColor,
             PorterDuff.Mode.SRC_IN
           ));
           actionBar.setHomeAsUpIndicator(drawable);
@@ -165,7 +166,7 @@ public class NotesEditModeFragment extends Fragment {
       }
     });
     StringBuilder stringBuilder = new StringBuilder();
-    for(Notes notes : item.getNotesList()) {
+    for(NotesAdapter notes : item.getNotesList()) {
       if(notes.isChecked()) {
         stringBuilder.append(notes.getString()).append(" *").append(LINE_SEPARATOR);
       }
@@ -196,7 +197,7 @@ public class NotesEditModeFragment extends Fragment {
     requireNonNull(drawable);
     drawable = drawable.mutate();
     drawable.setColorFilter(new PorterDuffColorFilter(
-      activity.menu_item_color,
+      activity.menuItemColor,
       PorterDuff.Mode.SRC_IN
     ));
     checklistModeItem.setIcon(drawable);
@@ -206,7 +207,7 @@ public class NotesEditModeFragment extends Fragment {
     requireNonNull(drawable);
     drawable = drawable.mutate();
     drawable.setColorFilter(new PorterDuffColorFilter(
-      activity.menu_item_color,
+      activity.menuItemColor,
       PorterDuff.Mode.SRC_IN
     ));
     doneItem.setIcon(drawable);
@@ -217,7 +218,7 @@ public class NotesEditModeFragment extends Fragment {
     requireNonNull(drawable);
     drawable = drawable.mutate();
     drawable.setColorFilter(new PorterDuffColorFilter(
-      activity.menu_item_color,
+      activity.menuItemColor,
       PorterDuff.Mode.SRC_IN
     ));
     clearNotesItem.setIcon(drawable);
@@ -237,7 +238,7 @@ public class NotesEditModeFragment extends Fragment {
             @Override
             public void onClick(DialogInterface dialog, int which) {
 
-              NotesEditModeFragment.item.setNotesList(new ArrayList<Notes>());
+              NotesEditModeFragment.item.setNotesList(new ArrayList<NotesAdapter>());
               memo.setText(null);
               notes = null;
 
@@ -245,7 +246,9 @@ public class NotesEditModeFragment extends Fragment {
                 activity.updateDB(NotesEditModeFragment.item, MyDatabaseHelper.TODO_TABLE);
               }
               else {
-                MainEditFragment.item.setNotesList(new ArrayList<>(NotesEditModeFragment.item.getNotesList()));
+                MainEditFragment.item.setNotesList(
+                  new ArrayList<>(NotesEditModeFragment.item.getNotesList())
+                );
               }
             }
           })
@@ -261,8 +264,8 @@ public class NotesEditModeFragment extends Fragment {
           @Override
           public void onShow(DialogInterface dialogInterface) {
 
-            dialog.getButton(AlertDialog.BUTTON_POSITIVE).setTextColor(activity.accent_color);
-            dialog.getButton(AlertDialog.BUTTON_NEUTRAL).setTextColor(activity.accent_color);
+            dialog.getButton(AlertDialog.BUTTON_POSITIVE).setTextColor(activity.accentColor);
+            dialog.getButton(AlertDialog.BUTTON_NEUTRAL).setTextColor(activity.accentColor);
           }
         });
 
@@ -272,7 +275,7 @@ public class NotesEditModeFragment extends Fragment {
       }
       case R.id.checklist_mode: {
 
-        NotesEditModeFragment.item.setChecklist_mode(true);
+        NotesEditModeFragment.item.setChecklistMode(true);
         activity.updateDB(NotesEditModeFragment.item, MyDatabaseHelper.TODO_TABLE);
         activity.showNotesFragment(NotesEditModeFragment.item);
         return true;
@@ -280,13 +283,11 @@ public class NotesEditModeFragment extends Fragment {
       case R.id.done: {
 
         memo.clearFocus();
-        is_editing = false;
+        isEditing = false;
         actionBar.setHomeAsUpIndicator(activity.upArrow);
         clearNotesItem.setVisible(true);
         checklistModeItem.setVisible(true);
         doneItem.setVisible(false);
-
-        List<Notes> NotesList = NotesEditModeFragment.item.getNotesList();
 
         List<String> revised = new ArrayList<>();
         BufferedReader reader = new BufferedReader(new StringReader(memo.getText().toString()));
@@ -297,18 +298,20 @@ public class NotesEditModeFragment extends Fragment {
           }
         }
         catch(IOException e) {
-          e.printStackTrace();
+          Log.e("NotesEditFrag#onOptions", Log.getStackTraceString(e));
         }
 
-        NotesList.clear();
+        NotesEditModeFragment.item.clearNotesList();
         int size = revised.size();
         for(int i = 0; i < size; i++) {
           String string = revised.get(i);
           if(string.length() > 1 && string.substring(string.length() - 2).equals(" *")) {
-            NotesList.add(new Notes(string.substring(0, string.length() - 2), true, i));
+            NotesEditModeFragment.item.addNotes(
+              new NotesAdapter(string.substring(0, string.length() - 2), true, i)
+            );
           }
           else {
-            NotesList.add(new Notes(string, false, i));
+            NotesEditModeFragment.item.addNotes(new NotesAdapter(string, false, i));
           }
         }
 
@@ -318,24 +321,26 @@ public class NotesEditModeFragment extends Fragment {
           activity.updateDB(NotesEditModeFragment.item, MyDatabaseHelper.TODO_TABLE);
         }
         else {
-          MainEditFragment.item.setNotesList(new ArrayList<>(NotesEditModeFragment.item.getNotesList()));
+          MainEditFragment.item.setNotesList(
+            new ArrayList<>(NotesEditModeFragment.item.getNotesList())
+          );
         }
 
         return true;
       }
       case android.R.id.home: {
 
-        if(is_editing) {
+        if(isEditing) {
           memo.clearFocus();
           memo.setText(notes);
-          is_editing = false;
+          isEditing = false;
           actionBar.setHomeAsUpIndicator(activity.upArrow);
           clearNotesItem.setVisible(true);
           checklistModeItem.setVisible(true);
           doneItem.setVisible(false);
         }
         else {
-          MainEditFragment.is_notes_popping = true;
+          MainEditFragment.isNotesPopping = true;
           FragmentManager manager = getFragmentManager();
           requireNonNull(manager);
           manager.popBackStack();

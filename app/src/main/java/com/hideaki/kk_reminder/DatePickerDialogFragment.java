@@ -30,9 +30,9 @@ public class DatePickerDialogFragment extends DialogFragment
   @Override
   public Dialog onCreateDialog(@Nullable Bundle savedInstanceState) {
 
-    int year = MainEditFragment.final_cal.get(Calendar.YEAR);
-    int month = MainEditFragment.final_cal.get(Calendar.MONTH);
-    int day = MainEditFragment.final_cal.get(Calendar.DAY_OF_MONTH);
+    int year = MainEditFragment.finalCal.get(Calendar.YEAR);
+    int month = MainEditFragment.finalCal.get(Calendar.MONTH);
+    int day = MainEditFragment.finalCal.get(Calendar.DAY_OF_MONTH);
 
     MainActivity activity = (MainActivity)getActivity();
     requireNonNull(activity);
@@ -43,7 +43,7 @@ public class DatePickerDialogFragment extends DialogFragment
     else {
       return new DatePickerDialog(
         activity,
-        activity.dialog_style_id,
+        activity.dialogStyleId,
         this,
         year,
         month,
@@ -55,19 +55,19 @@ public class DatePickerDialogFragment extends DialogFragment
   @Override
   public void onDateSet(DatePicker view, int year, int month, int dayOfMonth) {
 
-    MainEditFragment.final_cal.set(Calendar.YEAR, year);
-    MainEditFragment.final_cal.set(Calendar.MONTH, month);
-    MainEditFragment.final_cal.set(Calendar.DAY_OF_MONTH, dayOfMonth);
+    MainEditFragment.finalCal.set(Calendar.YEAR, year);
+    MainEditFragment.finalCal.set(Calendar.MONTH, month);
+    MainEditFragment.finalCal.set(Calendar.DAY_OF_MONTH, dayOfMonth);
     if(LOCALE.equals(Locale.JAPAN)) {
       mainEditFragment.datePicker.setTitle(DateFormat.format(
         "yyyy年M月d日(E)",
-        MainEditFragment.final_cal
+        MainEditFragment.finalCal
       ));
     }
     else {
       mainEditFragment.datePicker.setTitle(DateFormat.format(
         "yyyy/M/d (E)",
-        MainEditFragment.final_cal
+        MainEditFragment.finalCal
       ));
     }
   }

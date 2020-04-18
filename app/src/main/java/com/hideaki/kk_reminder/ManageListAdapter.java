@@ -6,6 +6,7 @@ import android.animation.AnimatorListenerAdapter;
 import androidx.core.content.ContextCompat;
 import androidx.cardview.widget.CardView;
 
+import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.animation.Animation;
@@ -24,30 +25,30 @@ import java.util.regex.Pattern;
 
 public class ManageListAdapter extends BaseAdapter implements Filterable {
 
-  static List<NonScheduledList> nonScheduledLists;
-  private static long has_panel; // コントロールパネルがvisibleであるItemのid値を保持する
+  static List<NonScheduledListAdapter> nonScheduledLists;
+  private static long hasPanel; // コントロールパネルがvisibleであるItemのid値を保持する
   private MainActivity activity;
-  DragListener dragListener;
+  MyDragListener myDragListener;
   private int draggingPosition = -1;
-  static boolean is_sorting;
-  private List<NonScheduledList> filteredLists;
-  static boolean is_scrolling;
+  static boolean isSorting;
+  private List<NonScheduledListAdapter> filteredLists;
+  static boolean isScrolling;
 
-  ManageListAdapter(List<NonScheduledList> nonScheduledLists, MainActivity activity) {
+  ManageListAdapter(List<NonScheduledListAdapter> nonScheduledLists, MainActivity activity) {
 
     ManageListAdapter.nonScheduledLists = nonScheduledLists;
     this.activity = activity;
-    has_panel = 0;
-    dragListener = new DragListener();
-    is_sorting = false;
+    hasPanel = 0;
+    myDragListener = new MyDragListener();
+    isSorting = false;
   }
 
   private static class ViewHolder {
 
     LinearLayout linearLayout;
-    CardView list_card;
-    ImageView order_icon;
-    ImageView list_icon;
+    CardView listCard;
+    ImageView orderIcon;
+    ImageView listIcon;
     TextView detail;
     CardView controlCard;
     TextView edit;
@@ -56,10 +57,10 @@ public class ManageListAdapter extends BaseAdapter implements Filterable {
 
   private class MyOnClickListener implements View.OnClickListener {
 
-    private NonScheduledList list;
+    private NonScheduledListAdapter list;
     private ViewHolder viewHolder;
 
-    MyOnClickListener(NonScheduledList list, ViewHolder viewHolder) {
+    MyOnClickListener(NonScheduledListAdapter list, ViewHolder viewHolder) {
 
       this.list = list;
       this.viewHolder = viewHolder;
@@ -72,7 +73,7 @@ public class ManageListAdapter extends BaseAdapter implements Filterable {
       switch(v.getId()) {
         case R.id.list_card: {
           if(viewHolder.edit.getVisibility() == View.GONE) {
-            has_panel = list.getId();
+            hasPanel = list.getId();
             View cardView = (View)viewHolder.edit.getParent().getParent();
             cardView.setTranslationY(-30.0f);
             cardView.setAlpha(0.0f);
@@ -89,8 +90,8 @@ public class ManageListAdapter extends BaseAdapter implements Filterable {
                   super.onAnimationStart(animation);
 
                   // 他タスクのコントロールパネルを閉じる
-                  int visible_count = activity.listView.getChildCount();
-                  for(int i = 0; i < visible_count; i++) {
+                  int visibleCount = activity.listView.getChildCount();
+                  for(int i = 0; i < visibleCount; i++) {
                     View visibleView = activity.listView.getChildAt(i);
                     final TextView panel = visibleView.findViewById(R.id.edit);
                     if(panel != null && panel.getVisibility() == View.VISIBLE) {
@@ -116,7 +117,7 @@ public class ManageListAdapter extends BaseAdapter implements Filterable {
               });
           }
           else {
-            has_panel = 0;
+            hasPanel = 0;
             ((View)viewHolder.edit.getParent().getParent())
               .animate()
               .translationY(-30.0f)
@@ -136,7 +137,7 @@ public class ManageListAdapter extends BaseAdapter implements Filterable {
         case R.id.edit: {
           activity.listView.clearTextFilter();
           activity.showMainEditFragmentForList(list);
-          has_panel = 0;
+          hasPanel = 0;
           viewHolder.edit.setVisibility(View.GONE);
           break;
         }
@@ -144,7 +145,7 @@ public class ManageListAdapter extends BaseAdapter implements Filterable {
     }
   }
 
-  class DragListener extends SortableListView.SimpleDragListener {
+  class MyDragListener extends SortableListView.SimpleDragListener {
 
     @Override
     public int onStartDrag(int position) {
@@ -162,7 +163,7 @@ public class ManageListAdapter extends BaseAdapter implements Filterable {
         return positionFrom;
       }
 
-      NonScheduledList list = nonScheduledLists.get(positionFrom);
+      NonScheduledListAdapter list = nonScheduledLists.get(positionFrom);
       nonScheduledLists.remove(positionFrom);
       nonScheduledLists.add(positionTo, list);
 
@@ -190,10 +191,10 @@ public class ManageListAdapter extends BaseAdapter implements Filterable {
       protected FilterResults performFiltering(CharSequence constraint) {
 
         // 入力文字列が大文字を含むかどうか調べる
-        boolean is_upper = false;
+        boolean isUpper = false;
         for(int i = 0; i < constraint.length(); i++) {
           if(Character.isUpperCase(constraint.charAt(i))) {
-            is_upper = true;
+            isUpper = true;
             break;
           }
         }
@@ -207,11 +208,11 @@ public class ManageListAdapter extends BaseAdapter implements Filterable {
         }
 
         filteredLists = new ArrayList<>();
-        for(NonScheduledList list : nonScheduledLists) {
+        for(NonScheduledListAdapter list : nonScheduledLists) {
           if(list.getTitle() != null) {
             String detail = list.getTitle();
 
-            if(!is_upper) {
+            if(!isUpper) {
               detail = detail.toLowerCase();
             }
 
@@ -235,7 +236,10 @@ public class ManageListAdapter extends BaseAdapter implements Filterable {
       @SuppressWarnings("unchecked")
       protected void publishResults(CharSequence constraint, FilterResults results) {
 
-        nonScheduledLists = (List<NonScheduledList>)results.values;
+        nonScheduledLists = (List<NonScheduledListAdapter>)results.values;
+        if(nonScheduledLists == null) {
+          nonScheduledLists = new ArrayList<>();
+        }
 
         // リストの表示更新
         notifyDataSetChanged();
@@ -271,9 +275,9 @@ public class ManageListAdapter extends BaseAdapter implements Filterable {
 
       viewHolder = new ViewHolder();
       viewHolder.linearLayout = convertView.findViewById(R.id.linearLayout);
-      viewHolder.list_card = convertView.findViewById(R.id.list_card);
-      viewHolder.order_icon = convertView.findViewById(R.id.order_icon);
-      viewHolder.list_icon = convertView.findViewById(R.id.list_icon);
+      viewHolder.listCard = convertView.findViewById(R.id.list_card);
+      viewHolder.orderIcon = convertView.findViewById(R.id.order_icon);
+      viewHolder.listIcon = convertView.findViewById(R.id.list_icon);
       viewHolder.detail = convertView.findViewById(R.id.detail);
       viewHolder.controlCard = convertView.findViewById(R.id.control_card);
       viewHolder.edit = convertView.findViewById(R.id.edit);
@@ -286,17 +290,17 @@ public class ManageListAdapter extends BaseAdapter implements Filterable {
     }
 
     // 現在のビュー位置でのlistの取得とリスナーの初期化
-    NonScheduledList list = (NonScheduledList)getItem(position);
+    NonScheduledListAdapter list = (NonScheduledListAdapter)getItem(position);
     MyOnClickListener listener = new MyOnClickListener(list, viewHolder);
 
     // 各リスナーの設定
     viewHolder.linearLayout.setOnClickListener(null);
-    viewHolder.list_card.setOnClickListener(listener);
+    viewHolder.listCard.setOnClickListener(listener);
     viewHolder.edit.setOnClickListener(listener);
 
     // 各種表示処理
     if(activity.isDarkMode) {
-      viewHolder.list_card.setBackgroundColor(activity.backgroundFloatingMaterialDarkColor);
+      viewHolder.listCard.setBackgroundColor(activity.backgroundFloatingMaterialDarkColor);
       viewHolder.controlCard.setBackgroundColor(activity.backgroundFloatingMaterialDarkColor);
       TextView[] textViews = {
         viewHolder.detail, viewHolder.edit
@@ -306,14 +310,17 @@ public class ManageListAdapter extends BaseAdapter implements Filterable {
       }
     }
     viewHolder.detail.setText(list.getTitle());
-    viewHolder.detail.setTextSize(activity.text_size);
-    if(list.getWhich_tag_belongs() == 0) {
+    viewHolder.detail.setTextSize(activity.textSize);
+    if(list.getWhichTagBelongs() == 0) {
       viewHolder.tagPallet.setVisibility(View.GONE);
     }
     else {
       viewHolder.tagPallet.setVisibility(View.VISIBLE);
-      int color =
-        activity.generalSettings.getTagById(list.getWhich_tag_belongs()).getPrimary_color();
+      TagAdapter tag = activity.generalSettings.getTagById(list.getWhichTagBelongs());
+      int color = 0;
+      if(tag != null) {
+        color = tag.getPrimaryColor();
+      }
       if(color != 0) {
         viewHolder.tagPallet.setColorFilter(color);
       }
@@ -323,33 +330,33 @@ public class ManageListAdapter extends BaseAdapter implements Filterable {
     }
 
     // ある子ビューでコントロールパネルを出したとき、他の子ビューのコントロールパネルを閉じる
-    if(viewHolder.edit.getVisibility() == View.VISIBLE && list.getId() != has_panel) {
+    if(viewHolder.edit.getVisibility() == View.VISIBLE && list.getId() != hasPanel) {
       viewHolder.edit.setVisibility(View.GONE);
     }
-    else if(viewHolder.edit.getVisibility() == View.GONE && list.getId() == has_panel) {
+    else if(viewHolder.edit.getVisibility() == View.GONE && list.getId() == hasPanel) {
       viewHolder.edit.setVisibility(View.VISIBLE);
     }
 
     // パレットの色を設定
     if(list.getColor() != 0) {
-      viewHolder.list_icon.setColorFilter(list.getColor());
+      viewHolder.listIcon.setColorFilter(list.getColor());
     }
     else {
-      viewHolder.list_icon.setColorFilter(ContextCompat.getColor(activity, R.color.iconGray));
+      viewHolder.listIcon.setColorFilter(ContextCompat.getColor(activity, R.color.iconGray));
     }
 
-    if(is_sorting) {
-      viewHolder.order_icon.setVisibility(View.VISIBLE);
+    if(isSorting) {
+      viewHolder.orderIcon.setVisibility(View.VISIBLE);
     }
     else {
-      viewHolder.order_icon.setVisibility(View.GONE);
+      viewHolder.orderIcon.setVisibility(View.GONE);
     }
 
     // 並び替え中にドラッグしているアイテムが二重に表示されないようにする
     convertView.setVisibility(position == draggingPosition ? View.INVISIBLE : View.VISIBLE);
 
     // CardViewが横から流れてくるアニメーション
-    if(is_scrolling && activity.play_slide_animation) {
+    if(isScrolling && activity.isPlaySlideAnimation) {
       Animation animation = AnimationUtils.loadAnimation(activity, R.anim.listview_motion);
       convertView.startAnimation(animation);
     }

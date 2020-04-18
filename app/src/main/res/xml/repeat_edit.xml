@@ -10,20 +10,20 @@
         android:title="@string/everyday"/>
 
     <com.hideaki.kk_reminder.MyCheckBoxPreference
-        android:key="everyweekday"
-        android:title="@string/everyweekday"/>
+        android:key="every_weekday"
+        android:title="@string/every_weekday"/>
 
     <com.hideaki.kk_reminder.MyCheckBoxPreference
-        android:key="everyweek"
-        android:title="@string/everyweek"/>
+        android:key="every_week"
+        android:title="@string/every_week"/>
 
     <com.hideaki.kk_reminder.MyCheckBoxPreference
-        android:key="everymonth"
-        android:title="@string/everymonth"/>
+        android:key="every_month"
+        android:title="@string/every_month"/>
 
     <com.hideaki.kk_reminder.MyCheckBoxPreference
-        android:key="everyyear"
-        android:title="@string/everyyear"/>
+        android:key="every_year"
+        android:title="@string/every_year"/>
 
     <com.hideaki.kk_reminder.MyCheckBoxPreference
         android:key="custom"

@@ -30,8 +30,8 @@ public class DayRepeatCustomOnTheMonthPickerDialogFragment extends DialogFragmen
   };
 
   private DayRepeatCustomPickerFragment dayRepeatCustomPickerFragment;
-  private NumberPicker ordinal_number;
-  private NumberPicker day_of_week;
+  private NumberPicker ordinalNumber;
+  private NumberPicker dayOfWeek;
 
   DayRepeatCustomOnTheMonthPickerDialogFragment(
     DayRepeatCustomPickerFragment dayRepeatCustomPickerFragment
@@ -49,29 +49,29 @@ public class DayRepeatCustomOnTheMonthPickerDialogFragment extends DialogFragmen
     requireNonNull(activity);
 
     // ordinal_numberの実装
-    ordinal_number = view.findViewById(R.id.ordinal_number);
-    ordinal_number.setDisplayedValues(null);
-    ordinal_number.setMaxValue(ORDINAL_NUMBER_LIST_JA.length);
-    ordinal_number.setMinValue(1);
-    ordinal_number.setValue(MainEditFragment.dayRepeat.getOrdinal_number());
+    ordinalNumber = view.findViewById(R.id.ordinal_number);
+    ordinalNumber.setDisplayedValues(null);
+    ordinalNumber.setMaxValue(ORDINAL_NUMBER_LIST_JA.length);
+    ordinalNumber.setMinValue(1);
+    ordinalNumber.setValue(MainEditFragment.dayRepeat.getOrdinalNumber());
     if(LOCALE.equals(Locale.JAPAN)) {
-      ordinal_number.setDisplayedValues(ORDINAL_NUMBER_LIST_JA);
+      ordinalNumber.setDisplayedValues(ORDINAL_NUMBER_LIST_JA);
     }
     else {
-      ordinal_number.setDisplayedValues(ORDINAL_NUMBER_LIST_EN);
+      ordinalNumber.setDisplayedValues(ORDINAL_NUMBER_LIST_EN);
     }
 
     // day_on_weekの実装
-    day_of_week = view.findViewById(R.id.day_on_week);
-    day_of_week.setDisplayedValues(null);
-    day_of_week.setMaxValue(DAY_OF_WEEK_LIST_JA.length - 1);
-    day_of_week.setMinValue(0);
-    day_of_week.setValue(MainEditFragment.dayRepeat.getOn_the_month().ordinal());
+    dayOfWeek = view.findViewById(R.id.day_on_week);
+    dayOfWeek.setDisplayedValues(null);
+    dayOfWeek.setMaxValue(DAY_OF_WEEK_LIST_JA.length - 1);
+    dayOfWeek.setMinValue(0);
+    dayOfWeek.setValue(MainEditFragment.dayRepeat.getOnTheMonth().ordinal());
     if(LOCALE.equals(Locale.JAPAN)) {
-      day_of_week.setDisplayedValues(DAY_OF_WEEK_LIST_JA);
+      dayOfWeek.setDisplayedValues(DAY_OF_WEEK_LIST_JA);
     }
     else {
-      day_of_week.setDisplayedValues(DAY_OF_WEEK_LIST_EN);
+      dayOfWeek.setDisplayedValues(DAY_OF_WEEK_LIST_EN);
     }
 
     final AlertDialog dialog = new AlertDialog.Builder(activity)
@@ -79,31 +79,31 @@ public class DayRepeatCustomOnTheMonthPickerDialogFragment extends DialogFragmen
         @Override
         public void onClick(DialogInterface dialog, int which) {
 
-          MainEditFragment.dayRepeat.setOrdinal_number(ordinal_number.getValue());
-          MainEditFragment.dayRepeat.setOn_the_month(Week.values()[day_of_week.getValue()]);
+          MainEditFragment.dayRepeat.setOrdinalNumber(ordinalNumber.getValue());
+          MainEditFragment.dayRepeat.setOnTheMonth(Week.values()[dayOfWeek.getValue()]);
 
           // onTheMonthPickerのラベルを更新
           String label = "";
-          if(MainEditFragment.dayRepeat.getOrdinal_number() < 5) {
+          if(MainEditFragment.dayRepeat.getOrdinalNumber() < 5) {
             if(LOCALE.equals(Locale.JAPAN)) {
-              label += "第" + MainEditFragment.dayRepeat.getOrdinal_number();
+              label += "第" + MainEditFragment.dayRepeat.getOrdinalNumber();
             }
             else {
-              int ordinal_num = MainEditFragment.dayRepeat.getOrdinal_number();
-              String ordinal_str = ordinal_num + "";
-              if(ordinal_num == 1) {
-                ordinal_str += "st";
+              int ordinalNumber = MainEditFragment.dayRepeat.getOrdinalNumber();
+              String ordinalStr = ordinalNumber + "";
+              if(ordinalNumber == 1) {
+                ordinalStr += "st";
               }
-              else if(ordinal_num == 2) {
-                ordinal_str += "nd";
+              else if(ordinalNumber == 2) {
+                ordinalStr += "nd";
               }
-              else if(ordinal_num == 3) {
-                ordinal_str += "rd";
+              else if(ordinalNumber == 3) {
+                ordinalStr += "rd";
               }
               else {
-                ordinal_str += "th";
+                ordinalStr += "th";
               }
-              label += ordinal_str + " ";
+              label += ordinalStr + " ";
             }
           }
           else {
@@ -115,18 +115,18 @@ public class DayRepeatCustomOnTheMonthPickerDialogFragment extends DialogFragmen
             }
           }
 
-          if(MainEditFragment.dayRepeat.getOn_the_month().ordinal() < 7) {
+          if(MainEditFragment.dayRepeat.getOnTheMonth().ordinal() < 7) {
             if(LOCALE.equals(Locale.JAPAN)) {
               label += DayRepeatCustomPickerFragment
-                .DAY_OF_WEEK_LIST_JA[MainEditFragment.dayRepeat.getOn_the_month().ordinal()] +
+                .DAY_OF_WEEK_LIST_JA[MainEditFragment.dayRepeat.getOnTheMonth().ordinal()] +
                 "曜日";
             }
             else {
               label += DayRepeatCustomPickerFragment
-                .DAY_OF_WEEK_LIST_EN[MainEditFragment.dayRepeat.getOn_the_month().ordinal()];
+                .DAY_OF_WEEK_LIST_EN[MainEditFragment.dayRepeat.getOnTheMonth().ordinal()];
             }
           }
-          else if(MainEditFragment.dayRepeat.getOn_the_month().ordinal() == 7) {
+          else if(MainEditFragment.dayRepeat.getOnTheMonth().ordinal() == 7) {
             if(LOCALE.equals(Locale.JAPAN)) {
               label += "平日";
             }
@@ -134,7 +134,7 @@ public class DayRepeatCustomOnTheMonthPickerDialogFragment extends DialogFragmen
               label += "Weekday";
             }
           }
-          else if(MainEditFragment.dayRepeat.getOn_the_month().ordinal() == 8) {
+          else if(MainEditFragment.dayRepeat.getOnTheMonth().ordinal() == 8) {
             if(LOCALE.equals(Locale.JAPAN)) {
               label += "週末";
             }
@@ -159,8 +159,8 @@ public class DayRepeatCustomOnTheMonthPickerDialogFragment extends DialogFragmen
       @Override
       public void onShow(DialogInterface dialogInterface) {
 
-        dialog.getButton(AlertDialog.BUTTON_POSITIVE).setTextColor(activity.accent_color);
-        dialog.getButton(AlertDialog.BUTTON_NEUTRAL).setTextColor(activity.accent_color);
+        dialog.getButton(AlertDialog.BUTTON_POSITIVE).setTextColor(activity.accentColor);
+        dialog.getButton(AlertDialog.BUTTON_NEUTRAL).setTextColor(activity.accentColor);
       }
     });
 

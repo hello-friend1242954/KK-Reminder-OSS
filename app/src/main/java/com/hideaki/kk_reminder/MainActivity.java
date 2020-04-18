@@ -84,6 +84,7 @@ import bolts.Task;
 import bolts.TaskCompletionSource;
 
 import static com.google.common.base.Preconditions.checkArgument;
+import static com.hideaki.kk_reminder.MyDatabaseHelper.TODO_TABLE;
 import static com.hideaki.kk_reminder.StartupReceiver.getDynamicContext;
 import static com.hideaki.kk_reminder.StartupReceiver.getIsDirectBootContext;
 import static com.hideaki.kk_reminder.UtilClass.ACTION_IN_NOTIFICATION;
@@ -108,6 +109,7 @@ import static com.hideaki.kk_reminder.UtilClass.DONE_ITEM_COMPARATOR;
 import static com.hideaki.kk_reminder.UtilClass.HOUR;
 import static com.hideaki.kk_reminder.UtilClass.INT_GENERAL;
 import static com.hideaki.kk_reminder.UtilClass.INT_GENERAL_COPY;
+import static com.hideaki.kk_reminder.UtilClass.IS_COPIED_FROM_OLD_VERSION;
 import static com.hideaki.kk_reminder.UtilClass.IS_DARK_MODE;
 import static com.hideaki.kk_reminder.UtilClass.IS_DARK_THEME_FOLLOW_SYSTEM;
 import static com.hideaki.kk_reminder.UtilClass.IS_EXPANDABLE_TODO;
@@ -140,6 +142,7 @@ public class MainActivity extends AppCompatActivity
   PurchasesUpdatedListener,
   AcknowledgePurchaseResponseListener {
 
+  @SuppressWarnings("FieldNamingConvention")
   static String IS_FIRST_USE = "";
 
   private Timer timer;
@@ -158,12 +161,12 @@ public class MainActivity extends AppCompatActivity
   int plusTime2Minute;
   int plusTime3Hour;
   int plusTime3Minute;
-  int snooze_default_hour;
-  int snooze_default_minute;
+  int snoozeDefaultHour;
+  int snoozeDefaultMinute;
   int whichMenuOpen;
-  int which_submenu_open;
+  int whichSubmenuOpen;
   boolean isExpandableTodo;
-  boolean is_premium;
+  boolean isPremium;
   PinnedHeaderExpandableListView expandableListView;
   MyExpandableListAdapter expandableListAdapter;
   SortableListView listView;
@@ -178,21 +181,21 @@ public class MainActivity extends AppCompatActivity
   Drawable upArrow;
   Menu menu;
   MenuItem menuItem;
-  GeneralSettings generalSettings;
+  GeneralSettingsAdapter generalSettings;
   ActionBarFragment actionBarFragment;
   ExpandableListViewFragment expandableListViewFragment;
   Toolbar toolbar;
-  int menu_item_color;
-  int menu_background_color;
-  int status_bar_color;
-  int accent_color;
-  int secondary_text_color;
+  int menuItemColor;
+  int menuBackgroundColor;
+  int statusBarColor;
+  int accentColor;
+  int secondaryTextColor;
   int order;
   String detail;
-  private int which_list;
-  private boolean is_in_on_create;
-  boolean is_boot_from_notification;
-  private int try_count;
+  private int whichList;
+  private boolean isInOnCreate;
+  boolean isBootFromNotification;
+  private int tryCount;
   private BillingClient billingClient;
   public AlertDialog promotionDialog;
   private BroadcastReceiver defaultSnoozeReceiver = new BroadcastReceiver() {
@@ -203,10 +206,10 @@ public class MainActivity extends AppCompatActivity
       expandableListAdapter.notifyDataSetChanged();
     }
   };
-  int dialog_style_id;
-  int text_size;
-  int which_text_size;
-  boolean play_slide_animation;
+  int dialogStyleId;
+  int textSize;
+  int whichTextSize;
+  boolean isPlaySlideAnimation;
   static boolean isScreenOn = false;
   boolean isDarkMode;
   boolean isDarkThemeFollowSystem;
@@ -221,6 +224,8 @@ public class MainActivity extends AppCompatActivity
   private AlertDialog updateInfoMessageDialog = null;
   private boolean isRecreated;
   private List<SkuDetails> skuDetailsList = null;
+  List<ItemAdapter> todoItemList;
+  boolean isCopiedFromOldVersion;
 
   @Override
   protected void onCreate(Bundle savedInstanceState) {
@@ -257,12 +262,12 @@ public class MainActivity extends AppCompatActivity
     plusTime2Minute = intPreferences.getInt(DEFAULT_PLUS_TIME_2_MINUTE, 0);
     plusTime3Hour = intPreferences.getInt(DEFAULT_PLUS_TIME_3_HOUR, 0);
     plusTime3Minute = intPreferences.getInt(DEFAULT_PLUS_TIME_3_MINUTE, 0);
-    which_text_size = intPreferences.getInt(DEFAULT_TEXT_SIZE, 0);
-    text_size = 18 + 2 * which_text_size;
-    snooze_default_hour = intPreferences.getInt(SNOOZE_DEFAULT_HOUR, 0);
-    snooze_default_minute = intPreferences.getInt(SNOOZE_DEFAULT_MINUTE, 15);
+    whichTextSize = intPreferences.getInt(DEFAULT_TEXT_SIZE, 0);
+    textSize = 18 + 2 * whichTextSize;
+    snoozeDefaultHour = intPreferences.getInt(SNOOZE_DEFAULT_HOUR, 0);
+    snoozeDefaultMinute = intPreferences.getInt(SNOOZE_DEFAULT_MINUTE, 15);
     whichMenuOpen = intPreferences.getInt(MENU_POSITION, 0);
-    which_submenu_open = intPreferences.getInt(SUBMENU_POSITION, 0);
+    whichSubmenuOpen = intPreferences.getInt(SUBMENU_POSITION, 0);
 
     // SharedPreferencesの内、booleanを読み出す
     SharedPreferences booleanPreferences =
@@ -270,19 +275,23 @@ public class MainActivity extends AppCompatActivity
         getIsDirectBootContext(this) ? BOOLEAN_GENERAL_COPY : BOOLEAN_GENERAL,
         MODE_PRIVATE
       );
-    isQueriedPurchaseHistory = booleanPreferences.getBoolean(IS_QUERIED_PURCHASE_HISTORY, false);
+    isCopiedFromOldVersion =
+      booleanPreferences.getBoolean(IS_COPIED_FROM_OLD_VERSION, false);
+    isQueriedPurchaseHistory =
+      booleanPreferences.getBoolean(IS_QUERIED_PURCHASE_HISTORY, false);
     isRecreated = booleanPreferences.getBoolean(IS_RECREATED, false);
     isFirstUse = booleanPreferences.getBoolean(IS_FIRST_USE, true);
     isDarkMode = booleanPreferences.getBoolean(IS_DARK_MODE, false);
-    isDarkThemeFollowSystem = booleanPreferences.getBoolean(IS_DARK_THEME_FOLLOW_SYSTEM, true);
-    play_slide_animation = booleanPreferences.getBoolean(PLAY_SLIDE_ANIMATION, true);
+    isDarkThemeFollowSystem =
+      booleanPreferences.getBoolean(IS_DARK_THEME_FOLLOW_SYSTEM, true);
+    isPlaySlideAnimation = booleanPreferences.getBoolean(PLAY_SLIDE_ANIMATION, true);
     isExpandableTodo = booleanPreferences.getBoolean(IS_EXPANDABLE_TODO, true);
-    is_premium = booleanPreferences.getBoolean(IS_PREMIUM, false);
+    isPremium = booleanPreferences.getBoolean(IS_PREMIUM, false);
 
     // 広告読み出し機能のセットアップ
     MobileAds.initialize(this, getString(R.string.app_id));
 
-    if(!is_premium) {
+    if(!isPremium) {
 
       // ビリングサービスのセットアップ
       setupBillingServices();
@@ -317,46 +326,46 @@ public class MainActivity extends AppCompatActivity
     }
 
     // テーマの設定
-    MyTheme theme = generalSettings.getTheme();
+    MyThemeAdapter theme = generalSettings.getTheme();
     if(theme.getColor() != 0) {
       Resources res = getResources();
       TypedArray typedArraysOfArray = res.obtainTypedArray(R.array.colorStylesArray);
 
-      int styles_array_id = typedArraysOfArray.getResourceId(theme.getColorGroup(), -1);
-      checkArgument(styles_array_id != -1);
-      TypedArray typedArray = res.obtainTypedArray(styles_array_id);
+      int stylesArrayId = typedArraysOfArray.getResourceId(theme.getColorGroup(), -1);
+      checkArgument(stylesArrayId != -1);
+      TypedArray typedArray = res.obtainTypedArray(stylesArrayId);
 
-      int style_id = typedArray.getResourceId(theme.getColorChild(), -1);
-      checkArgument(style_id != -1);
+      int styleId = typedArray.getResourceId(theme.getColorChild(), -1);
+      checkArgument(styleId != -1);
 
       typedArray.recycle();
       typedArraysOfArray.recycle();
 
-      setTheme(style_id);
+      setTheme(styleId);
     }
 
-    theme.setColor_primary(false);
+    theme.setIsColorPrimary(false);
     if(theme.getColor() != 0) {
       Resources res = getResources();
       TypedArray typedArraysOfArray = res.obtainTypedArray(R.array.colorDialogStylesArray);
 
-      int dialog_styles_array_id = typedArraysOfArray.getResourceId(
+      int dialogStylesArrayId = typedArraysOfArray.getResourceId(
         theme.getColorGroup(),
         -1
       );
-      checkArgument(dialog_styles_array_id != -1);
-      TypedArray typedArray = res.obtainTypedArray(dialog_styles_array_id);
+      checkArgument(dialogStylesArrayId != -1);
+      TypedArray typedArray = res.obtainTypedArray(dialogStylesArrayId);
 
-      dialog_style_id = typedArray.getResourceId(theme.getColorChild(), -1);
-      checkArgument(dialog_style_id != -1);
+      dialogStyleId = typedArray.getResourceId(theme.getColorChild(), -1);
+      checkArgument(dialogStyleId != -1);
 
       typedArray.recycle();
       typedArraysOfArray.recycle();
     }
     else {
-      dialog_style_id = R.style.BaseDialog_Base;
+      dialogStyleId = R.style.BaseDialog_Base;
     }
-    theme.setColor_primary(true);
+    theme.setIsColorPrimary(true);
 
     setContentView(R.layout.activity_main);
 
@@ -383,7 +392,7 @@ public class MainActivity extends AppCompatActivity
     navigationView.setNavigationItemSelectedListener(this);
 
     // 各NonScheduledListを読み込む
-    for(NonScheduledList list : generalSettings.getNonScheduledLists()) {
+    for(NonScheduledListAdapter list : generalSettings.getNonScheduledLists()) {
       Drawable drawable = ContextCompat.getDrawable(this, R.drawable.ic_my_list_24dp);
       requireNonNull(drawable);
       drawable = drawable.mutate();
@@ -405,8 +414,9 @@ public class MainActivity extends AppCompatActivity
     }
 
     // Adapterの初期化
+    todoItemList = queryAllDB(TODO_TABLE);
     expandableListAdapter =
-      new MyExpandableListAdapter(getChildren(MyDatabaseHelper.TODO_TABLE), this);
+      new MyExpandableListAdapter(getChildren(todoItemList), this);
     listAdapter = new MyListAdapter(this);
     manageListAdapter = new ManageListAdapter(
       new ArrayList<>(generalSettings.getNonScheduledLists()),
@@ -420,7 +430,7 @@ public class MainActivity extends AppCompatActivity
     doneListAdapter = new DoneListAdapter(this);
 
     // Intentが送られている場合はonNewIntent()に渡す(送られていない場合は通常の初期化処理を行う)
-    is_in_on_create = true;
+    isInOnCreate = true;
     onNewIntent(getIntent());
 
     // 画面がフォアグラウンドの状態におけるDefaultManuallySnoozeReceiverからのインテントを待ち受ける
@@ -483,8 +493,8 @@ public class MainActivity extends AppCompatActivity
         @Override
         public void onShow(DialogInterface dialogInterface) {
 
-          updateInfoMessageDialog.getButton(AlertDialog.BUTTON_POSITIVE).setTextColor(accent_color);
-          updateInfoMessageDialog.getButton(AlertDialog.BUTTON_NEUTRAL).setTextColor(accent_color);
+          updateInfoMessageDialog.getButton(AlertDialog.BUTTON_POSITIVE).setTextColor(accentColor);
+          updateInfoMessageDialog.getButton(AlertDialog.BUTTON_NEUTRAL).setTextColor(accentColor);
         }
       });
 
@@ -519,8 +529,8 @@ public class MainActivity extends AppCompatActivity
       @Override
       public void onShow(DialogInterface dialogInterface) {
 
-        promotionDialog.getButton(AlertDialog.BUTTON_POSITIVE).setTextColor(accent_color);
-        promotionDialog.getButton(AlertDialog.BUTTON_NEUTRAL).setTextColor(accent_color);
+        promotionDialog.getButton(AlertDialog.BUTTON_POSITIVE).setTextColor(accentColor);
+        promotionDialog.getButton(AlertDialog.BUTTON_NEUTRAL).setTextColor(accentColor);
       }
     });
   }
@@ -528,7 +538,7 @@ public class MainActivity extends AppCompatActivity
   private void setupBillingServices() {
 
     if(billingClient == null) {
-      try_count = 0;
+      tryCount = 0;
       billingClient = BillingClient
         .newBuilder(this)
         .setListener(this)
@@ -544,8 +554,8 @@ public class MainActivity extends AppCompatActivity
             checkIsPremium();
           }
           else {
-            try_count++;
-            if(try_count < 3) {
+            tryCount++;
+            if(tryCount < 3) {
               billingClient.startConnection(this);
             }
             else {
@@ -557,8 +567,8 @@ public class MainActivity extends AppCompatActivity
         @Override
         public void onBillingServiceDisconnected() {
 
-          try_count++;
-          if(try_count < 3) {
+          tryCount++;
+          if(tryCount < 3) {
             billingClient.startConnection(this);
           }
           else {
@@ -771,6 +781,7 @@ public class MainActivity extends AppCompatActivity
     });
   }
 
+  @SuppressWarnings("SameParameterValue")
   private Task<SkuDetails> getSkuDetails(@NonNull final String sku) {
 
     // continueWith()もcontinueWithTask()もクライアントの渡したContinuationインスタンス内で定義される
@@ -827,7 +838,7 @@ public class MainActivity extends AppCompatActivity
       }
     }
 
-    taskCompletionSource.setError(null);
+    taskCompletionSource.setError(new IllegalStateException());
     Log.e("getSkuDetailsFromList", sku + " not found");
     Toast
       .makeText(
@@ -863,7 +874,7 @@ public class MainActivity extends AppCompatActivity
         if(responseCode == BillingResponseCode.OK) {
           if(list == null || list.isEmpty()) {
             Log.e("querySkuDetailsList", "list is null or empty");
-            taskCompletionSource.setError(null);
+            taskCompletionSource.setError(new IllegalStateException());
             Toast
               .makeText(
                 MainActivity.this,
@@ -890,7 +901,7 @@ public class MainActivity extends AppCompatActivity
         }
         else {
           Log.e("querySkuDetailsList", getResponseCodeString(responseCode));
-          taskCompletionSource.setError(null);
+          taskCompletionSource.setError(new IllegalStateException());
           Toast
             .makeText(
               MainActivity.this,
@@ -953,7 +964,7 @@ public class MainActivity extends AppCompatActivity
     if(detail == null) {
       if(BOOT_FROM_NOTIFICATION.equals(intent.getAction())) {
 
-        is_boot_from_notification = true;
+        isBootFromNotification = true;
         setIntGeneralInSharedPreferences(MENU_POSITION, 0);
         setIntGeneralInSharedPreferences(SUBMENU_POSITION, 0);
         int size = menu.size();
@@ -961,8 +972,8 @@ public class MainActivity extends AppCompatActivity
           MenuItem menuItem = menu.getItem(i);
           if(menuItem.hasSubMenu()) {
             SubMenu subMenu = menuItem.getSubMenu();
-            int sub_size = subMenu.size();
-            for(int j = 0; j < sub_size; j++) {
+            int subSize = subMenu.size();
+            for(int j = 0; j < subSize; j++) {
               MenuItem subMenuItem = subMenu.getItem(j);
               subMenuItem.setChecked(false);
             }
@@ -972,15 +983,17 @@ public class MainActivity extends AppCompatActivity
       }
 
       showList();
-      is_in_on_create = false;
+      isInOnCreate = false;
     }
     else {
 
-      int size = generalSettings.getNonScheduledLists().size();
+      List<NonScheduledListAdapter> nonScheduledListList =
+        generalSettings.getNonScheduledLists();
+      int size = nonScheduledListList.size();
       String[] items = new String[size + 1];
       items[0] = menu.findItem(R.id.scheduled_list).getTitle().toString();
       for(int i = 0; i < size; i++) {
-        items[i + 1] = generalSettings.getNonScheduledLists().get(i).getTitle();
+        items[i + 1] = nonScheduledListList.get(i).getTitle();
       }
 
       final SingleChoiceItemsAdapter adapter = new SingleChoiceItemsAdapter(items);
@@ -996,13 +1009,13 @@ public class MainActivity extends AppCompatActivity
           @Override
           public void onClick(DialogInterface dialog, int which) {
 
-            which_list = SingleChoiceItemsAdapter.checked_position;
+            whichList = SingleChoiceItemsAdapter.checkedPosition;
 
-            setIntGeneralInSharedPreferences(MENU_POSITION, which_list);
+            setIntGeneralInSharedPreferences(MENU_POSITION, whichList);
             setIntGeneralInSharedPreferences(SUBMENU_POSITION, 0);
 
             showList();
-            is_in_on_create = false;
+            isInOnCreate = false;
           }
         })
         .setNeutralButton(R.string.cancel, new DialogInterface.OnClickListener() {
@@ -1010,10 +1023,10 @@ public class MainActivity extends AppCompatActivity
           public void onClick(DialogInterface dialog, int which) {
 
             detail = null;
-            if(is_in_on_create) {
+            if(isInOnCreate) {
               showList();
             }
-            is_in_on_create = false;
+            isInOnCreate = false;
           }
         })
         .setOnCancelListener(new DialogInterface.OnCancelListener() {
@@ -1021,10 +1034,10 @@ public class MainActivity extends AppCompatActivity
           public void onCancel(DialogInterface dialog) {
 
             detail = null;
-            if(is_in_on_create) {
+            if(isInOnCreate) {
               showList();
             }
-            is_in_on_create = false;
+            isInOnCreate = false;
           }
         })
         .create();
@@ -1033,8 +1046,8 @@ public class MainActivity extends AppCompatActivity
         @Override
         public void onShow(DialogInterface dialogInterface) {
 
-          dialog.getButton(AlertDialog.BUTTON_POSITIVE).setTextColor(accent_color);
-          dialog.getButton(AlertDialog.BUTTON_NEUTRAL).setTextColor(accent_color);
+          dialog.getButton(AlertDialog.BUTTON_POSITIVE).setTextColor(accentColor);
+          dialog.getButton(AlertDialog.BUTTON_NEUTRAL).setTextColor(accentColor);
         }
       });
 
@@ -1052,7 +1065,7 @@ public class MainActivity extends AppCompatActivity
       menuItem = menu.getItem(0);
     }
     if(menuItem.hasSubMenu()) {
-      menuItem = menuItem.getSubMenu().getItem(which_submenu_open);
+      menuItem = menuItem.getSubMenu().getItem(whichSubmenuOpen);
     }
 
     // 選択状態のリストア
@@ -1117,10 +1130,25 @@ public class MainActivity extends AppCompatActivity
       setBooleanGeneralInSharedPreferences(IS_FIRST_USE, false);
     }
 
+
+    // generalSettingsにおいて旧バージョンからの移行処理が行われた場合は、まだデータベース全体の
+    // 移行処理が行われていないものとしてデータベースを更新する。
+    // ダークモード切り替えによるActivityのrecreate()が発生した場合は処理が中断してしまうので
+    // !isRecreatedの条件により、確実に1回だけ実行されるようにしてある。
+    if(generalSettings.isCopiedFromOldVersion()) {
+      setBooleanGeneralInSharedPreferences(IS_COPIED_FROM_OLD_VERSION, true);
+      generalSettings.setIsCopiedFromOldVersion(false);
+    }
+    if(!isRecreated && isCopiedFromOldVersion) {
+      CopyFromOldVersionProgressBarDialogFragment dialog =
+        new CopyFromOldVersionProgressBarDialogFragment();
+      dialog.show(getSupportFragmentManager(), "copy_from_old_version_progress_bar");
+    }
+
     // すべての通知を既読し、通知チャネルを削除する
     clearAllNotification();
 
-    if(!is_premium) {
+    if(!isPremium) {
 
       // ビリングサービスのセットアップ
       setupBillingServices();
@@ -1129,8 +1157,8 @@ public class MainActivity extends AppCompatActivity
     Fragment mainFragment =
       getSupportFragmentManager().findFragmentByTag(ExpandableListViewFragment.TAG);
     if(mainFragment != null) {
-      MyExpandableListAdapter.lock_block_notify_change = true;
-      MyExpandableListAdapter.block_notify_change = true;
+      MyExpandableListAdapter.isLockBlockNotifyChange = true;
+      MyExpandableListAdapter.isBlockNotifyChange = true;
       updateListTask(null, -1, true);
       setUpdateListTimerTask(true);
     }
@@ -1211,8 +1239,8 @@ public class MainActivity extends AppCompatActivity
 
           if(menu.getItem(i).hasSubMenu()) {
             SubMenu subMenu = menu.getItem(i).getSubMenu();
-            int sub_size = subMenu.size();
-            for(int j = 0; j < sub_size; j++) {
+            int subSize = subMenu.size();
+            for(int j = 0; j < subSize; j++) {
               if(subMenu.getItem(j) == menuItem) {
                 setIntGeneralInSharedPreferences(MENU_POSITION, i);
                 setIntGeneralInSharedPreferences(SUBMENU_POSITION, j);
@@ -1274,7 +1302,7 @@ public class MainActivity extends AppCompatActivity
       final EditText editText = new EditText(MainActivity.this);
       setCursorDrawableColor(this, editText);
       editText.getBackground().mutate().setColorFilter(new PorterDuffColorFilter(
-        accent_color,
+        accentColor,
         PorterDuff.Mode.SRC_IN
       ));
       editText.setHint(R.string.list_hint);
@@ -1299,13 +1327,15 @@ public class MainActivity extends AppCompatActivity
             if(name.equals("")) {
               name = getString(R.string.default_list);
             }
-            generalSettings.getNonScheduledLists().add(0, new NonScheduledList(name));
-            int size = generalSettings.getNonScheduledLists().size();
+            generalSettings.addNonScheduledList(0, new NonScheduledListAdapter(name));
+            List<NonScheduledListAdapter> nonScheduledListList =
+              generalSettings.getNonScheduledLists();
+            int size = nonScheduledListList.size();
             for(int i = 0; i < size; i++) {
-              generalSettings.getNonScheduledLists().get(i).setOrder(i);
+              nonScheduledListList.get(i).setOrder(i);
             }
             ManageListAdapter.nonScheduledLists =
-              new ArrayList<>(generalSettings.getNonScheduledLists());
+              new ArrayList<>(nonScheduledListList);
             manageListAdapter.notifyDataSetChanged();
 
             // 一旦reminder_listグループ内のアイテムをすべて消してから元に戻すことで新しく追加したリストの順番を追加した順に並び替える
@@ -1320,7 +1350,7 @@ public class MainActivity extends AppCompatActivity
               .setCheckable(false);
 
             // 新しく追加したリストのリストア
-            for(NonScheduledList list : generalSettings.getNonScheduledLists()) {
+            for(NonScheduledListAdapter list : nonScheduledListList) {
               Drawable drawable =
                 ContextCompat.getDrawable(MainActivity.this, R.drawable.ic_my_list_24dp);
               requireNonNull(drawable);
@@ -1367,8 +1397,8 @@ public class MainActivity extends AppCompatActivity
         @Override
         public void onShow(DialogInterface dialogInterface) {
 
-          dialog.getButton(AlertDialog.BUTTON_POSITIVE).setTextColor(accent_color);
-          dialog.getButton(AlertDialog.BUTTON_NEUTRAL).setTextColor(accent_color);
+          dialog.getButton(AlertDialog.BUTTON_POSITIVE).setTextColor(accentColor);
+          dialog.getButton(AlertDialog.BUTTON_NEUTRAL).setTextColor(accentColor);
         }
       });
 
@@ -1406,87 +1436,87 @@ public class MainActivity extends AppCompatActivity
   }
 
   public void updateListTask(
-    final Item snackBarItem,
-    final int group_position,
-    boolean unlock_notify
+    final ItemAdapter snackBarItem,
+    final int groupPosition,
+    boolean unlockNotify
   ) {
 
-    boolean is_updated = false;
-    int groups_size = MyExpandableListAdapter.groups.size();
-    for(int group_count = 0; group_count < groups_size; group_count++) {
+    boolean isUpdated = false;
+    int groupsSize = MyExpandableListAdapter.groups.size();
+    for(int groupCount = 0; groupCount < groupsSize; groupCount++) {
 
-      int group_changed = 0;
-      List<Item> itemList;
+      int groupChanged = 0;
+      List<ItemAdapter> itemList;
       try {
-        itemList = MyExpandableListAdapter.children.get(group_count);
+        itemList = MyExpandableListAdapter.children.get(groupCount);
       }
       catch(NullPointerException e) {
         continue;
       }
 
-      int children_size = itemList.size();
-      for(int child_count = 0; child_count < children_size; child_count++) {
+      int childrenSize = itemList.size();
+      for(int childCount = 0; childCount < childrenSize; childCount++) {
 
-        Item item = itemList.get(child_count);
+        ItemAdapter item = itemList.get(childCount);
         Calendar now = Calendar.getInstance();
         Calendar tomorrow = (Calendar)now.clone();
         tomorrow.add(Calendar.DAY_OF_MONTH, 1);
 
-        int spec_day = item.getDate().get(Calendar.DAY_OF_MONTH);
-        long sub_time = item.getDate().getTimeInMillis() - now.getTimeInMillis();
-        long sub_day = sub_time / (24 * HOUR);
+        int specDay = item.getDate().get(Calendar.DAY_OF_MONTH);
+        long subTime = item.getDate().getTimeInMillis() - now.getTimeInMillis();
+        long subDay = subTime / (24 * HOUR);
 
-        if(sub_time < 0) {
-          if(group_count != 0) {
+        if(subTime < 0) {
+          if(groupCount != 0) {
             MyExpandableListAdapter.children.get(0).add(item);
-            group_changed |= (1 << child_count);
+            groupChanged |= (1 << childCount);
           }
         }
-        else if(sub_day < 1 && spec_day == now.get(Calendar.DAY_OF_MONTH)) {
-          if(group_count != 1) {
+        else if(subDay < 1 && specDay == now.get(Calendar.DAY_OF_MONTH)) {
+          if(groupCount != 1) {
             MyExpandableListAdapter.children.get(1).add(item);
-            group_changed |= (1 << child_count);
+            groupChanged |= (1 << childCount);
           }
         }
-        else if(sub_day < 2 && spec_day == tomorrow.get(Calendar.DAY_OF_MONTH)) {
-          if(group_count != 2) {
+        else if(subDay < 2 && specDay == tomorrow.get(Calendar.DAY_OF_MONTH)) {
+          if(groupCount != 2) {
             MyExpandableListAdapter.children.get(2).add(item);
-            group_changed |= (1 << child_count);
+            groupChanged |= (1 << childCount);
           }
         }
-        else if(sub_day < 8) {
-          if(group_count != 3) {
+        else if(subDay < 8) {
+          if(groupCount != 3) {
             MyExpandableListAdapter.children.get(3).add(item);
-            group_changed |= (1 << child_count);
+            groupChanged |= (1 << childCount);
           }
         }
         else {
-          if(group_count != 4) {
+          if(groupCount != 4) {
             MyExpandableListAdapter.children.get(4).add(item);
-            group_changed |= (1 << child_count);
+            groupChanged |= (1 << childCount);
           }
         }
       }
 
-      int remove_count = 0;
-      int binary_length = Integer.toBinaryString(group_changed).length();
-      for(int i = 0; i < binary_length; i++) {
-        if((group_changed & (1 << i)) != 0) {
-          MyExpandableListAdapter.children.get(group_count).remove(i - remove_count);
-          remove_count++;
-          is_updated = true;
+      int removeCount = 0;
+      int binaryLength = Integer.toBinaryString(groupChanged).length();
+      for(int i = 0; i < binaryLength; i++) {
+        if((groupChanged & (1 << i)) != 0) {
+          MyExpandableListAdapter.children.get(groupCount).remove(i - removeCount);
+          removeCount++;
+          isUpdated = true;
         }
       }
     }
 
-    if(is_updated) {
+    if(isUpdated) {
       updateExpandableParentGroups(true);
     }
 
-    if(!MyExpandableListAdapter.lock_block_notify_change || unlock_notify) {
+    if(!MyExpandableListAdapter.isLockBlockNotifyChange || unlockNotify) {
       expandableListAdapter.notifyDataSetChanged();
-      MyExpandableListAdapter.block_notify_change = false;
-      MyExpandableListAdapter.lock_block_notify_change = false;
+      MyExpandableListAdapter.isBlockNotifyChange = false;
+      MyExpandableListAdapter.isLockBlockNotifyChange = false;
 
       if(timer != null) {
         if(runnable != null) {
@@ -1521,35 +1551,35 @@ public class MainActivity extends AppCompatActivity
           public void onDismissed(Snackbar transientBottomBar, int event) {
 
             super.onDismissed(transientBottomBar, event);
-            MyExpandableListAdapter.panel_lock_id = 0;
+            MyExpandableListAdapter.panelLockId = 0;
           }
         })
         .setAction(R.string.undo, new View.OnClickListener() {
           @Override
           public void onClick(View v) {
 
-            MyExpandableListAdapter.lock_block_notify_change = true;
-            MyExpandableListAdapter.block_notify_change = true;
+            MyExpandableListAdapter.isLockBlockNotifyChange = true;
+            MyExpandableListAdapter.isBlockNotifyChange = true;
 
             if(MyExpandableListAdapter.isClosed) {
-              MyExpandableListAdapter.has_panel = snackBarItem.getId();
+              MyExpandableListAdapter.hasPanel = snackBarItem.getId();
               MyExpandableListAdapter.isClosed = false;
             }
             if(
-              snackBarItem.getDayRepeat().getSetted() != 0 ||
-                snackBarItem.getMinuteRepeat().getWhich_setted() != 0
+              snackBarItem.getDayRepeat().getWhichSet() != 0 ||
+                snackBarItem.getMinuteRepeat().getWhichSet() != 0
             ) {
-              snackBarItem.setAlarm_stopped(snackBarItem.isOrg_alarm_stopped());
-              snackBarItem.setTime_altered(snackBarItem.getOrg_time_altered());
-              if((snackBarItem.getMinuteRepeat().getWhich_setted() & 1) != 0) {
+              snackBarItem.setAlarmStopped(snackBarItem.isOrgIsAlarmStopped());
+              snackBarItem.setAlteredTime(snackBarItem.getOrgAlteredTime());
+              if((snackBarItem.getMinuteRepeat().getWhichSet() & 1) != 0) {
                 snackBarItem
                   .getMinuteRepeat()
-                  .setCount(snackBarItem.getMinuteRepeat().getOrg_count2());
+                  .setCount(snackBarItem.getMinuteRepeat().getOrgCount2());
               }
-              else if((snackBarItem.getMinuteRepeat().getWhich_setted() & (1 << 1)) != 0) {
+              else if((snackBarItem.getMinuteRepeat().getWhichSet() & (1 << 1)) != 0) {
                 snackBarItem
                   .getMinuteRepeat()
-                  .setDuration(snackBarItem.getMinuteRepeat().getOrg_duration2());
+                  .setDuration(snackBarItem.getMinuteRepeat().getOrgDuration2());
               }
 
               Calendar now = Calendar.getInstance();
@@ -1560,28 +1590,28 @@ public class MainActivity extends AppCompatActivity
               now.set(Calendar.MILLISECOND, 0);
 
               if(
-                snackBarItem.getOrg_date().getTimeInMillis() < now.getTimeInMillis() &&
-                  snackBarItem.getTime_altered() != 0
+                snackBarItem.getOrgDate().getTimeInMillis() < now.getTimeInMillis() &&
+                  snackBarItem.getAlteredTime() != 0
               ) {
                 snackBarItem.getDate().setTimeInMillis(
                   now.getTimeInMillis() +
-                    snackBarItem.getTime_altered()
+                    snackBarItem.getAlteredTime()
                 );
               }
               else {
                 snackBarItem.getDate().setTimeInMillis(
-                  snackBarItem.getOrg_date().getTimeInMillis() +
-                    snackBarItem.getTime_altered()
+                  snackBarItem.getOrgDate().getTimeInMillis() +
+                    snackBarItem.getAlteredTime()
                 );
               }
               Collections.sort(
-                MyExpandableListAdapter.children.get(group_position),
+                MyExpandableListAdapter.children.get(groupPosition),
                 SCHEDULED_ITEM_COMPARATOR
               );
               expandableListAdapter.notifyDataSetChanged();
 
               deleteAlarm(snackBarItem);
-              if(!snackBarItem.isAlarm_stopped()) {
+              if(!snackBarItem.isAlarmStopped()) {
                 setAlarm(snackBarItem);
               }
               updateDB(snackBarItem, MyDatabaseHelper.TODO_TABLE);
@@ -1595,28 +1625,28 @@ public class MainActivity extends AppCompatActivity
               now.set(Calendar.MILLISECOND, 0);
 
               if(
-                snackBarItem.getOrg_date().getTimeInMillis() < now.getTimeInMillis() &&
-                  snackBarItem.getTime_altered() != 0
+                snackBarItem.getOrgDate().getTimeInMillis() < now.getTimeInMillis() &&
+                  snackBarItem.getAlteredTime() != 0
               ) {
                 snackBarItem.getDate().setTimeInMillis(
                   now.getTimeInMillis() +
-                    snackBarItem.getTime_altered()
+                    snackBarItem.getAlteredTime()
                 );
               }
               else {
                 snackBarItem.getDate().setTimeInMillis(
-                  snackBarItem.getOrg_date().getTimeInMillis() +
-                    snackBarItem.getTime_altered()
+                  snackBarItem.getOrgDate().getTimeInMillis() +
+                    snackBarItem.getAlteredTime()
                 );
               }
 
-              MyExpandableListAdapter.children.get(group_position).add(snackBarItem);
-              for(List<Item> itemList : MyExpandableListAdapter.children) {
+              MyExpandableListAdapter.children.get(groupPosition).add(snackBarItem);
+              for(List<ItemAdapter> itemList : MyExpandableListAdapter.children) {
                 Collections.sort(itemList, SCHEDULED_ITEM_COMPARATOR);
               }
               expandableListAdapter.notifyDataSetChanged();
 
-              if(!snackBarItem.isAlarm_stopped()) {
+              if(!snackBarItem.isAlarmStopped()) {
                 setAlarm(snackBarItem);
               }
               insertDB(snackBarItem, MyDatabaseHelper.TODO_TABLE);
@@ -1633,23 +1663,23 @@ public class MainActivity extends AppCompatActivity
   void updateExpandableParentGroups(boolean sort) {
 
     Calendar now = Calendar.getInstance();
-    Calendar tomorrow_cal = (Calendar)now.clone();
-    tomorrow_cal.add(Calendar.DAY_OF_MONTH, 1);
+    Calendar tomorrowCal = (Calendar)now.clone();
+    tomorrowCal.add(Calendar.DAY_OF_MONTH, 1);
     CharSequence today;
     CharSequence tomorrow;
     if(LOCALE.equals(Locale.JAPAN)) {
       today = DateFormat.format(" - yyyy年M月d日(E)", now);
-      tomorrow = DateFormat.format(" - yyyy年M月d日(E)", tomorrow_cal);
+      tomorrow = DateFormat.format(" - yyyy年M月d日(E)", tomorrowCal);
     }
     else {
       today = DateFormat.format(" - yyyy/M/d (E)", now);
-      tomorrow = DateFormat.format(" - yyyy/M/d (E)", tomorrow_cal);
+      tomorrow = DateFormat.format(" - yyyy/M/d (E)", tomorrowCal);
     }
     MyExpandableListAdapter.groups.set(1, getString(R.string.today) + today);
     MyExpandableListAdapter.groups.set(2, getString(R.string.tomorrow) + tomorrow);
 
     if(sort) {
-      for(List<Item> itemList : MyExpandableListAdapter.children) {
+      for(List<ItemAdapter> itemList : MyExpandableListAdapter.children) {
         Collections.sort(itemList, SCHEDULED_ITEM_COMPARATOR);
       }
     }
@@ -1665,7 +1695,7 @@ public class MainActivity extends AppCompatActivity
         public void run() {
 
           int second = Calendar.getInstance().get(Calendar.SECOND);
-          if(!MyExpandableListAdapter.block_notify_change && second == 0) {
+          if(!MyExpandableListAdapter.isBlockNotifyChange && second == 0) {
             updateListTask(null, -1, false);
           }
         }
@@ -1673,103 +1703,108 @@ public class MainActivity extends AppCompatActivity
     }
   }
 
-  public void setUpdateListTimerTask(boolean is_set) {
+  public void setUpdateListTimerTask(boolean isSet) {
 
-    if(timer != null && !is_set) {
+    if(timer != null && !isSet) {
       timer.cancel();
       timer = null;
     }
-    else if(timer == null && is_set) {
+    else if(timer == null && isSet) {
       timer = new Timer();
       TimerTask timerTask = new UpdateListTimerTask();
       timer.schedule(timerTask, 0, 1000);
     }
   }
 
-  public List<List<Item>> getChildren(String table) {
+  public List<List<ItemAdapter>> getChildren(String table) {
 
-    List<Item> past_list = new ArrayList<>();
-    List<Item> today_list = new ArrayList<>();
-    List<Item> tomorrow_list = new ArrayList<>();
-    List<Item> week_list = new ArrayList<>();
-    List<Item> future_list = new ArrayList<>();
+    return getChildren(queryAllDB(table));
+  }
+
+  public List<List<ItemAdapter>> getChildren(List<ItemAdapter> itemList) {
+
+    List<ItemAdapter> pastList = new ArrayList<>();
+    List<ItemAdapter> todayList = new ArrayList<>();
+    List<ItemAdapter> tomorrowList = new ArrayList<>();
+    List<ItemAdapter> weekList = new ArrayList<>();
+    List<ItemAdapter> futureList = new ArrayList<>();
 
     Calendar now = Calendar.getInstance();
     Calendar tomorrow = (Calendar)now.clone();
     tomorrow.add(Calendar.DAY_OF_MONTH, 1);
 
-    for(Item item : queryAllDB(table)) {
+    for(ItemAdapter item : itemList) {
 
-      if(item.getWhich_list_belongs() == 0) {
-        if(item.getNotify_interval().getTime() == item.getNotify_interval().getOrg_time()) {
+      if(item.getWhichListBelongs() == 0) {
+        if(item.getNotifyInterval().getTime() == item.getNotifyInterval().getOrgTime()) {
           deleteAlarm(item);
         }
-        if(!isAlarmSetted(item) && !item.isAlarm_stopped()) {
+        if(!isAlarmSet(item) && !item.isAlarmStopped()) {
           setAlarm(item);
         }
 
-        int spec_day = item.getDate().get(Calendar.DAY_OF_MONTH);
-        long sub_time = item.getDate().getTimeInMillis() - now.getTimeInMillis();
-        long sub_day = sub_time / (24 * HOUR);
+        int specDay = item.getDate().get(Calendar.DAY_OF_MONTH);
+        long subTime = item.getDate().getTimeInMillis() - now.getTimeInMillis();
+        long subDay = subTime / (24 * HOUR);
 
-        if(sub_time < 0) {
-          past_list.add(item);
+        if(subTime < 0) {
+          pastList.add(item);
         }
-        else if(sub_day < 1 && spec_day == now.get(Calendar.DAY_OF_MONTH)) {
-          today_list.add(item);
+        else if(subDay < 1 && specDay == now.get(Calendar.DAY_OF_MONTH)) {
+          todayList.add(item);
         }
-        else if(sub_day < 2 && spec_day == tomorrow.get(Calendar.DAY_OF_MONTH)) {
-          tomorrow_list.add(item);
+        else if(subDay < 2 && specDay == tomorrow.get(Calendar.DAY_OF_MONTH)) {
+          tomorrowList.add(item);
         }
-        else if(sub_day < 8) {
-          week_list.add(item);
+        else if(subDay < 8) {
+          weekList.add(item);
         }
         else {
-          future_list.add(item);
+          futureList.add(item);
         }
       }
     }
 
-    List<List<Item>> children = new ArrayList<>();
-    children.add(past_list);
-    children.add(today_list);
-    children.add(tomorrow_list);
-    children.add(week_list);
-    children.add(future_list);
+    List<List<ItemAdapter>> children = new ArrayList<>();
+    children.add(pastList);
+    children.add(todayList);
+    children.add(tomorrowList);
+    children.add(weekList);
+    children.add(futureList);
 
-    for(List<Item> itemList : children) {
-      Collections.sort(itemList, SCHEDULED_ITEM_COMPARATOR);
+    for(List<ItemAdapter> child : children) {
+      Collections.sort(child, SCHEDULED_ITEM_COMPARATOR);
     }
     return children;
   }
 
-  public void addChildren(Item item, String table) {
+  public void addChildren(ItemAdapter item, String table) {
 
     Calendar now = Calendar.getInstance();
     Calendar tomorrow = (Calendar)now.clone();
     tomorrow.add(Calendar.DAY_OF_MONTH, 1);
 
-    int spec_day = item.getDate().get(Calendar.DAY_OF_MONTH);
-    long sub_time = item.getDate().getTimeInMillis() - now.getTimeInMillis();
-    long sub_day = sub_time / (24 * HOUR);
+    int specDay = item.getDate().get(Calendar.DAY_OF_MONTH);
+    long subTime = item.getDate().getTimeInMillis() - now.getTimeInMillis();
+    long subDay = subTime / (24 * HOUR);
 
-    if(sub_time < 0) {
+    if(subTime < 0) {
       MyExpandableListAdapter.children.get(0).add(item);
     }
-    else if(sub_day < 1 && spec_day == now.get(Calendar.DAY_OF_MONTH)) {
+    else if(subDay < 1 && specDay == now.get(Calendar.DAY_OF_MONTH)) {
       MyExpandableListAdapter.children.get(1).add(item);
     }
-    else if(sub_day < 2 && spec_day == tomorrow.get(Calendar.DAY_OF_MONTH)) {
+    else if(subDay < 2 && specDay == tomorrow.get(Calendar.DAY_OF_MONTH)) {
       MyExpandableListAdapter.children.get(2).add(item);
     }
-    else if(sub_day < 8) {
+    else if(subDay < 8) {
       MyExpandableListAdapter.children.get(3).add(item);
     }
     else {
       MyExpandableListAdapter.children.get(4).add(item);
     }
 
-    for(List<Item> itemList : MyExpandableListAdapter.children) {
+    for(List<ItemAdapter> itemList : MyExpandableListAdapter.children) {
       Collections.sort(itemList, SCHEDULED_ITEM_COMPARATOR);
     }
     expandableListAdapter.notifyDataSetChanged();
@@ -1778,15 +1813,15 @@ public class MainActivity extends AppCompatActivity
 
   public void setUpdatedItemPosition(long id) {
 
-    List<List<Item>> children = MyExpandableListAdapter.children;
+    List<List<ItemAdapter>> children = MyExpandableListAdapter.children;
     int count = 0;
-    int i_size = MyExpandableListAdapter.groups.size();
-    for(int i = 0; i < i_size && id != 0; i++) {
-      if(MyExpandableListAdapter.display_groups[i]) {
-        List<Item> itemList = children.get(i);
-        int j_size = itemList.size();
-        for(int j = 0; j < j_size; j++) {
-          Item item = itemList.get(j);
+    int iSize = MyExpandableListAdapter.groups.size();
+    for(int i = 0; i < iSize && id != 0; i++) {
+      if(MyExpandableListAdapter.displayGroups[i]) {
+        List<ItemAdapter> itemList = children.get(i);
+        int jSize = itemList.size();
+        for(int j = 0; j < jSize; j++) {
+          ItemAdapter item = itemList.get(j);
           if(item.getId() == id) {
             try {
               ExpandableListViewFragment.position =
@@ -1794,7 +1829,7 @@ public class MainActivity extends AppCompatActivity
                   count,
                   j
                 ));
-              ExpandableListViewFragment.offset = ExpandableListViewFragment.group_height;
+              ExpandableListViewFragment.offset = ExpandableListViewFragment.groupHeight;
             }
             catch(NullPointerException e) {
               ExpandableListViewFragment.position = 0;
@@ -1810,13 +1845,15 @@ public class MainActivity extends AppCompatActivity
     }
   }
 
-  public List<Item> getNonScheduledItem(String table) {
+  public List<ItemAdapter> getNonScheduledItem(String table) {
 
     if(whichMenuOpen > 0) {
-      long list_id = generalSettings.getNonScheduledLists().get(whichMenuOpen - 1).getId();
-      List<Item> itemList = new ArrayList<>();
-      for(Item item : queryAllDB(table)) {
-        if(item.getWhich_list_belongs() == list_id) {
+      long listId = generalSettings.getNonScheduledLists().get(whichMenuOpen - 1).getId();
+      Log.i("getNonScheduledItem", "listId: " + listId);
+      List<ItemAdapter> itemList = new ArrayList<>();
+      for(ItemAdapter item : queryAllDB(table)) {
+        Log.i("getNonScheduledItem", "item.getWhichListBelongs(): " + item.getWhichListBelongs());
+        if(item.getWhichListBelongs() == listId) {
           itemList.add(item);
         }
       }
@@ -1829,13 +1866,13 @@ public class MainActivity extends AppCompatActivity
     }
   }
 
-  public List<Item> getDoneItem() {
+  public List<ItemAdapter> getDoneItem() {
 
-    long list_id = whichMenuOpen == 0 ? 0 : generalSettings.getNonScheduledLists().get(
+    long listId = whichMenuOpen == 0 ? 0 : generalSettings.getNonScheduledLists().get(
       whichMenuOpen - 1).getId();
-    List<Item> itemList = new ArrayList<>();
-    for(Item item : queryAllDB(MyDatabaseHelper.DONE_TABLE)) {
-      if(item.getWhich_list_belongs() == list_id) {
+    List<ItemAdapter> itemList = new ArrayList<>();
+    for(ItemAdapter item : queryAllDB(MyDatabaseHelper.DONE_TABLE)) {
+      if(item.getWhichListBelongs() == listId) {
         itemList.add(item);
       }
     }
@@ -1846,65 +1883,65 @@ public class MainActivity extends AppCompatActivity
 
   private void initSettings() {
 
-    generalSettings = new GeneralSettings();
+    generalSettings = new GeneralSettingsAdapter();
 
     // データベースを新たに作成する場合、基本的な一般設定を追加しておく
 
     // タグのデフォルト設定
     // タグなし
-    Tag tag = new Tag(0);
+    TagAdapter tag = new TagAdapter(0);
     tag.setName(getString(R.string.none));
     tag.setOrder(0);
-    generalSettings.getTagList().add(tag);
+    generalSettings.addTag(tag);
 
     // 家事タグ
-    tag = new Tag(1);
+    tag = new TagAdapter(1);
     tag.setName(getString(R.string.home));
-    tag.setPrimary_color(Color.parseColor("#4caf50"));
-    tag.setPrimary_light_color(Color.parseColor("#80e27e"));
-    tag.setPrimary_dark_color(Color.parseColor("#087f23"));
-    tag.setPrimary_text_color(Color.parseColor("#000000"));
-    tag.setColor_order_group(9);
-    tag.setColor_order_child(5);
+    tag.setPrimaryColor(Color.parseColor("#4caf50"));
+    tag.setPrimaryLightColor(Color.parseColor("#80e27e"));
+    tag.setPrimaryDarkColor(Color.parseColor("#087f23"));
+    tag.setPrimaryTextColor(Color.parseColor("#000000"));
+    tag.setColorOrderGroup(9);
+    tag.setColorOrderChild(5);
     tag.setOrder(1);
-    generalSettings.getTagList().add(tag);
+    generalSettings.addTag(tag);
 
     // 仕事タグ
-    tag = new Tag(2);
+    tag = new TagAdapter(2);
     tag.setName(getString(R.string.work));
-    tag.setPrimary_color(Color.parseColor("#2196f3"));
-    tag.setPrimary_light_color(Color.parseColor("#6ec6ff"));
-    tag.setPrimary_dark_color(Color.parseColor("#0069c0"));
-    tag.setPrimary_text_color(Color.parseColor("#000000"));
-    tag.setColor_order_group(5);
-    tag.setColor_order_child(5);
+    tag.setPrimaryColor(Color.parseColor("#2196f3"));
+    tag.setPrimaryLightColor(Color.parseColor("#6ec6ff"));
+    tag.setPrimaryDarkColor(Color.parseColor("#0069c0"));
+    tag.setPrimaryTextColor(Color.parseColor("#000000"));
+    tag.setColorOrderGroup(5);
+    tag.setColorOrderChild(5);
     tag.setOrder(2);
-    generalSettings.getTagList().add(tag);
+    generalSettings.addTag(tag);
 
     // ショッピングタグ
-    tag = new Tag(3);
+    tag = new TagAdapter(3);
     tag.setName(getString(R.string.shopping));
-    tag.setPrimary_color(Color.parseColor("#f44336"));
-    tag.setPrimary_light_color(Color.parseColor("#ff7961"));
-    tag.setPrimary_dark_color(Color.parseColor("#ba000d"));
-    tag.setPrimary_text_color(Color.parseColor("#000000"));
-    tag.setColor_order_group(0);
-    tag.setColor_order_child(5);
+    tag.setPrimaryColor(Color.parseColor("#f44336"));
+    tag.setPrimaryLightColor(Color.parseColor("#ff7961"));
+    tag.setPrimaryDarkColor(Color.parseColor("#ba000d"));
+    tag.setPrimaryTextColor(Color.parseColor("#000000"));
+    tag.setColorOrderGroup(0);
+    tag.setColorOrderChild(5);
     tag.setOrder(3);
-    generalSettings.getTagList().add(tag);
+    generalSettings.addTag(tag);
 
 
     // Itemのデフォルト設定
-    Item item = generalSettings.getItem();
+    ItemAdapter item = generalSettings.getItem();
 
     // NotifyInterval
-    NotifyInterval notifyInterval = new NotifyInterval();
+    NotifyIntervalAdapter notifyInterval = new NotifyIntervalAdapter();
     notifyInterval.setHour(0);
     notifyInterval.setMinute(5);
-    notifyInterval.setOrg_time(6);
-    notifyInterval.setWhich_setted(1);
+    notifyInterval.setOrgTime(6);
+    notifyInterval.setWhichSet(1);
 
-    if(notifyInterval.getOrg_time() != 0) {
+    if(notifyInterval.getOrgTime() != 0) {
       String summary;
       if(LOCALE.equals(Locale.JAPAN)) {
         summary = getString(R.string.unless_complete_task);
@@ -1923,13 +1960,13 @@ public class MainActivity extends AppCompatActivity
           );
         }
         summary += getString(R.string.per);
-        if(notifyInterval.getOrg_time() == -1) {
+        if(notifyInterval.getOrgTime() == -1) {
           summary += getString(R.string.infinite_times_notify);
         }
         else {
           summary +=
-            getResources().getQuantityString(R.plurals.times_notify, notifyInterval.getOrg_time(),
-              notifyInterval.getOrg_time()
+            getResources().getQuantityString(R.plurals.times_notify, notifyInterval.getOrgTime(),
+              notifyInterval.getOrgTime()
             );
         }
       }
@@ -1955,10 +1992,10 @@ public class MainActivity extends AppCompatActivity
             summary += " ";
           }
         }
-        if(notifyInterval.getOrg_time() != -1) {
+        if(notifyInterval.getOrgTime() != -1) {
           summary +=
-            getResources().getQuantityString(R.plurals.times_notify, notifyInterval.getOrg_time(),
-              notifyInterval.getOrg_time()
+            getResources().getQuantityString(R.plurals.times_notify, notifyInterval.getOrgTime(),
+              notifyInterval.getOrgTime()
             ) + " ";
         }
         summary += getString(R.string.unless_complete_task);
@@ -1969,7 +2006,7 @@ public class MainActivity extends AppCompatActivity
     else {
       notifyInterval.setLabel(getString(R.string.none));
     }
-    item.setNotify_interval(notifyInterval);
+    item.setNotifyInterval(notifyInterval);
 
     // AlarmSound
     item.setSoundUri(DEFAULT_URI_SOUND.toString());
@@ -1978,25 +2015,25 @@ public class MainActivity extends AppCompatActivity
   }
 
   // 受け取ったオブジェクトをシリアライズしてデータベースへ挿入
-  public void insertDB(Item item, String table) {
+  public void insertDB(ItemAdapter item, String table) {
 
-    accessor.executeInsert(item.getId(), serialize(item), table);
+    accessor.executeInsert(item.getId(), serialize(item.getItem()), table);
   }
 
-  public void updateDB(Item item, String table) {
+  public void updateDB(ItemAdapter item, String table) {
 
-    accessor.executeUpdate(item.getId(), serialize(item), table);
+    accessor.executeUpdate(item.getId(), serialize(item.getItem()), table);
   }
 
-  public void deleteDB(Item item, String table) {
+  public void deleteDB(ItemAdapter item, String table) {
 
     accessor.executeDelete(item.getId(), table);
   }
 
   // 指定されたテーブルからオブジェクトのバイト列をすべて取り出し、デシリアライズしてオブジェクトのリストで返す。
-  public List<Item> queryAllDB(String table) {
+  public List<ItemAdapter> queryAllDB(String table) {
 
-    List<Item> itemList = new ArrayList<>();
+    List<ItemAdapter> itemList = new ArrayList<>();
 
     List<byte[]> streamList = null;
     do {
@@ -2008,7 +2045,7 @@ public class MainActivity extends AppCompatActivity
           Thread.sleep(10);
         }
         catch(InterruptedException ex) {
-          ex.printStackTrace();
+          Log.e("queryAllDB", Log.getStackTraceString(ex));
         }
       }
     }
@@ -2016,34 +2053,42 @@ public class MainActivity extends AppCompatActivity
 
     if(streamList != null) {
       for(byte[] stream : streamList) {
-        itemList.add((Item)deserialize(stream));
+        itemList.add(new ItemAdapter(deserialize(stream)));
       }
     }
 
     return itemList;
   }
 
-  public boolean isItemExists(Item item, String table) {
+  public boolean isItemExists(ItemAdapter item, String table) {
 
     return accessor.executeQueryById(item.getId(), table) != null;
   }
 
   public void insertSettingsDB() {
 
-    accessor.executeInsert(1, serialize(generalSettings), MyDatabaseHelper.SETTINGS_TABLE);
+    accessor.executeInsert(
+      1,
+      serialize(generalSettings.getGeneralSettings()),
+      MyDatabaseHelper.SETTINGS_TABLE
+    );
   }
 
   public void updateSettingsDB() {
 
-    accessor.executeUpdate(1, serialize(generalSettings), MyDatabaseHelper.SETTINGS_TABLE);
+    accessor.executeUpdate(
+      1,
+      serialize(generalSettings.getGeneralSettings()),
+      MyDatabaseHelper.SETTINGS_TABLE
+    );
   }
 
-  public GeneralSettings querySettingsDB() {
+  public GeneralSettingsAdapter querySettingsDB() {
 
-    GeneralSettings generalSettings = null;
+    Object generalSettings = null;
     do {
       try {
-        generalSettings = (GeneralSettings)deserialize(
+        generalSettings = deserialize(
           accessor.executeQueryById(1, MyDatabaseHelper.SETTINGS_TABLE)
         );
       }
@@ -2052,15 +2097,16 @@ public class MainActivity extends AppCompatActivity
           Thread.sleep(10);
         }
         catch(InterruptedException ex) {
-          ex.printStackTrace();
+          Log.e("querySettingsDB", Log.getStackTraceString(ex));
         }
       }
     }
     while(getIsDirectBootContext(this) && generalSettings == null);
 
-    return generalSettings;
+    return generalSettings == null? null : new GeneralSettingsAdapter(generalSettings);
   }
 
+  @SuppressWarnings("MethodParameterNamingConvention")
   public void setIntGeneralInSharedPreferences(String TAG, int value) {
 
     switch(TAG) {
@@ -2113,16 +2159,16 @@ public class MainActivity extends AppCompatActivity
         break;
       }
       case DEFAULT_TEXT_SIZE: {
-        which_text_size = value;
-        text_size = 18 + 2 * value;
+        whichTextSize = value;
+        textSize = 18 + 2 * value;
         break;
       }
       case SNOOZE_DEFAULT_HOUR: {
-        snooze_default_hour = value;
+        snoozeDefaultHour = value;
         break;
       }
       case SNOOZE_DEFAULT_MINUTE: {
-        snooze_default_minute = value;
+        snoozeDefaultMinute = value;
         break;
       }
       case MENU_POSITION: {
@@ -2130,7 +2176,7 @@ public class MainActivity extends AppCompatActivity
         break;
       }
       case SUBMENU_POSITION: {
-        which_submenu_open = value;
+        whichSubmenuOpen = value;
         break;
       }
       default: {
@@ -2148,9 +2194,14 @@ public class MainActivity extends AppCompatActivity
       .apply();
   }
 
+  @SuppressWarnings("MethodParameterNamingConvention")
   public void setBooleanGeneralInSharedPreferences(String TAG, boolean value) {
 
     switch(TAG) {
+      case IS_COPIED_FROM_OLD_VERSION: {
+        isCopiedFromOldVersion = value;
+        break;
+      }
       case IS_QUERIED_PURCHASE_HISTORY: {
         isQueriedPurchaseHistory = value;
         break;
@@ -2168,7 +2219,7 @@ public class MainActivity extends AppCompatActivity
         break;
       }
       case PLAY_SLIDE_ANIMATION: {
-        play_slide_animation = value;
+        isPlaySlideAnimation = value;
         break;
       }
       case IS_EXPANDABLE_TODO: {
@@ -2176,7 +2227,7 @@ public class MainActivity extends AppCompatActivity
         break;
       }
       case IS_PREMIUM: {
-        is_premium = value;
+        isPremium = value;
         break;
       }
       default: {
@@ -2200,16 +2251,16 @@ public class MainActivity extends AppCompatActivity
       .apply();
   }
 
-  public void setAlarm(Item item) {
+  public void setAlarm(ItemAdapter item) {
 
     if(
       item.getDate().getTimeInMillis() > System.currentTimeMillis() &&
-        item.getWhich_list_belongs() == 0
+        item.getWhichListBelongs() == 0
     ) {
-      item.getNotify_interval().setTime(item.getNotify_interval().getOrg_time());
+      item.getNotifyInterval().setTime(item.getNotifyInterval().getOrgTime());
       Intent intent = new Intent(this, AlarmReceiver.class);
-      byte[] ob_array = serialize(item);
-      intent.putExtra(ITEM, ob_array);
+      byte[] obArray = serialize(item.getItem());
+      intent.putExtra(ITEM, obArray);
       PendingIntent sender = PendingIntent.getBroadcast(
         this, (int)item.getId(), intent, PendingIntent.FLAG_UPDATE_CURRENT);
 
@@ -2221,9 +2272,9 @@ public class MainActivity extends AppCompatActivity
     }
   }
 
-  public void deleteAlarm(Item item) {
+  public void deleteAlarm(ItemAdapter item) {
 
-    if(isAlarmSetted(item)) {
+    if(isAlarmSet(item)) {
       Intent intent = new Intent(this, AlarmReceiver.class);
       PendingIntent sender = PendingIntent.getBroadcast(
         this, (int)item.getId(), intent, PendingIntent.FLAG_UPDATE_CURRENT);
@@ -2236,7 +2287,7 @@ public class MainActivity extends AppCompatActivity
     }
   }
 
-  public boolean isAlarmSetted(Item item) {
+  public boolean isAlarmSet(ItemAdapter item) {
 
     Intent intent = new Intent(this, AlarmReceiver.class);
     PendingIntent sender = PendingIntent.getBroadcast(
@@ -2309,24 +2360,24 @@ public class MainActivity extends AppCompatActivity
     // 開いているFragmentに応じた色を作成
     order = menuItem.getOrder();
     if(order == 1) {
-      NonScheduledList list = generalSettings.getNonScheduledLists().get(whichMenuOpen - 1);
+      NonScheduledListAdapter list = generalSettings.getNonScheduledLists().get(whichMenuOpen - 1);
       if(list.getColor() == 0) {
         setDefaultColor();
       }
       else {
-        menu_item_color = list.getTextColor();
-        menu_background_color = list.getColor();
-        status_bar_color = list.getDarkColor();
-        list.setColor_primary(false);
+        menuItemColor = list.getTextColor();
+        menuBackgroundColor = list.getColor();
+        statusBarColor = list.getDarkColor();
+        list.setIsColorPrimary(false);
         if(list.getColor() == 0) {
-          accent_color = ContextCompat.getColor(this, R.color.colorAccent);
-          secondary_text_color = ContextCompat.getColor(this, android.R.color.black);
+          accentColor = ContextCompat.getColor(this, R.color.colorAccent);
+          secondaryTextColor = ContextCompat.getColor(this, android.R.color.black);
         }
         else {
-          accent_color = list.getColor();
-          secondary_text_color = list.getTextColor();
+          accentColor = list.getColor();
+          secondaryTextColor = list.getTextColor();
         }
-        list.setColor_primary(true);
+        list.setIsColorPrimary(true);
       }
     }
     else {
@@ -2346,61 +2397,61 @@ public class MainActivity extends AppCompatActivity
         ContextCompat.getColor(this, R.color.primaryTextMaterialDark);
       secondaryTextMaterialDarkColor =
         ContextCompat.getColor(this, R.color.secondaryTextMaterialDark);
-      menu_item_color = primaryTextMaterialDarkColor;
-      menu_background_color = primaryMaterialDarkColor;
-      status_bar_color = primaryDarkMaterialDarkColor;
+      menuItemColor = primaryTextMaterialDarkColor;
+      menuBackgroundColor = primaryMaterialDarkColor;
+      statusBarColor = primaryDarkMaterialDarkColor;
     }
 
     // ハンバーガーアイコンの色を指定
-    drawerToggle.getDrawerArrowDrawable().setColor(menu_item_color);
+    drawerToggle.getDrawerArrowDrawable().setColor(menuItemColor);
     // DisplayHomeAsUpEnabledに指定する戻るボタンの色を指定
     upArrow = ContextCompat.getDrawable(this, R.drawable.abc_ic_ab_back_material);
     requireNonNull(upArrow);
     upArrow.setColorFilter(new PorterDuffColorFilter(
-      menu_item_color,
+      menuItemColor,
       PorterDuff.Mode.SRC_IN
     ));
     // ツールバーとステータスバーの色を指定
-    toolbar.setTitleTextColor(menu_item_color);
-    toolbar.setBackgroundColor(menu_background_color);
+    toolbar.setTitleTextColor(menuItemColor);
+    toolbar.setBackgroundColor(menuBackgroundColor);
     Window window = getWindow();
     window.clearFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS);
     window.addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS);
-    window.setStatusBarColor(status_bar_color);
+    window.setStatusBarColor(statusBarColor);
   }
 
   private void setDefaultColor() {
 
-    MyTheme theme = generalSettings.getTheme();
+    MyThemeAdapter theme = generalSettings.getTheme();
     if(theme.getColor() == 0) {
-      menu_item_color = Color.WHITE;
-      menu_background_color = ContextCompat.getColor(this, R.color.colorPrimary);
-      status_bar_color = ContextCompat.getColor(this, R.color.colorPrimaryDark);
-      theme.setColor_primary(false);
+      menuItemColor = Color.WHITE;
+      menuBackgroundColor = ContextCompat.getColor(this, R.color.colorPrimary);
+      statusBarColor = ContextCompat.getColor(this, R.color.colorPrimaryDark);
+      theme.setIsColorPrimary(false);
       if(theme.getColor() == 0) {
-        accent_color = ContextCompat.getColor(this, R.color.colorAccent);
-        secondary_text_color = ContextCompat.getColor(this, android.R.color.black);
+        accentColor = ContextCompat.getColor(this, R.color.colorAccent);
+        secondaryTextColor = ContextCompat.getColor(this, android.R.color.black);
       }
       else {
-        accent_color = theme.getColor();
-        secondary_text_color = theme.getTextColor();
+        accentColor = theme.getColor();
+        secondaryTextColor = theme.getTextColor();
       }
-      theme.setColor_primary(true);
+      theme.setIsColorPrimary(true);
     }
     else {
-      menu_item_color = theme.getTextColor();
-      menu_background_color = theme.getColor();
-      status_bar_color = theme.getDarkColor();
-      theme.setColor_primary(false);
+      menuItemColor = theme.getTextColor();
+      menuBackgroundColor = theme.getColor();
+      statusBarColor = theme.getDarkColor();
+      theme.setIsColorPrimary(false);
       if(theme.getColor() == 0) {
-        accent_color = ContextCompat.getColor(this, R.color.colorAccent);
-        secondary_text_color = ContextCompat.getColor(this, android.R.color.black);
+        accentColor = ContextCompat.getColor(this, R.color.colorAccent);
+        secondaryTextColor = ContextCompat.getColor(this, android.R.color.black);
       }
       else {
-        accent_color = theme.getColor();
-        secondary_text_color = theme.getTextColor();
+        accentColor = theme.getColor();
+        secondaryTextColor = theme.getTextColor();
       }
-      theme.setColor_primary(true);
+      theme.setIsColorPrimary(true);
     }
   }
 
@@ -2454,7 +2505,7 @@ public class MainActivity extends AppCompatActivity
   // 編集画面を表示(引数にitemを渡すとそのitemの情報が入力された状態で表示)
   public void showMainEditFragment() {
 
-    MainEditFragment.is_main_popping = false;
+    MainEditFragment.isMainPopping = false;
     showFragment(MainEditFragment.TAG, MainEditFragment.newInstance(),
       null, null, true
     );
@@ -2462,15 +2513,15 @@ public class MainActivity extends AppCompatActivity
 
   public void showMainEditFragment(String detail) {
 
-    MainEditFragment.is_main_popping = false;
+    MainEditFragment.isMainPopping = false;
     showFragment(MainEditFragment.TAG, MainEditFragment.newInstance(detail),
       null, null, true
     );
   }
 
-  public void showMainEditFragment(Item item) {
+  public void showMainEditFragment(ItemAdapter item) {
 
-    MainEditFragment.is_main_popping = false;
+    MainEditFragment.isMainPopping = false;
     showFragment(MainEditFragment.TAG, MainEditFragment.newInstance(item.clone()),
       null, null, true
     );
@@ -2478,25 +2529,25 @@ public class MainActivity extends AppCompatActivity
 
   public void showMainEditFragmentForList() {
 
-    MainEditFragment.is_main_popping = false;
+    MainEditFragment.isMainPopping = false;
     showFragment(MainEditFragment.TAG, MainEditFragment.newInstanceForList(),
       null, null, true
     );
   }
 
-  public void showMainEditFragmentForList(NonScheduledList list) {
+  public void showMainEditFragmentForList(NonScheduledListAdapter list) {
 
-    MainEditFragment.is_main_popping = false;
+    MainEditFragment.isMainPopping = false;
     showFragment(MainEditFragment.TAG, MainEditFragment.newInstanceForList(list.clone()),
       null, null, true
     );
   }
 
-  public void showNotesFragment(Item item) {
+  public void showNotesFragment(ItemAdapter item) {
 
     Fragment nextFragment;
     String nextFragmentTAG;
-    if(item.isChecklist_mode()) {
+    if(item.isChecklistMode()) {
       nextFragment = NotesChecklistModeFragment.newInstance(item);
       nextFragmentTAG = NotesChecklistModeFragment.TAG;
     }
@@ -2505,7 +2556,7 @@ public class MainActivity extends AppCompatActivity
       nextFragmentTAG = NotesEditModeFragment.TAG;
     }
 
-    MainEditFragment.is_notes_popping = false;
+    MainEditFragment.isNotesPopping = false;
     showFragment(nextFragmentTAG, nextFragment, null, null, true);
   }
 
@@ -2532,7 +2583,7 @@ public class MainActivity extends AppCompatActivity
 
   private void commitFragment(
     Fragment remove1, Fragment remove2, String add1, Fragment addFragment1,
-    String add2, Fragment addFragment2, boolean back_stack
+    String add2, Fragment addFragment2, boolean backStack
   ) {
 
     Transition transition = new Fade()
@@ -2556,7 +2607,7 @@ public class MainActivity extends AppCompatActivity
       addFragment2.setEnterTransition(transition);
       transaction.add(R.id.content, addFragment2, add2);
     }
-    if(back_stack) {
+    if(backStack) {
       transaction.addToBackStack(null);
     }
     transaction.commit();
@@ -2567,14 +2618,14 @@ public class MainActivity extends AppCompatActivity
     Fragment addFragment1,
     String add2,
     Fragment addFragment2,
-    boolean back_stack
+    boolean backStack
   ) {
 
     FragmentManager manager = getSupportFragmentManager();
     Fragment rmFragment = manager.findFragmentById(R.id.content);
 
     if(rmFragment == null) {
-      commitFragment(null, null, add1, addFragment1, add2, addFragment2, back_stack);
+      commitFragment(null, null, add1, addFragment1, add2, addFragment2, backStack);
     }
     else if(rmFragment instanceof ActionBarFragment) {
 
@@ -2582,11 +2633,11 @@ public class MainActivity extends AppCompatActivity
         ExpandableListViewFragment.TAG, ListViewFragment.TAG,
         ManageListViewFragment.TAG, DoneListViewFragment.TAG
       };
-      boolean is_found_match_fragment = false;
+      boolean isFoundMatchFragment = false;
       for(String mainTAG : mainTAGs) {
         Fragment mainFragment = manager.findFragmentByTag(mainTAG);
         if(mainFragment != null && mainFragment.isVisible()) {
-          is_found_match_fragment = true;
+          isFoundMatchFragment = true;
           commitFragment(
             mainFragment,
             rmFragment,
@@ -2594,13 +2645,13 @@ public class MainActivity extends AppCompatActivity
             addFragment1,
             add2,
             addFragment2,
-            back_stack
+            backStack
           );
           break;
         }
       }
-      if(!is_found_match_fragment) {
-        commitFragment(rmFragment, null, add1, addFragment1, add2, addFragment2, back_stack);
+      if(!isFoundMatchFragment) {
+        commitFragment(rmFragment, null, add1, addFragment1, add2, addFragment2, backStack);
       }
     }
     else if(rmFragment instanceof ExpandableListViewFragment ||
@@ -2609,11 +2660,11 @@ public class MainActivity extends AppCompatActivity
       rmFragment instanceof DoneListViewFragment) {
 
       commitFragment(rmFragment, manager.findFragmentByTag(ActionBarFragment.TAG),
-        add1, addFragment1, add2, addFragment2, back_stack
+        add1, addFragment1, add2, addFragment2, backStack
       );
     }
     else {
-      commitFragment(rmFragment, null, add1, addFragment1, add2, addFragment2, back_stack);
+      commitFragment(rmFragment, null, add1, addFragment1, add2, addFragment2, backStack);
     }
   }
 }

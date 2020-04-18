@@ -63,11 +63,11 @@ public class ManuallySnoozeActivity extends AppCompatActivity implements View.On
   TextView title;
   ListView listView;
   View footer;
-  private Item item;
-  int snooze_default_hour;
-  int snooze_default_minute;
-  int custom_hour;
-  int custom_minute;
+  private ItemAdapter item;
+  int snoozeDefaultHour;
+  int snoozeDefaultMinute;
+  int customHour;
+  int customMinute;
   String summary;
   boolean isDarkMode;
   TextView time;
@@ -82,7 +82,7 @@ public class ManuallySnoozeActivity extends AppCompatActivity implements View.On
 
     // AlarmReceiverからItemとNotificationIDを受け取る
     Intent intent = getIntent();
-    item = (Item)deserialize(intent.getByteArrayExtra(ITEM));
+    item = new ItemAdapter(deserialize(intent.getByteArrayExtra(ITEM)));
     requireNonNull(item);
 
     // SharedPreferencesからダークモードかどうかを取得
@@ -100,8 +100,8 @@ public class ManuallySnoozeActivity extends AppCompatActivity implements View.On
         getIsDirectBootContext(this) ? INT_GENERAL_COPY : INT_GENERAL,
         MODE_PRIVATE
       );
-    snooze_default_hour = intPreferences.getInt(SNOOZE_DEFAULT_HOUR, 0);
-    snooze_default_minute = intPreferences.getInt(SNOOZE_DEFAULT_MINUTE, 15);
+    snoozeDefaultHour = intPreferences.getInt(SNOOZE_DEFAULT_HOUR, 0);
+    snoozeDefaultMinute = intPreferences.getInt(SNOOZE_DEFAULT_MINUTE, 15);
 
     // 通知を既読する
     SharedPreferences stringPreferences =
@@ -109,25 +109,25 @@ public class ManuallySnoozeActivity extends AppCompatActivity implements View.On
         getIsDirectBootContext(this) ? STRING_GENERAL_COPY : STRING_GENERAL,
         MODE_PRIVATE
       );
-    Set<String> id_table =
+    Set<String> idTable =
       stringPreferences.getStringSet(NOTIFICATION_ID_TABLE, new TreeSet<String>());
-    int parent_id = intent.getIntExtra(PARENT_NOTIFICATION_ID, 0);
-    int child_id = intent.getIntExtra(CHILD_NOTIFICATION_ID, 0);
+    int parentId = intent.getIntExtra(PARENT_NOTIFICATION_ID, 0);
+    int childId = intent.getIntExtra(CHILD_NOTIFICATION_ID, 0);
     String channelId = intent.getStringExtra(CHANNEL_ID);
     NotificationManager manager = (NotificationManager)getSystemService(NOTIFICATION_SERVICE);
     requireNonNull(manager);
 
-    for(int i = 1; i <= child_id; i++) {
-      manager.cancel(parent_id + i);
+    for(int i = 1; i <= childId; i++) {
+      manager.cancel(parentId + i);
     }
     if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
       manager.deleteNotificationChannel(channelId);
     }
-    requireNonNull(id_table);
-    id_table.remove(Integer.toBinaryString(parent_id));
+    requireNonNull(idTable);
+    idTable.remove(Integer.toBinaryString(parentId));
     stringPreferences
       .edit()
-      .putStringSet(NOTIFICATION_ID_TABLE, id_table)
+      .putStringSet(NOTIFICATION_ID_TABLE, idTable)
       .apply();
 
     if(!getIsDirectBootContext(this)) {
@@ -164,8 +164,8 @@ public class ManuallySnoozeActivity extends AppCompatActivity implements View.On
 
     // customレイアウトとして表示するfooterの設定
     footer = View.inflate(this, R.layout.manually_snooze_custom_layout, null);
-    custom_hour = snooze_default_hour;
-    custom_minute = snooze_default_minute;
+    customHour = snoozeDefaultHour;
+    customMinute = snoozeDefaultMinute;
     time = footer.findViewById(R.id.time);
     TextView description = footer.findViewById(R.id.description);
     // ダークモードでないときも背景が濃い色で白色が最も見やすかったため、
@@ -176,7 +176,7 @@ public class ManuallySnoozeActivity extends AppCompatActivity implements View.On
       @Override
       public void onClick(View view) {
 
-        ManuallySnoozePickerDiaglogFragment dialog = new ManuallySnoozePickerDiaglogFragment();
+        ManuallySnoozePickerDialogFragment dialog = new ManuallySnoozePickerDialogFragment();
         dialog.show(getSupportFragmentManager(), "manually_snooze_picker");
       }
     });
@@ -199,14 +199,14 @@ public class ManuallySnoozeActivity extends AppCompatActivity implements View.On
 
     // タイトルの設定
     summary = "";
-    if(custom_hour != 0) {
-      summary += getResources().getQuantityString(R.plurals.hour, custom_hour, custom_hour);
+    if(customHour != 0) {
+      summary += getResources().getQuantityString(R.plurals.hour, customHour, customHour);
       if(!LOCALE.equals(Locale.JAPAN)) {
         summary += " ";
       }
     }
-    if(custom_minute != 0) {
-      summary += getResources().getQuantityString(R.plurals.minute, custom_minute, custom_minute);
+    if(customMinute != 0) {
+      summary += getResources().getQuantityString(R.plurals.minute, customMinute, customMinute);
       if(!LOCALE.equals(Locale.JAPAN)) {
         summary += " ";
       }
@@ -257,16 +257,16 @@ public class ManuallySnoozeActivity extends AppCompatActivity implements View.On
       .apply();
   }
 
-  public void setAlarm(Item item) {
+  public void setAlarm(ItemAdapter item) {
 
     if(
       item.getDate().getTimeInMillis() > System.currentTimeMillis() &&
-        item.getWhich_list_belongs() == 0
+        item.getWhichListBelongs() == 0
     ) {
-      item.getNotify_interval().setTime(item.getNotify_interval().getOrg_time());
+      item.getNotifyInterval().setTime(item.getNotifyInterval().getOrgTime());
       Intent intent = new Intent(this, AlarmReceiver.class);
-      byte[] ob_array = serialize(item);
-      intent.putExtra(ITEM, ob_array);
+      byte[] obArray = serialize(item.getItem());
+      intent.putExtra(ITEM, obArray);
       PendingIntent sender = PendingIntent.getBroadcast(
         this, (int)item.getId(), intent, PendingIntent.FLAG_UPDATE_CURRENT);
 
@@ -283,9 +283,9 @@ public class ManuallySnoozeActivity extends AppCompatActivity implements View.On
     }
   }
 
-  public void deleteAlarm(Item item) {
+  public void deleteAlarm(ItemAdapter item) {
 
-    if(isAlarmSetted(item)) {
+    if(isAlarmSet(item)) {
       Intent intent = new Intent(this, AlarmReceiver.class);
       PendingIntent sender = PendingIntent.getBroadcast(
         this, (int)item.getId(), intent, PendingIntent.FLAG_UPDATE_CURRENT);
@@ -298,7 +298,7 @@ public class ManuallySnoozeActivity extends AppCompatActivity implements View.On
     }
   }
 
-  public boolean isAlarmSetted(Item item) {
+  public boolean isAlarmSet(ItemAdapter item) {
 
     Intent intent = new Intent(this, AlarmReceiver.class);
     PendingIntent sender = PendingIntent.getBroadcast(
@@ -308,9 +308,9 @@ public class ManuallySnoozeActivity extends AppCompatActivity implements View.On
   }
 
 
-  public void updateDB(Item item, String table) {
+  public void updateDB(ItemAdapter item, String table) {
 
-    accessor.executeUpdate(item.getId(), serialize(item), table);
+    accessor.executeUpdate(item.getId(), serialize(item.getItem()), table);
   }
 
   @Override
@@ -333,26 +333,26 @@ public class ManuallySnoozeActivity extends AppCompatActivity implements View.On
       case R.id.done: {
 
         // チェックされた項目に応じた時間スヌーズする
-        int checked_position = ManuallySnoozeListAdapter.checked_position;
+        int checkedPosition = ManuallySnoozeListAdapter.checkedPosition;
 
-        long default_snooze = snooze_default_hour * HOUR + snooze_default_minute * MINUTE;
-        long custom_snooze = custom_hour * HOUR + custom_minute * MINUTE;
-        long[] how_long = {
-          default_snooze,
+        long defaultSnooze = snoozeDefaultHour * HOUR + snoozeDefaultMinute * MINUTE;
+        long customSnooze = customHour * HOUR + customMinute * MINUTE;
+        long[] howLong = {
+          defaultSnooze,
           15 * MINUTE,
           30 * MINUTE,
           HOUR,
           3 * HOUR,
           10 * HOUR,
           24 * HOUR,
-          custom_snooze
+          customSnooze
         };
 
-        if(item.getTime_altered() == 0) {
-          item.setOrg_date((Calendar)item.getDate().clone());
+        if(item.getAlteredTime() == 0) {
+          item.setOrgDate((Calendar)item.getDate().clone());
         }
-        item.getDate().setTimeInMillis(currentTimeMinutes() + how_long[checked_position]);
-        item.addTime_altered(how_long[checked_position]);
+        item.getDate().setTimeInMillis(currentTimeMinutes() + howLong[checkedPosition]);
+        item.addAlteredTime(howLong[checkedPosition]);
 
         // 更新
         deleteAlarm(item);

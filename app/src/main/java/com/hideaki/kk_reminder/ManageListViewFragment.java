@@ -90,7 +90,7 @@ public class ManageListViewFragment extends Fragment {
 
         if(keyCode == KeyEvent.KEYCODE_BACK && event.getAction() == KeyEvent.ACTION_UP) {
 
-          if(ManageListAdapter.is_sorting) {
+          if(ManageListAdapter.isSorting) {
             new AlertDialog.Builder(activity)
               .setTitle(R.string.is_sorting_title)
               .setMessage(R.string.is_sorting_message)
@@ -123,8 +123,7 @@ public class ManageListViewFragment extends Fragment {
     linearLayout.setPadding(0, 0, 0, paddingPx);
     ((ViewGroup)activity.listView.getParent()).addView(linearLayout, 0, layoutParams);
     activity.listView.setEmptyView(linearLayout);
-    activity.listView.setDragListener(activity.manageListAdapter.dragListener);
-    activity.listView.setSortable(true);
+    activity.listView.setDragListener(activity.manageListAdapter.myDragListener);
     activity.listView.post(new Runnable() {
       @Override
       public void run() {
@@ -142,13 +141,13 @@ public class ManageListViewFragment extends Fragment {
 
           case SCROLL_STATE_IDLE: {
 
-            ManageListAdapter.is_scrolling = false;
+            ManageListAdapter.isScrolling = false;
             break;
           }
           case SCROLL_STATE_FLING:
           case SCROLL_STATE_TOUCH_SCROLL: {
 
-            ManageListAdapter.is_scrolling = true;
+            ManageListAdapter.isScrolling = true;
             break;
           }
         }
@@ -166,7 +165,7 @@ public class ManageListViewFragment extends Fragment {
     });
 
     AdView adView = view.findViewById(R.id.adView);
-    if(activity.is_premium) {
+    if(activity.isPremium) {
       adView.setVisibility(View.GONE);
     }
     else {

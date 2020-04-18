@@ -46,14 +46,14 @@ public class NotifyIntervalTimePickerDialogFragment extends DialogFragment {
     time = view.findViewById(R.id.time);
     setCursorDrawableColor(activity, time);
     time.getBackground().mutate().setColorFilter(new PorterDuffColorFilter(
-      activity.accent_color,
+      activity.accentColor,
       PorterDuff.Mode.SRC_IN
     ));
-    time.setText(String.valueOf(MainEditFragment.notifyInterval.getOrg_time()));
+    time.setText(String.valueOf(MainEditFragment.notifyInterval.getOrgTime()));
     time.setSelection(time.getText().length());
 
     ImageView plus = view.findViewById(R.id.plus);
-    plus.setColorFilter(activity.accent_color);
+    plus.setColorFilter(activity.accentColor);
     GradientDrawable drawable = (GradientDrawable)plus.getBackground();
     drawable = (GradientDrawable)drawable.mutate();
     if(activity.isDarkMode) {
@@ -62,7 +62,7 @@ public class NotifyIntervalTimePickerDialogFragment extends DialogFragment {
     else {
       drawable.setColor(Color.WHITE);
     }
-    drawable.setStroke(3, activity.accent_color);
+    drawable.setStroke(3, activity.accentColor);
     drawable.setCornerRadius(8.0f);
 
     plus.setOnClickListener(new View.OnClickListener() {
@@ -70,7 +70,7 @@ public class NotifyIntervalTimePickerDialogFragment extends DialogFragment {
       public void onClick(View v) {
 
         if("".equals(time.getText().toString())) {
-          time.setText(String.valueOf(MainEditFragment.notifyInterval.getOrg_time()));
+          time.setText(String.valueOf(MainEditFragment.notifyInterval.getOrgTime()));
         }
         if(Integer.parseInt(time.getText().toString()) < 999) {
           time.setText(String.valueOf(Integer.parseInt(time.getText().toString()) + 1));
@@ -80,7 +80,7 @@ public class NotifyIntervalTimePickerDialogFragment extends DialogFragment {
     });
 
     ImageView minus = view.findViewById(R.id.minus);
-    minus.setColorFilter(activity.accent_color);
+    minus.setColorFilter(activity.accentColor);
     drawable = (GradientDrawable)minus.getBackground();
     drawable = (GradientDrawable)drawable.mutate();
     if(activity.isDarkMode) {
@@ -89,7 +89,7 @@ public class NotifyIntervalTimePickerDialogFragment extends DialogFragment {
     else {
       drawable.setColor(Color.WHITE);
     }
-    drawable.setStroke(3, activity.accent_color);
+    drawable.setStroke(3, activity.accentColor);
     drawable.setCornerRadius(8.0f);
 
     minus.setOnClickListener(new View.OnClickListener() {
@@ -97,7 +97,7 @@ public class NotifyIntervalTimePickerDialogFragment extends DialogFragment {
       public void onClick(View v) {
 
         if("".equals(time.getText().toString())) {
-          time.setText(String.valueOf(MainEditFragment.notifyInterval.getOrg_time()));
+          time.setText(String.valueOf(MainEditFragment.notifyInterval.getOrgTime()));
         }
         if(Integer.parseInt(time.getText().toString()) > -1) {
           time.setText(String.valueOf(Integer.parseInt(time.getText().toString()) - 1));
@@ -112,15 +112,15 @@ public class NotifyIntervalTimePickerDialogFragment extends DialogFragment {
         public void onClick(DialogInterface dialog, int which) {
 
           if("".equals(time.getText().toString())) {
-            time.setText(String.valueOf(MainEditFragment.notifyInterval.getOrg_time()));
+            time.setText(String.valueOf(MainEditFragment.notifyInterval.getOrgTime()));
           }
-          int set_time = Integer.parseInt(time.getText().toString());
-          if(set_time > -2) {
-            NotifyInterval interval = MainEditFragment.notifyInterval;
+          int setTime = Integer.parseInt(time.getText().toString());
+          if(setTime > -2) {
+            NotifyIntervalAdapter interval = MainEditFragment.notifyInterval;
 
-            interval.setOrg_time(set_time);
+            interval.setOrgTime(setTime);
 
-            if(interval.getOrg_time() != 0) {
+            if(interval.getOrgTime() != 0) {
               Resources res = activity.getResources();
               String summary;
               if(LOCALE.equals(Locale.JAPAN)) {
@@ -140,12 +140,12 @@ public class NotifyIntervalTimePickerDialogFragment extends DialogFragment {
                   );
                 }
                 summary += activity.getString(R.string.per);
-                if(interval.getOrg_time() == -1) {
+                if(interval.getOrgTime() == -1) {
                   summary += activity.getString(R.string.infinite_times_notify);
                 }
                 else {
-                  summary += res.getQuantityString(R.plurals.times_notify, interval.getOrg_time(),
-                    interval.getOrg_time()
+                  summary += res.getQuantityString(R.plurals.times_notify, interval.getOrgTime(),
+                    interval.getOrgTime()
                   );
                 }
               }
@@ -171,9 +171,9 @@ public class NotifyIntervalTimePickerDialogFragment extends DialogFragment {
                     summary += " ";
                   }
                 }
-                if(interval.getOrg_time() != -1) {
-                  summary += res.getQuantityString(R.plurals.times_notify, interval.getOrg_time(),
-                    interval.getOrg_time()
+                if(interval.getOrgTime() != -1) {
+                  summary += res.getQuantityString(R.plurals.times_notify, interval.getOrgTime(),
+                    interval.getOrgTime()
                   ) + " ";
                 }
                 summary += activity.getString(R.string.unless_complete_task);
@@ -190,11 +190,11 @@ public class NotifyIntervalTimePickerDialogFragment extends DialogFragment {
             }
 
             // 項目のタイトル部に現在の設定値を表示
-            int org_time = interval.getOrg_time();
+            int orgTime = interval.getOrgTime();
             notifyIntervalEditFragment.time.setTitle(getResources().getQuantityString(
               R.plurals.times,
-              org_time,
-              org_time
+              orgTime,
+              orgTime
             ));
           }
         }
@@ -212,8 +212,8 @@ public class NotifyIntervalTimePickerDialogFragment extends DialogFragment {
       @Override
       public void onShow(DialogInterface dialogInterface) {
 
-        dialog.getButton(AlertDialog.BUTTON_POSITIVE).setTextColor(activity.accent_color);
-        dialog.getButton(AlertDialog.BUTTON_NEUTRAL).setTextColor(activity.accent_color);
+        dialog.getButton(AlertDialog.BUTTON_POSITIVE).setTextColor(activity.accentColor);
+        dialog.getButton(AlertDialog.BUTTON_NEUTRAL).setTextColor(activity.accentColor);
       }
     });
 

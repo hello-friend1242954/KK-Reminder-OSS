@@ -36,14 +36,14 @@ import static java.util.Objects.requireNonNull;
 
 public class DoneListAdapter extends BaseAdapter implements Filterable {
 
-  static List<Item> itemList;
+  static List<ItemAdapter> itemList;
   private MainActivity activity;
   ActionMode actionMode = null;
-  static int checked_item_num;
-  private static boolean manually_checked;
-  private List<Item> filteredItem;
+  static int checkedItemNum;
+  private static boolean isManuallyChecked;
+  private List<ItemAdapter> filteredItem;
   static int order;
-  static boolean is_scrolling;
+  static boolean isScrolling;
 
   DoneListAdapter(MainActivity activity) {
 
@@ -52,9 +52,9 @@ public class DoneListAdapter extends BaseAdapter implements Filterable {
 
   private static class ViewHolder {
 
-    CardView item_card;
-    ImageView order_icon;
-    ImageView clock_image;
+    CardView itemCard;
+    ImageView orderIcon;
+    ImageView clockImage;
     TextView time;
     TextView detail;
     TextView repeat;
@@ -67,13 +67,13 @@ public class DoneListAdapter extends BaseAdapter implements Filterable {
     View.OnLongClickListener, ActionMode.Callback {
 
     private int position;
-    private Item item;
+    private ItemAdapter item;
     private ViewHolder viewHolder;
-    private int which_list;
-    private List<Item> itemListToMove;
+    private int whichList;
+    private List<ItemAdapter> itemListToMove;
     Calendar tmp;
 
-    MyOnClickListener(int position, Item item, ViewHolder viewHolder) {
+    MyOnClickListener(int position, ItemAdapter item, ViewHolder viewHolder) {
 
       this.position = position;
       this.item = item;
@@ -132,21 +132,21 @@ public class DoneListAdapter extends BaseAdapter implements Filterable {
                 @Override
                 public void onClick(DialogInterface dialog, int which) {
 
-                  which_list = SingleChoiceItemsAdapter.checked_position;
+                  whichList = SingleChoiceItemsAdapter.checkedPosition;
 
                   itemList.remove(position);
                   notifyDataSetChanged();
                   activity.deleteDB(item, MyDatabaseHelper.DONE_TABLE);
 
-                  if(which_list == 0) {
+                  if(whichList == 0) {
                     if(order == 0) {
                       item.setDate((Calendar)tmp.clone());
-                      item.setAlarm_stopped(false);
+                      item.setAlarmStopped(false);
                       activity.setAlarm(item);
                     }
                     activity.insertDB(item, MyDatabaseHelper.TODO_TABLE);
                   }
-                  else if(which_list == 1) {
+                  else if(whichList == 1) {
                     activity.insertDB(item, MyDatabaseHelper.TODO_TABLE);
                     activity.showMainEditFragment(item);
                   }
@@ -164,8 +164,8 @@ public class DoneListAdapter extends BaseAdapter implements Filterable {
               @Override
               public void onShow(DialogInterface dialogInterface) {
 
-                dialog.getButton(AlertDialog.BUTTON_POSITIVE).setTextColor(activity.accent_color);
-                dialog.getButton(AlertDialog.BUTTON_NEUTRAL).setTextColor(activity.accent_color);
+                dialog.getButton(AlertDialog.BUTTON_POSITIVE).setTextColor(activity.accentColor);
+                dialog.getButton(AlertDialog.BUTTON_NEUTRAL).setTextColor(activity.accentColor);
               }
             });
 
@@ -185,18 +185,18 @@ public class DoneListAdapter extends BaseAdapter implements Filterable {
     @Override
     public void onChange(AnimCheckBox view, boolean checked) {
 
-      if(checked && actionMode != null && manually_checked) {
+      if(checked && actionMode != null && isManuallyChecked) {
         item.setSelected(true);
         notifyDataSetChanged();
-        checked_item_num++;
-        actionMode.setTitle(Integer.toString(checked_item_num));
+        checkedItemNum++;
+        actionMode.setTitle(Integer.toString(checkedItemNum));
       }
-      else if(actionMode != null && manually_checked) {
+      else if(actionMode != null && isManuallyChecked) {
         item.setSelected(false);
         notifyDataSetChanged();
-        checked_item_num--;
-        actionMode.setTitle(Integer.toString(checked_item_num));
-        if(checked_item_num == 0) {
+        checkedItemNum--;
+        actionMode.setTitle(Integer.toString(checkedItemNum));
+        if(checkedItemNum == 0) {
           actionMode.finish();
         }
       }
@@ -253,7 +253,7 @@ public class DoneListAdapter extends BaseAdapter implements Filterable {
         case R.id.delete: {
 
           itemListToMove = new ArrayList<>();
-          for(Item item : itemList) {
+          for(ItemAdapter item : itemList) {
             if(item.isSelected()) {
               itemListToMove.add(0, item);
             }
@@ -269,7 +269,7 @@ public class DoneListAdapter extends BaseAdapter implements Filterable {
               @Override
               public void onClick(DialogInterface dialog, int which) {
 
-                for(Item item : itemListToMove) {
+                for(ItemAdapter item : itemListToMove) {
                   activity.deleteDB(item, MyDatabaseHelper.DONE_TABLE);
                 }
                 itemList = activity.getDoneItem();
@@ -290,8 +290,8 @@ public class DoneListAdapter extends BaseAdapter implements Filterable {
             @Override
             public void onShow(DialogInterface dialogInterface) {
 
-              dialog.getButton(AlertDialog.BUTTON_POSITIVE).setTextColor(activity.accent_color);
-              dialog.getButton(AlertDialog.BUTTON_NEUTRAL).setTextColor(activity.accent_color);
+              dialog.getButton(AlertDialog.BUTTON_POSITIVE).setTextColor(activity.accentColor);
+              dialog.getButton(AlertDialog.BUTTON_NEUTRAL).setTextColor(activity.accentColor);
             }
           });
 
@@ -302,7 +302,7 @@ public class DoneListAdapter extends BaseAdapter implements Filterable {
         case R.id.move_task_between_list: {
 
           itemListToMove = new ArrayList<>();
-          for(Item item : itemList) {
+          for(ItemAdapter item : itemList) {
             if(item.isSelected()) {
               itemListToMove.add(0, item);
             }
@@ -320,7 +320,7 @@ public class DoneListAdapter extends BaseAdapter implements Filterable {
               public void onClick(DialogInterface dialog, int which) {
 
                 if(order == 0) {
-                  for(Item item : itemListToMove) {
+                  for(ItemAdapter item : itemListToMove) {
 
                     item.setSelected(false);
 
@@ -329,7 +329,7 @@ public class DoneListAdapter extends BaseAdapter implements Filterable {
                   }
                 }
                 else if(order == 1) {
-                  for(Item item : itemListToMove) {
+                  for(ItemAdapter item : itemListToMove) {
 
                     item.setSelected(false);
 
@@ -340,7 +340,7 @@ public class DoneListAdapter extends BaseAdapter implements Filterable {
 
                   int size = MyListAdapter.itemList.size();
                   for(int i = 0; i < size; i++) {
-                    Item item = MyListAdapter.itemList.get(i);
+                    ItemAdapter item = MyListAdapter.itemList.get(i);
                     item.setOrder(i);
                     activity.updateDB(item, MyDatabaseHelper.TODO_TABLE);
                   }
@@ -364,8 +364,8 @@ public class DoneListAdapter extends BaseAdapter implements Filterable {
             @Override
             public void onShow(DialogInterface dialogInterface) {
 
-              dialog.getButton(AlertDialog.BUTTON_POSITIVE).setTextColor(activity.accent_color);
-              dialog.getButton(AlertDialog.BUTTON_NEUTRAL).setTextColor(activity.accent_color);
+              dialog.getButton(AlertDialog.BUTTON_POSITIVE).setTextColor(activity.accentColor);
+              dialog.getButton(AlertDialog.BUTTON_NEUTRAL).setTextColor(activity.accentColor);
             }
           });
 
@@ -376,7 +376,7 @@ public class DoneListAdapter extends BaseAdapter implements Filterable {
         case R.id.share: {
 
           itemListToMove = new ArrayList<>();
-          for(Item item : itemList) {
+          for(ItemAdapter item : itemList) {
             if(item.isSelected()) {
               itemListToMove.add(0, item);
             }
@@ -392,10 +392,10 @@ public class DoneListAdapter extends BaseAdapter implements Filterable {
               @Override
               public void onClick(DialogInterface dialog, int which) {
 
-                for(Item item : itemListToMove) {
-                  String send_content = "";
+                for(ItemAdapter item : itemListToMove) {
+                  String sendContent = "";
                   if(order == 0) {
-                    send_content = activity.getString(R.string.due_date) + ": "
+                    sendContent = activity.getString(R.string.due_date) + ": "
                       + DateFormat.format("yyyy/M/d k:mm", item.getDate())
                       + LINE_SEPARATOR
                       + activity.getString(R.string.detail) + ": " + item.getDetail()
@@ -403,7 +403,7 @@ public class DoneListAdapter extends BaseAdapter implements Filterable {
                       + activity.getString(R.string.memo) + ": " + item.getNotesString();
                   }
                   else if(order == 1) {
-                    send_content = activity.getString(R.string.detail) + ": " + item.getDetail()
+                    sendContent = activity.getString(R.string.detail) + ": " + item.getDetail()
                       + LINE_SEPARATOR
                       + activity.getString(R.string.memo) + ": " + item.getNotesString();
                   }
@@ -411,7 +411,7 @@ public class DoneListAdapter extends BaseAdapter implements Filterable {
                   Intent intent = new Intent()
                     .setAction(Intent.ACTION_SEND)
                     .setType("text/plain")
-                    .putExtra(Intent.EXTRA_TEXT, send_content);
+                    .putExtra(Intent.EXTRA_TEXT, sendContent);
                   activity.startActivity(intent);
                 }
 
@@ -430,8 +430,8 @@ public class DoneListAdapter extends BaseAdapter implements Filterable {
             @Override
             public void onShow(DialogInterface dialogInterface) {
 
-              dialog.getButton(AlertDialog.BUTTON_POSITIVE).setTextColor(activity.accent_color);
-              dialog.getButton(AlertDialog.BUTTON_NEUTRAL).setTextColor(activity.accent_color);
+              dialog.getButton(AlertDialog.BUTTON_POSITIVE).setTextColor(activity.accentColor);
+              dialog.getButton(AlertDialog.BUTTON_NEUTRAL).setTextColor(activity.accentColor);
             }
           });
 
@@ -452,16 +452,16 @@ public class DoneListAdapter extends BaseAdapter implements Filterable {
       Window window = activity.getWindow();
       window.clearFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS);
       window.addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS);
-      window.setStatusBarColor(activity.status_bar_color);
+      window.setStatusBarColor(activity.statusBarColor);
 
       DoneListAdapter.this.actionMode = null;
-      for(Item item : itemList) {
+      for(ItemAdapter item : itemList) {
         if(item.isSelected()) {
           item.setSelected(false);
         }
       }
 
-      checked_item_num = 0;
+      checkedItemNum = 0;
       notifyDataSetChanged();
     }
   }
@@ -474,10 +474,10 @@ public class DoneListAdapter extends BaseAdapter implements Filterable {
       protected FilterResults performFiltering(CharSequence constraint) {
 
         // 入力文字列が大文字を含むかどうか調べる
-        boolean is_upper = false;
+        boolean isUpper = false;
         for(int i = 0; i < constraint.length(); i++) {
           if(Character.isUpperCase(constraint.charAt(i))) {
-            is_upper = true;
+            isUpper = true;
             break;
           }
         }
@@ -491,11 +491,11 @@ public class DoneListAdapter extends BaseAdapter implements Filterable {
         }
 
         filteredItem = new ArrayList<>();
-        for(Item item : itemList) {
+        for(ItemAdapter item : itemList) {
           if(item.getDetail() != null) {
             String detail = item.getDetail();
 
-            if(!is_upper) {
+            if(!isUpper) {
               detail = detail.toLowerCase();
             }
 
@@ -519,7 +519,10 @@ public class DoneListAdapter extends BaseAdapter implements Filterable {
       @SuppressWarnings("unchecked")
       protected void publishResults(CharSequence constraint, FilterResults results) {
 
-        itemList = (List<Item>)results.values;
+        itemList = (List<ItemAdapter>)results.values;
+        if(itemList == null) {
+          itemList = new ArrayList<>();
+        }
 
         // リストの表示更新
         notifyDataSetChanged();
@@ -561,14 +564,14 @@ public class DoneListAdapter extends BaseAdapter implements Filterable {
       viewHolder = new ViewHolder();
       requireNonNull(convertView);
       if(order == 0) {
-        viewHolder.clock_image = convertView.findViewById(R.id.clock_image);
+        viewHolder.clockImage = convertView.findViewById(R.id.clock_image);
         viewHolder.time = convertView.findViewById(R.id.date);
         viewHolder.repeat = convertView.findViewById(R.id.repeat);
-        viewHolder.item_card = convertView.findViewById(R.id.child_card);
+        viewHolder.itemCard = convertView.findViewById(R.id.child_card);
       }
       else if(order == 1) {
-        viewHolder.item_card = convertView.findViewById(R.id.item_card);
-        viewHolder.order_icon = convertView.findViewById(R.id.order_icon);
+        viewHolder.itemCard = convertView.findViewById(R.id.item_card);
+        viewHolder.orderIcon = convertView.findViewById(R.id.order_icon);
       }
       viewHolder.detail = convertView.findViewById(R.id.detail);
       viewHolder.checkBox = convertView.findViewById(R.id.checkBox);
@@ -581,43 +584,43 @@ public class DoneListAdapter extends BaseAdapter implements Filterable {
     }
 
     // 現在のビュー位置でのitemの取得とリスナーの初期化
-    Item item = (Item)getItem(position);
+    ItemAdapter item = (ItemAdapter)getItem(position);
     MyOnClickListener listener = new MyOnClickListener(position, item, viewHolder);
 
     // 各リスナーの設定
-    viewHolder.item_card.setOnClickListener(listener);
+    viewHolder.itemCard.setOnClickListener(listener);
     viewHolder.checkBox.setOnCheckedChangeListener(listener);
 
-    viewHolder.item_card.setOnLongClickListener(listener);
+    viewHolder.itemCard.setOnLongClickListener(listener);
     viewHolder.checkBox.setOnLongClickListener(listener);
 
     // 各種表示処理
     if(activity.isDarkMode) {
-      viewHolder.item_card.setBackgroundColor(activity.backgroundFloatingMaterialDarkColor);
+      viewHolder.itemCard.setBackgroundColor(activity.backgroundFloatingMaterialDarkColor);
     }
     viewHolder.detail.setText(item.getDetail());
-    viewHolder.detail.setTextSize(activity.text_size);
+    viewHolder.detail.setTextSize(activity.textSize);
     viewHolder.detail.setTextColor(Color.GRAY);
-    if(item.getWhich_tag_belongs() == 0) {
+    if(item.getWhichTagBelongs() == 0) {
       viewHolder.tagPallet.setVisibility(View.GONE);
     }
     else {
       viewHolder.tagPallet.setVisibility(View.VISIBLE);
       viewHolder.tagPallet.setColorFilter(
-        activity.generalSettings.getTagById(item.getWhich_tag_belongs()).getPrimary_color()
+        activity.generalSettings.getTagById(item.getWhichTagBelongs()).getPrimaryColor()
       );
     }
 
     // チェックが入っている場合、チェックを外す
     if(viewHolder.checkBox.isChecked() && !item.isSelected()) {
-      manually_checked = false;
+      isManuallyChecked = false;
       viewHolder.checkBox.setChecked(false);
     }
     else if(!viewHolder.checkBox.isChecked() && item.isSelected()) {
-      manually_checked = false;
+      isManuallyChecked = false;
       viewHolder.checkBox.setChecked(true);
     }
-    manually_checked = true;
+    isManuallyChecked = true;
 
     // 選択モードでない場合、チェックボックスを無効にする
     if(actionMode == null) {
@@ -629,38 +632,38 @@ public class DoneListAdapter extends BaseAdapter implements Filterable {
 
     // 個別レイアウト
     if(order == 0) {
-      viewHolder.clock_image.setColorFilter(Color.GRAY);
+      viewHolder.clockImage.setColorFilter(Color.GRAY);
 
       Calendar now = Calendar.getInstance();
-      String set_time;
+      String setTime;
       if(now.get(Calendar.YEAR) == item.getDate().get(Calendar.YEAR)) {
         if(LOCALE.equals(Locale.JAPAN)) {
-          set_time = (String)DateFormat.format("M月d日(E) k:mm", item.getDate());
+          setTime = (String)DateFormat.format("M月d日(E) k:mm", item.getDate());
         }
         else {
-          set_time = (String)DateFormat.format("M/d (E) k:mm", item.getDate());
+          setTime = (String)DateFormat.format("M/d (E) k:mm", item.getDate());
         }
       }
       else {
         if(LOCALE.equals(Locale.JAPAN)) {
-          set_time = (String)DateFormat.format("yyyy年M月d日(E) k:mm", item.getDate());
+          setTime = (String)DateFormat.format("yyyy年M月d日(E) k:mm", item.getDate());
         }
         else {
-          set_time = (String)DateFormat.format("yyyy/M/d (E) k:mm", item.getDate());
+          setTime = (String)DateFormat.format("yyyy/M/d (E) k:mm", item.getDate());
         }
       }
-      viewHolder.time.setText(set_time);
+      viewHolder.time.setText(setTime);
       viewHolder.time.setTextColor(Color.GRAY);
 
       viewHolder.repeat.setText(R.string.non_repeat);
       viewHolder.repeat.setTextColor(Color.GRAY);
     }
     else if(order == 1) {
-      viewHolder.order_icon.setVisibility(View.GONE);
+      viewHolder.orderIcon.setVisibility(View.GONE);
     }
 
     // CardViewが横から流れてくるアニメーション
-    if(is_scrolling && activity.play_slide_animation) {
+    if(isScrolling && activity.isPlaySlideAnimation) {
       Animation animation = AnimationUtils.loadAnimation(activity, R.anim.listview_motion);
       convertView.startAnimation(animation);
     }

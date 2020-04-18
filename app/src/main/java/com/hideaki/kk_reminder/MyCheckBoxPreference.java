@@ -11,11 +11,12 @@ import android.widget.TextView;
 public class MyCheckBoxPreference extends CheckBoxPreference {
 
   private AnimCheckBox animCheckBox;
-  private boolean manually_checked;
+  private boolean isManuallyChecked;
   private MyCheckBoxPreferenceCheckedChangeListener listener = null;
-  private boolean from_on_click;
-  private boolean is_checked;
+  private boolean isFromOnClick;
+  private boolean isChecked;
 
+  @SuppressWarnings("unused")
   MyCheckBoxPreference(Context context) {
 
     super(context);
@@ -42,7 +43,7 @@ public class MyCheckBoxPreference extends CheckBoxPreference {
       throw new RuntimeException(
         getKey() + " must call setOnMyCheckBoxPreferenceCheckedChangeListener");
     }
-    is_checked = super.isChecked();
+    isChecked = super.isChecked();
   }
 
   @Override
@@ -53,13 +54,13 @@ public class MyCheckBoxPreference extends CheckBoxPreference {
     TextView title = (TextView)holder.findViewById(R.id.item_name);
     animCheckBox = (AnimCheckBox)holder.findViewById(R.id.checkBox);
     animCheckBox.setOnCheckedChangeListener(null);
-    animCheckBox.setChecked(is_checked, false);
+    animCheckBox.setChecked(isChecked, false);
     animCheckBox.setOnCheckedChangeListener(new AnimCheckBox.OnCheckedChangeListener() {
       @Override
       public void onChange(AnimCheckBox view, boolean checked) {
 
-        is_checked = checked;
-        if(manually_checked) {
+        isChecked = checked;
+        if(isManuallyChecked) {
           listener.onCheckedChange(getKey(), checked);
         }
       }
@@ -70,24 +71,24 @@ public class MyCheckBoxPreference extends CheckBoxPreference {
   @Override
   protected void onClick() {
 
-    from_on_click = true;
+    isFromOnClick = true;
     super.onClick();
   }
 
   @Override
   public boolean isChecked() {
 
-    return is_checked;
+    return isChecked;
   }
 
   @Override
   public void setChecked(boolean checked) {
 
-    if(!from_on_click) {
-      manually_checked = false;
+    if(!isFromOnClick) {
+      isManuallyChecked = false;
     }
     else {
-      from_on_click = false;
+      isFromOnClick = false;
     }
 
     super.setChecked(checked);
@@ -95,7 +96,7 @@ public class MyCheckBoxPreference extends CheckBoxPreference {
       animCheckBox.setChecked(checked);
     }
 
-    manually_checked = true;
+    isManuallyChecked = true;
   }
 
   void setOnMyCheckBoxPreferenceCheckedChangeListener(MyCheckBoxPreferenceCheckedChangeListener listener) {

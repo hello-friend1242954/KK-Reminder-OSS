@@ -45,14 +45,14 @@ public class MinuteRepeatCountPickerDialogFragment extends DialogFragment {
     count = view.findViewById(R.id.count);
     setCursorDrawableColor(activity, count);
     count.getBackground().mutate().setColorFilter(new PorterDuffColorFilter(
-      activity.accent_color,
+      activity.accentColor,
       PorterDuff.Mode.SRC_IN
     ));
-    count.setText(String.valueOf(MainEditFragment.minuteRepeat.getOrg_count()));
+    count.setText(String.valueOf(MainEditFragment.minuteRepeat.getOrgCount()));
     count.setSelection(count.getText().length());
 
     ImageView plus = view.findViewById(R.id.plus);
-    plus.setColorFilter(activity.accent_color);
+    plus.setColorFilter(activity.accentColor);
     GradientDrawable drawable = (GradientDrawable)plus.getBackground();
     drawable = (GradientDrawable)drawable.mutate();
     if(activity.isDarkMode) {
@@ -61,7 +61,7 @@ public class MinuteRepeatCountPickerDialogFragment extends DialogFragment {
     else {
       drawable.setColor(Color.WHITE);
     }
-    drawable.setStroke(3, activity.accent_color);
+    drawable.setStroke(3, activity.accentColor);
     drawable.setCornerRadius(8.0f);
 
     plus.setOnClickListener(new View.OnClickListener() {
@@ -69,7 +69,7 @@ public class MinuteRepeatCountPickerDialogFragment extends DialogFragment {
       public void onClick(View v) {
 
         if("".equals(count.getText().toString())) {
-          count.setText(String.valueOf(MainEditFragment.minuteRepeat.getOrg_count()));
+          count.setText(String.valueOf(MainEditFragment.minuteRepeat.getOrgCount()));
         }
         if(Integer.parseInt(count.getText().toString()) < 999) {
           count.setText(String.valueOf(Integer.parseInt(count.getText().toString()) + 1));
@@ -79,7 +79,7 @@ public class MinuteRepeatCountPickerDialogFragment extends DialogFragment {
     });
 
     ImageView minus = view.findViewById(R.id.minus);
-    minus.setColorFilter(activity.accent_color);
+    minus.setColorFilter(activity.accentColor);
     drawable = (GradientDrawable)minus.getBackground();
     drawable = (GradientDrawable)drawable.mutate();
     if(activity.isDarkMode) {
@@ -88,7 +88,7 @@ public class MinuteRepeatCountPickerDialogFragment extends DialogFragment {
     else {
       drawable.setColor(Color.WHITE);
     }
-    drawable.setStroke(3, activity.accent_color);
+    drawable.setStroke(3, activity.accentColor);
     drawable.setCornerRadius(8.0f);
 
     minus.setOnClickListener(new View.OnClickListener() {
@@ -96,7 +96,7 @@ public class MinuteRepeatCountPickerDialogFragment extends DialogFragment {
       public void onClick(View v) {
 
         if("".equals(count.getText().toString())) {
-          count.setText(String.valueOf(MainEditFragment.minuteRepeat.getOrg_count()));
+          count.setText(String.valueOf(MainEditFragment.minuteRepeat.getOrgCount()));
         }
         if(Integer.parseInt(count.getText().toString()) > 1) {
           count.setText(String.valueOf(Integer.parseInt(count.getText().toString()) - 1));
@@ -111,11 +111,11 @@ public class MinuteRepeatCountPickerDialogFragment extends DialogFragment {
         public void onClick(DialogInterface dialog, int which) {
 
           if("".equals(count.getText().toString())) {
-            count.setText(String.valueOf(MainEditFragment.minuteRepeat.getOrg_count()));
+            count.setText(String.valueOf(MainEditFragment.minuteRepeat.getOrgCount()));
           }
-          int set_count = Integer.parseInt(count.getText().toString());
-          if(set_count > 0) {
-            MainEditFragment.minuteRepeat.setOrg_count(set_count);
+          int setCount = Integer.parseInt(count.getText().toString());
+          if(setCount > 0) {
+            MainEditFragment.minuteRepeat.setOrgCount(setCount);
 
             String interval = "";
             int hour = MainEditFragment.minuteRepeat.getHour();
@@ -133,18 +133,18 @@ public class MinuteRepeatCountPickerDialogFragment extends DialogFragment {
                 interval += " ";
               }
             }
-            int count = MainEditFragment.minuteRepeat.getOrg_count();
+            int count = MainEditFragment.minuteRepeat.getOrgCount();
             String label =
               activity.getResources().getQuantityString(R.plurals.repeat_minute_count_format,
                 count, interval, count
               );
-            MinuteRepeatEditFragment.label_str = label;
+            MinuteRepeatEditFragment.labelStr = label;
             minuteRepeatEditFragment.label.setSummary(label);
 
             MainEditFragment.minuteRepeat.setLabel(label);
 
             // 項目のタイトル部に現在の設定値を表示
-            minuteRepeatEditFragment.count_picker.setTitle(getResources().getQuantityString(
+            minuteRepeatEditFragment.countPicker.setTitle(getResources().getQuantityString(
               R.plurals.times,
               count,
               count
@@ -165,8 +165,8 @@ public class MinuteRepeatCountPickerDialogFragment extends DialogFragment {
       @Override
       public void onShow(DialogInterface dialogInterface) {
 
-        dialog.getButton(AlertDialog.BUTTON_POSITIVE).setTextColor(activity.accent_color);
-        dialog.getButton(AlertDialog.BUTTON_NEUTRAL).setTextColor(activity.accent_color);
+        dialog.getButton(AlertDialog.BUTTON_POSITIVE).setTextColor(activity.accentColor);
+        dialog.getButton(AlertDialog.BUTTON_NEUTRAL).setTextColor(activity.accentColor);
       }
     });
 

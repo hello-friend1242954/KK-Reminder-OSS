@@ -26,7 +26,7 @@ public class ColorPickerListViewFragment extends Fragment {
   static final String TAG = ColorPickerListViewFragment.class.getSimpleName();
   private MainActivity activity;
   private static int order;
-  static int tag_position;
+  static int tagPosition;
 
   public static ColorPickerListViewFragment newInstance() {
 
@@ -41,20 +41,20 @@ public class ColorPickerListViewFragment extends Fragment {
     if(activity.generalSettings != null) {
       order = activity.order;
       ColorPickerListAdapter.order = order;
-      if(!ColorPickerListAdapter.is_general_settings) {
-        activity.colorPickerListAdapter.adapterTag = TagEditListAdapter.tagList.get(tag_position);
+      if(!ColorPickerListAdapter.isGeneralSettings) {
+        activity.colorPickerListAdapter.adapterTag = TagEditListAdapter.tagList.get(tagPosition);
         activity.colorPickerListAdapter.orgTag =
-          activity.generalSettings.getTagList().get(tag_position);
-        if(order == 0 || order == 1 || order == 4 || ColorPickerListAdapter.from_list_tag_edit) {
-          ColorPickerListAdapter.checked_position =
-            activity.colorPickerListAdapter.adapterTag.getColor_order_group();
+          activity.generalSettings.getTagList().get(tagPosition);
+        if(order == 0 || order == 1 || order == 4 || ColorPickerListAdapter.isFromListTagEdit) {
+          ColorPickerListAdapter.checkedPosition =
+            activity.colorPickerListAdapter.adapterTag.getColorOrderGroup();
         }
         else if(order == 3) {
-          ColorPickerListAdapter.checked_position = MainEditFragment.list.getColorGroup();
+          ColorPickerListAdapter.checkedPosition = MainEditFragment.list.getColorGroup();
         }
       }
       else {
-        ColorPickerListAdapter.checked_position =
+        ColorPickerListAdapter.checkedPosition =
           activity.generalSettings.getTheme().getColorGroup();
       }
 
@@ -99,12 +99,12 @@ public class ColorPickerListViewFragment extends Fragment {
 
         if(keyCode == KeyEvent.KEYCODE_BACK && event.getAction() == KeyEvent.ACTION_UP) {
           if(order == 3) {
-            MainEditFragment.list.setColor_primary(true);
+            MainEditFragment.list.setIsColorPrimary(true);
           }
-          if(ColorPickerListAdapter.is_general_settings) {
-            ColorPickerListAdapter.is_general_settings = false;
-            if(!activity.generalSettings.getTheme().isColor_primary()) {
-              activity.generalSettings.getTheme().setColor_primary(true);
+          if(ColorPickerListAdapter.isGeneralSettings) {
+            ColorPickerListAdapter.isGeneralSettings = false;
+            if(!activity.generalSettings.getTheme().isColorPrimary()) {
+              activity.generalSettings.getTheme().setIsColorPrimary(true);
               activity.updateSettingsDB();
             }
             activity.recreate();
@@ -115,7 +115,7 @@ public class ColorPickerListViewFragment extends Fragment {
       }
     });
 
-    ColorPickerListAdapter.is_first = true;
+    ColorPickerListAdapter.isFirst = true;
     activity.listView = view.findViewById(R.id.listView);
     activity.listView.setAdapter(activity.colorPickerListAdapter);
     activity.listView.setOnScrollListener(new AbsListView.OnScrollListener() {
@@ -126,13 +126,13 @@ public class ColorPickerListViewFragment extends Fragment {
 
           case SCROLL_STATE_IDLE: {
 
-            ColorPickerListAdapter.is_scrolling = false;
+            ColorPickerListAdapter.isScrolling = false;
             break;
           }
           case SCROLL_STATE_FLING:
           case SCROLL_STATE_TOUCH_SCROLL: {
 
-            ColorPickerListAdapter.is_scrolling = true;
+            ColorPickerListAdapter.isScrolling = true;
             break;
           }
         }
@@ -168,28 +168,23 @@ public class ColorPickerListViewFragment extends Fragment {
   @Override
   public boolean onOptionsItemSelected(MenuItem item) {
 
-    switch(item.getItemId()) {
-
-      case android.R.id.home: {
-        if(order == 3) {
-          MainEditFragment.list.setColor_primary(true);
-        }
-        if(ColorPickerListAdapter.is_general_settings) {
-          ColorPickerListAdapter.is_general_settings = false;
-          if(!activity.generalSettings.getTheme().isColor_primary()) {
-            activity.generalSettings.getTheme().setColor_primary(true);
-            activity.updateSettingsDB();
-          }
-          activity.recreate();
-        }
-        FragmentManager manager = getFragmentManager();
-        requireNonNull(manager);
-        manager.popBackStack();
-        return true;
+    if(item.getItemId() == android.R.id.home) {
+      if(order == 3) {
+        MainEditFragment.list.setIsColorPrimary(true);
       }
-      default: {
-        return super.onOptionsItemSelected(item);
+      if(ColorPickerListAdapter.isGeneralSettings) {
+        ColorPickerListAdapter.isGeneralSettings = false;
+        if(!activity.generalSettings.getTheme().isColorPrimary()) {
+          activity.generalSettings.getTheme().setIsColorPrimary(true);
+          activity.updateSettingsDB();
+        }
+        activity.recreate();
       }
+      FragmentManager manager = getFragmentManager();
+      requireNonNull(manager);
+      manager.popBackStack();
+      return true;
     }
+    return super.onOptionsItemSelected(item);
   }
 }

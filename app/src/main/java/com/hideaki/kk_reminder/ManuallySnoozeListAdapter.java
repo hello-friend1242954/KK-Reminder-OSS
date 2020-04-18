@@ -18,10 +18,10 @@ public class ManuallySnoozeListAdapter extends BaseAdapter {
 
   private final List<String> snoozeList;
   private ManuallySnoozeActivity activity;
-  private static boolean manually_checked;
-  static int checked_position;
+  private static boolean isManuallyChecked;
+  static int checkedPosition;
   private String defaultSnoozeTime;
-  private static boolean is_first;
+  private static boolean isFirst;
 
   ManuallySnoozeListAdapter(ManuallySnoozeActivity activity) {
 
@@ -30,19 +30,19 @@ public class ManuallySnoozeListAdapter extends BaseAdapter {
     snoozeList =
       new ArrayList<>(Arrays.asList(activity.getResources().getStringArray(R.array.snooze_list)));
     defaultSnoozeTime = "";
-    int default_hour = activity.snooze_default_hour;
-    if(default_hour != 0) {
+    int defaultHour = activity.snoozeDefaultHour;
+    if(defaultHour != 0) {
       defaultSnoozeTime +=
-        activity.getResources().getQuantityString(R.plurals.hour, default_hour, default_hour);
+        activity.getResources().getQuantityString(R.plurals.hour, defaultHour, defaultHour);
       if(!LOCALE.equals(Locale.JAPAN)) {
         defaultSnoozeTime += " ";
       }
     }
-    int default_minute = activity.snooze_default_minute;
-    if(default_minute != 0) {
+    int defaultMinute = activity.snoozeDefaultMinute;
+    if(defaultMinute != 0) {
       defaultSnoozeTime += activity
         .getResources()
-        .getQuantityString(R.plurals.minute, default_minute, default_minute);
+        .getQuantityString(R.plurals.minute, defaultMinute, defaultMinute);
       if(!LOCALE.equals(Locale.JAPAN)) {
         defaultSnoozeTime += " ";
       }
@@ -60,9 +60,9 @@ public class ManuallySnoozeListAdapter extends BaseAdapter {
       );
     }
 
-    manually_checked = false;
-    checked_position = 0;
-    is_first = true;
+    isManuallyChecked = false;
+    checkedPosition = 0;
+    isFirst = true;
   }
 
   private static class ViewHolder {
@@ -98,9 +98,9 @@ public class ManuallySnoozeListAdapter extends BaseAdapter {
     @Override
     public void onChange(AnimCheckBox view, boolean checked) {
 
-      if(checked && manually_checked) {
-        is_first = false;
-        checked_position = position;
+      if(checked && isManuallyChecked) {
+        isFirst = false;
+        checkedPosition = position;
         if(position == snoozeList.size() - 1 && activity.listView.getFooterViewsCount() == 0) {
           activity.listView.addFooterView(activity.footer);
         }
@@ -120,21 +120,21 @@ public class ManuallySnoozeListAdapter extends BaseAdapter {
           if(title == null || title.equals("")) {
 
             title = "";
-            if(activity.custom_hour != 0) {
+            if(activity.customHour != 0) {
               title += activity
                 .getResources()
-                .getQuantityString(R.plurals.hour, activity.custom_hour, activity.custom_hour);
+                .getQuantityString(R.plurals.hour, activity.customHour, activity.customHour);
               if(!LOCALE.equals(Locale.JAPAN)) {
                 title += " ";
               }
             }
-            if(activity.custom_minute != 0) {
+            if(activity.customMinute != 0) {
               title += activity
                 .getResources()
                 .getQuantityString(
                   R.plurals.minute,
-                  activity.custom_minute,
-                  activity.custom_minute
+                  activity.customMinute,
+                  activity.customMinute
                 );
               if(!LOCALE.equals(Locale.JAPAN)) {
                 title += " ";
@@ -155,8 +155,8 @@ public class ManuallySnoozeListAdapter extends BaseAdapter {
 
         notifyDataSetChanged();
       }
-      else if(position == checked_position && manually_checked) {
-        is_first = false;
+      else if(position == checkedPosition && isManuallyChecked) {
+        isFirst = false;
         notifyDataSetChanged();
       }
     }
@@ -214,9 +214,9 @@ public class ManuallySnoozeListAdapter extends BaseAdapter {
     viewHolder.howLong.setText(snoozeItem);
 
     // チェック状態の初期化
-    if(position != checked_position) {
-      manually_checked = false;
-      if(is_first) {
+    if(position != checkedPosition) {
+      isManuallyChecked = false;
+      if(isFirst) {
         viewHolder.checkBox.setChecked(false, false);
       }
       else {
@@ -224,15 +224,15 @@ public class ManuallySnoozeListAdapter extends BaseAdapter {
       }
     }
     else {
-      manually_checked = false;
-      if(is_first) {
+      isManuallyChecked = false;
+      if(isFirst) {
         viewHolder.checkBox.setChecked(true, false);
       }
       else {
         viewHolder.checkBox.setChecked(true);
       }
     }
-    manually_checked = true;
+    isManuallyChecked = true;
 
     return convertView;
   }

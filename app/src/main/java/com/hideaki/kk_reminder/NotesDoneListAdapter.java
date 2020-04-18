@@ -16,7 +16,7 @@ import static com.hideaki.kk_reminder.UtilClass.NOTES_COMPARATOR;
 
 public class NotesDoneListAdapter extends BaseAdapter {
 
-  static List<Notes> notesList;
+  static List<NotesAdapter> notesList;
   private MainActivity activity;
   private NotesChecklistModeFragment fragment;
   static boolean isFirst;
@@ -39,10 +39,10 @@ public class NotesDoneListAdapter extends BaseAdapter {
     implements View.OnClickListener, AnimCheckBox.OnCheckedChangeListener {
 
     private int position;
-    private Notes notes;
+    private NotesAdapter notes;
     private ViewHolder viewHolder;
 
-    MyOnClickListener(int position, Notes notes, ViewHolder viewHolder) {
+    MyOnClickListener(int position, NotesAdapter notes, ViewHolder viewHolder) {
 
       this.position = position;
       this.notes = notes;
@@ -73,30 +73,30 @@ public class NotesDoneListAdapter extends BaseAdapter {
 
     private void onChangeProcessor() {
 
-      notes.setChecked(false);
+      notes.setIsChecked(false);
       NotesTodoListAdapter.notesList.add(notes);
       Collections.sort(NotesTodoListAdapter.notesList, NOTES_COMPARATOR);
       notesList.remove(position);
 
       // todoListにおけるheaderの管理
-      int todo_list_size = NotesTodoListAdapter.notesList.size();
-      if(todo_list_size != 0 && fragment.sortableListView.getHeaderViewsCount() == 0) {
+      int todoListSize = NotesTodoListAdapter.notesList.size();
+      if(todoListSize != 0 && fragment.sortableListView.getHeaderViewsCount() == 0) {
         fragment.sortableListView.addHeaderView(fragment.todoHeader);
         fragment.sortItem.setVisible(true);
       }
-      else if(todo_list_size == 0 && fragment.sortableListView.getHeaderViewsCount() != 0) {
+      else if(todoListSize == 0 && fragment.sortableListView.getHeaderViewsCount() != 0) {
         fragment.sortableListView.removeHeaderView(fragment.todoHeader);
         fragment.sortItem.setVisible(false);
       }
 
       // doneListにおけるheaderの管理
-      int done_list_size = notesList.size();
-      if(done_list_size != 0 && fragment.listView.getHeaderViewsCount() == 0) {
+      int doneListSize = notesList.size();
+      if(doneListSize != 0 && fragment.listView.getHeaderViewsCount() == 0) {
         fragment.listView.addHeaderView(fragment.doneHeader);
         fragment.deleteItem.setVisible(true);
         fragment.unselectItem.setVisible(true);
       }
-      else if(done_list_size == 0 && fragment.listView.getHeaderViewsCount() != 0) {
+      else if(doneListSize == 0 && fragment.listView.getHeaderViewsCount() != 0) {
         fragment.listView.removeHeaderView(fragment.doneHeader);
         fragment.deleteItem.setVisible(false);
         fragment.unselectItem.setVisible(false);
@@ -153,7 +153,7 @@ public class NotesDoneListAdapter extends BaseAdapter {
     }
 
     // 現在のビュー位置でのtagの取得とリスナーの初期化
-    Notes notes = (Notes)getItem(position);
+    NotesAdapter notes = (NotesAdapter)getItem(position);
     MyOnClickListener listener = new MyOnClickListener(position, notes, viewHolder);
 
     // リスナーの設定

@@ -109,7 +109,7 @@ public class ListViewFragment extends Fragment {
 
         if(keyCode == KeyEvent.KEYCODE_BACK && event.getAction() == KeyEvent.ACTION_UP) {
 
-          if(MyListAdapter.is_sorting) {
+          if(MyListAdapter.isSorting) {
             new AlertDialog.Builder(activity)
               .setTitle(R.string.is_sorting_title)
               .setMessage(R.string.is_sorting_message)
@@ -127,9 +127,9 @@ public class ListViewFragment extends Fragment {
       }
     });
 
-    MyListAdapter.checked_item_num = 0;
-    MyListAdapter.has_panel = 0;
-    MyListAdapter.is_sorting = false;
+    MyListAdapter.checkedItemNum = 0;
+    MyListAdapter.hasPanel = 0;
+    MyListAdapter.isSorting = false;
     MyListAdapter.itemList = activity.getNonScheduledItem(MyDatabaseHelper.TODO_TABLE);
     activity.listView = view.findViewById(R.id.listView);
     oldListView = activity.listView;
@@ -150,21 +150,20 @@ public class ListViewFragment extends Fragment {
     linearLayout.setPadding(0, 0, 0, paddingPx);
     ((ViewGroup)activity.listView.getParent()).addView(linearLayout, 0, layoutParams);
     activity.listView.setEmptyView(linearLayout);
-    activity.listView.setDragListener(activity.listAdapter.dragListener);
-    activity.listView.setSortable(true);
+    activity.listView.setDragListener(activity.listAdapter.myDragListener);
     activity.listView.post(new Runnable() {
       @Override
       public void run() {
 
-        Integer list_position = listPosition.get(id);
-        Integer list_offset = listOffset.get(id);
-        if(list_position == null) {
-          list_position = 0;
+        Integer listPosition = ListViewFragment.listPosition.get(id);
+        Integer listOffset = ListViewFragment.listOffset.get(id);
+        if(listPosition == null) {
+          listPosition = 0;
         }
-        if(list_offset == null) {
-          list_offset = 0;
+        if(listOffset == null) {
+          listOffset = 0;
         }
-        activity.listView.setSelectionFromTop(list_position, list_offset);
+        activity.listView.setSelectionFromTop(listPosition, listOffset);
       }
     });
     activity.listView.setAdapter(activity.listAdapter);
@@ -177,13 +176,13 @@ public class ListViewFragment extends Fragment {
 
           case SCROLL_STATE_IDLE: {
 
-            MyListAdapter.is_scrolling = false;
+            MyListAdapter.isScrolling = false;
             break;
           }
           case SCROLL_STATE_FLING:
           case SCROLL_STATE_TOUCH_SCROLL: {
 
-            MyListAdapter.is_scrolling = true;
+            MyListAdapter.isScrolling = true;
             break;
           }
         }
@@ -201,7 +200,7 @@ public class ListViewFragment extends Fragment {
     });
 
     AdView adView = view.findViewById(R.id.adView);
-    if(activity.is_premium) {
+    if(activity.isPremium) {
       adView.setVisibility(View.GONE);
     }
     else {

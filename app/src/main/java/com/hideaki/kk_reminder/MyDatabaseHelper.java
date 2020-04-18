@@ -39,6 +39,7 @@ public class MyDatabaseHelper extends SQLiteOpenHelper {
     }
   }
 
+  @SuppressWarnings("MethodParameterNamingConvention")
   private MyDatabaseHelper(Context context, String DATABASE_NAME) {
 
     super(context, DATABASE_NAME, null, 1);

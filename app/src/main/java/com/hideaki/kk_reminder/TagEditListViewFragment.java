@@ -21,6 +21,7 @@ import android.widget.LinearLayout;
 import com.google.android.gms.ads.AdView;
 
 import java.util.ArrayList;
+import java.util.List;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -60,10 +61,10 @@ public class TagEditListViewFragment extends Fragment implements View.OnClickLis
       int order = activity.order;
       TagEditListAdapter.order = order;
       if(order == 0 || order == 1 || order == 4) {
-        TagEditListAdapter.checked_item_id = MainEditFragment.item.getWhich_tag_belongs();
+        TagEditListAdapter.checkedItemId = MainEditFragment.item.getWhichTagBelongs();
       }
       else if(order == 3) {
-        TagEditListAdapter.checked_item_id = MainEditFragment.list.getWhich_tag_belongs();
+        TagEditListAdapter.checkedItemId = MainEditFragment.list.getWhichTagBelongs();
       }
     }
     else {
@@ -105,8 +106,8 @@ public class TagEditListViewFragment extends Fragment implements View.OnClickLis
       public boolean onKey(View v, int keyCode, KeyEvent event) {
 
         if(keyCode == KeyEvent.KEYCODE_BACK && event.getAction() == KeyEvent.ACTION_UP) {
-          ColorPickerListAdapter.from_list_tag_edit = false;
-          if(TagEditListAdapter.is_editing) {
+          ColorPickerListAdapter.isFromListTagEdit = false;
+          if(TagEditListAdapter.isEditing) {
             new AlertDialog.Builder(activity)
               .setTitle(R.string.is_editing_title)
               .setMessage(R.string.is_editing_message)
@@ -114,7 +115,7 @@ public class TagEditListViewFragment extends Fragment implements View.OnClickLis
 
             return true;
           }
-          else if(TagEditListAdapter.is_sorting) {
+          else if(TagEditListAdapter.isSorting) {
             new AlertDialog.Builder(activity)
               .setTitle(R.string.is_sorting_title)
               .setMessage(R.string.is_sorting_message)
@@ -128,13 +129,12 @@ public class TagEditListViewFragment extends Fragment implements View.OnClickLis
       }
     });
 
-    TagEditListAdapter.is_first = true;
+    TagEditListAdapter.isFirst = true;
     activity.listView = view.findViewById(R.id.listView);
-    activity.listView.setDragListener(activity.tagEditListAdapter.dragListener);
-    activity.listView.setSortable(true);
+    activity.listView.setDragListener(activity.tagEditListAdapter.myDragListener);
     footer = View.inflate(activity, R.layout.tag_list_footer, null);
-    if(activity.listView.getFooterViewsCount() == 0 && !TagEditListAdapter.is_editing
-      && !TagEditListAdapter.is_sorting) {
+    if(activity.listView.getFooterViewsCount() == 0 && !TagEditListAdapter.isEditing
+      && !TagEditListAdapter.isSorting) {
       activity.listView.addFooterView(footer);
     }
     ConstraintLayout addTagItem = footer.findViewById(R.id.add_tag_item);
@@ -148,7 +148,7 @@ public class TagEditListViewFragment extends Fragment implements View.OnClickLis
 
     activity.drawerToggle.setDrawerIndicatorEnabled(false);
     actionBar.setHomeAsUpIndicator(activity.upArrow);
-    if(TagEditListAdapter.is_editing) {
+    if(TagEditListAdapter.isEditing) {
       actionBar.setDisplayHomeAsUpEnabled(false);
     }
     else {
@@ -174,7 +174,7 @@ public class TagEditListViewFragment extends Fragment implements View.OnClickLis
     requireNonNull(drawable);
     drawable = drawable.mutate();
     drawable.setColorFilter(new PorterDuffColorFilter(
-      activity.menu_item_color,
+      activity.menuItemColor,
       PorterDuff.Mode.SRC_IN
     ));
     editItem.setIcon(drawable);
@@ -185,11 +185,11 @@ public class TagEditListViewFragment extends Fragment implements View.OnClickLis
     requireNonNull(drawable);
     drawable = drawable.mutate();
     drawable.setColorFilter(new PorterDuffColorFilter(
-      activity.menu_item_color,
+      activity.menuItemColor,
       PorterDuff.Mode.SRC_IN
     ));
     sortItem.setIcon(drawable);
-    if(TagEditListAdapter.is_editing) {
+    if(TagEditListAdapter.isEditing) {
       sortItem.setVisible(false);
     }
     else {
@@ -203,8 +203,8 @@ public class TagEditListViewFragment extends Fragment implements View.OnClickLis
     switch(item.getItemId()) {
       case R.id.edit: {
 
-        TagEditListAdapter.is_editing = !TagEditListAdapter.is_editing;
-        if(TagEditListAdapter.is_editing) {
+        TagEditListAdapter.isEditing = !TagEditListAdapter.isEditing;
+        if(TagEditListAdapter.isEditing) {
           activity.drawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_LOCKED_CLOSED);
           actionBar.setDisplayHomeAsUpEnabled(false);
           sortItem.setVisible(false);
@@ -223,8 +223,8 @@ public class TagEditListViewFragment extends Fragment implements View.OnClickLis
       }
       case R.id.sort: {
 
-        TagEditListAdapter.is_sorting = !TagEditListAdapter.is_sorting;
-        if(TagEditListAdapter.is_sorting) {
+        TagEditListAdapter.isSorting = !TagEditListAdapter.isSorting;
+        if(TagEditListAdapter.isSorting) {
           activity.drawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_LOCKED_CLOSED);
           actionBar.setDisplayHomeAsUpEnabled(false);
           editItem.setVisible(false);
@@ -239,16 +239,16 @@ public class TagEditListViewFragment extends Fragment implements View.OnClickLis
           }
 
           int size = TagEditListAdapter.tagList.size();
-          boolean is_updated = false;
+          boolean isUpdated = false;
           for(int i = 0; i < size; i++) {
-            Tag tag = TagEditListAdapter.tagList.get(i);
+            TagAdapter tag = TagEditListAdapter.tagList.get(i);
             if(tag.getOrder() != i) {
               tag.setOrder(i);
-              is_updated = true;
+              isUpdated = true;
             }
           }
 
-          if(is_updated) {
+          if(isUpdated) {
             activity.generalSettings.setTagList(new ArrayList<>(TagEditListAdapter.tagList));
             activity.updateSettingsDB();
           }
@@ -258,7 +258,7 @@ public class TagEditListViewFragment extends Fragment implements View.OnClickLis
       }
       case android.R.id.home: {
 
-        ColorPickerListAdapter.from_list_tag_edit = false;
+        ColorPickerListAdapter.isFromListTagEdit = false;
         FragmentManager manager = getFragmentManager();
         requireNonNull(manager);
         manager.popBackStack();
@@ -279,7 +279,7 @@ public class TagEditListViewFragment extends Fragment implements View.OnClickLis
     final EditText editText = new EditText(activity);
     setCursorDrawableColor(activity, editText);
     editText.getBackground().mutate().setColorFilter(new PorterDuffColorFilter(
-      activity.accent_color,
+      activity.accentColor,
       PorterDuff.Mode.SRC_IN
     ));
     editText.setHint(R.string.tag_hint);
@@ -302,14 +302,15 @@ public class TagEditListViewFragment extends Fragment implements View.OnClickLis
           if(name.equals("")) {
             name = getString(R.string.default_tag);
           }
-          Tag tag = new Tag();
+          TagAdapter tag = new TagAdapter();
           tag.setName(name);
-          activity.generalSettings.getTagList().add(1, tag);
-          int size = activity.generalSettings.getTagList().size();
+          activity.generalSettings.addTag(1, tag);
+          List<TagAdapter> tagAdapterList = activity.generalSettings.getTagList();
+          int size = tagAdapterList.size();
           for(int i = 0; i < size; i++) {
-            activity.generalSettings.getTagList().get(i).setOrder(i);
+            tagAdapterList.get(i).setOrder(i);
           }
-          TagEditListAdapter.tagList = new ArrayList<>(activity.generalSettings.getTagList());
+          TagEditListAdapter.tagList = new ArrayList<>(tagAdapterList);
           activity.tagEditListAdapter.notifyDataSetChanged();
           activity.updateSettingsDB();
         }
@@ -326,8 +327,8 @@ public class TagEditListViewFragment extends Fragment implements View.OnClickLis
       @Override
       public void onShow(DialogInterface dialogInterface) {
 
-        dialog.getButton(AlertDialog.BUTTON_POSITIVE).setTextColor(activity.accent_color);
-        dialog.getButton(AlertDialog.BUTTON_NEUTRAL).setTextColor(activity.accent_color);
+        dialog.getButton(AlertDialog.BUTTON_POSITIVE).setTextColor(activity.accentColor);
+        dialog.getButton(AlertDialog.BUTTON_NEUTRAL).setTextColor(activity.accentColor);
       }
     });
 

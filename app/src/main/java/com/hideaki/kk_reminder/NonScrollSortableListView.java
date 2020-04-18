@@ -47,9 +47,9 @@ public class NonScrollSortableListView extends SortableListView {
       super.onMeasure(widthMeasureSpec, heightMeasureSpec);
     }
     else {
-      int heightMeasureSpec_custom = MeasureSpec.makeMeasureSpec(
+      int heightMeasureSpecCustom = MeasureSpec.makeMeasureSpec(
         Integer.MAX_VALUE >> 2, MeasureSpec.AT_MOST);
-      super.onMeasure(widthMeasureSpec, heightMeasureSpec_custom);
+      super.onMeasure(widthMeasureSpec, heightMeasureSpecCustom);
       ViewGroup.LayoutParams params = getLayoutParams();
       params.height = getMeasuredHeight();
     }

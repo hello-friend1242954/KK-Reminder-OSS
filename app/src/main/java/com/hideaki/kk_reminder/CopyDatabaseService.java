@@ -11,11 +11,13 @@ import static com.hideaki.kk_reminder.UtilClass.copyDatabaseKernel;
 
 public class CopyDatabaseService extends IntentService {
 
+  @SuppressWarnings("unused")
   public CopyDatabaseService() {
 
     super(CopyDatabaseService.class.getSimpleName());
   }
 
+  @SuppressWarnings("unused")
   public CopyDatabaseService(String name) {
 
     super(name);

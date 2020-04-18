@@ -2,6 +2,7 @@ package com.hideaki.kk_reminder;
 
 import android.content.Context;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.Gravity;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
@@ -36,7 +37,7 @@ public class ExpandableListViewFragment extends Fragment
   private ExpandableListView oldExpandableListView;
   static int position;
   static int offset;
-  static int group_height;
+  static int groupHeight;
   static long updatedItemId = 0;
   static boolean isGetTagNull = false;
   private static int nullPointerCount = 0;
@@ -77,7 +78,7 @@ public class ExpandableListViewFragment extends Fragment
         Thread.sleep(10);
       }
       catch(InterruptedException ex) {
-        ex.printStackTrace();
+        Log.e("ExpandFragment#onAttach", Log.getStackTraceString(ex));
       }
       nullPointerCount++;
       if(nullPointerCount < 3) {
@@ -147,8 +148,8 @@ public class ExpandableListViewFragment extends Fragment
       }
     });
 
-    MyExpandableListAdapter.has_panel = 0;
-    MyExpandableListAdapter.checked_item_num = 0;
+    MyExpandableListAdapter.hasPanel = 0;
+    MyExpandableListAdapter.checkedItemNum = 0;
     MyExpandableListAdapter.children = activity.getChildren(MyDatabaseHelper.TODO_TABLE);
     activity.updateExpandableParentGroups(false);
     activity.expandableListView = view.findViewById(R.id.expandable_list);
@@ -183,13 +184,13 @@ public class ExpandableListViewFragment extends Fragment
 
           case SCROLL_STATE_IDLE: {
 
-            MyExpandableListAdapter.is_scrolling = false;
+            MyExpandableListAdapter.isScrolling = false;
             break;
           }
           case SCROLL_STATE_FLING:
           case SCROLL_STATE_TOUCH_SCROLL: {
 
-            MyExpandableListAdapter.is_scrolling = true;
+            MyExpandableListAdapter.isScrolling = true;
             break;
           }
         }
@@ -207,7 +208,7 @@ public class ExpandableListViewFragment extends Fragment
     });
 
     adView = view.findViewById(R.id.adView);
-    if(activity.is_premium) {
+    if(activity.isPremium) {
       adView.setVisibility(View.GONE);
     }
     else {
@@ -235,10 +236,10 @@ public class ExpandableListViewFragment extends Fragment
           activity.setUpdatedItemPosition(updatedItemId);
           updatedItemId = 0;
         }
-        if(activity.is_boot_from_notification) {
+        if(activity.isBootFromNotification) {
           position = 0;
           offset = 0;
-          activity.is_boot_from_notification = false;
+          activity.isBootFromNotification = false;
         }
         activity.expandableListView.setSelectionFromTop(position, offset);
       }

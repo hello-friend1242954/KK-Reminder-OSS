@@ -91,7 +91,7 @@ public class DefaultTextSizeEditFragment extends BasePreferenceFragmentCompat
     medium.setChecked(false);
     large.setChecked(false);
 
-    switch(activity.which_text_size) {
+    switch(activity.whichTextSize) {
 
       case 0: {
 
@@ -129,13 +129,13 @@ public class DefaultTextSizeEditFragment extends BasePreferenceFragmentCompat
     medium.setChecked(false);
     large.setChecked(false);
 
-    int which_set = activity.which_text_size;
+    int whichSet = activity.whichTextSize;
     switch(key) {
 
       case "small": {
 
         small.setChecked(true);
-        if(which_set != 0) {
+        if(whichSet != 0) {
 
           resetDefaultTextSizeModelPreference();
           activity.setIntGeneralInSharedPreferences(DEFAULT_TEXT_SIZE, 0);
@@ -146,7 +146,7 @@ public class DefaultTextSizeEditFragment extends BasePreferenceFragmentCompat
       case "medium": {
 
         medium.setChecked(true);
-        if(which_set != 1) {
+        if(whichSet != 1) {
 
           resetDefaultTextSizeModelPreference();
           activity.setIntGeneralInSharedPreferences(DEFAULT_TEXT_SIZE, 1);
@@ -157,7 +157,7 @@ public class DefaultTextSizeEditFragment extends BasePreferenceFragmentCompat
       case "large": {
 
         large.setChecked(true);
-        if(which_set != 2) {
+        if(whichSet != 2) {
 
           resetDefaultTextSizeModelPreference();
           activity.setIntGeneralInSharedPreferences(DEFAULT_TEXT_SIZE, 2);

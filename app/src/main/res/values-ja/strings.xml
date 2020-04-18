@@ -1,19 +1,22 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 
-    <string name="version_value">3.6.3.0</string>
+    <string name="version_value">4.0.0.0</string>
     <string name="app_id">******************</string>
     <string name="ad_unit_id">******************</string>
     <string name="app_name">KK リマインダー</string>
     <string name="app_promotion">KK リマインダー  -  しつこい通知で見逃し防止</string>
     <string name="app_url">https://play.google.com/store/apps/details?id=com.hideaki.kk_reminder</string>
+    <string name="backup_progress_bar_title">データのバックアップ</string>
+    <string name="restore_progress_bar_title">データの復元</string>
+    <string name="copy_from_old_version_progress_bar_title">データベースの更新処理</string>
     <string name="update_info">更新情報</string>
     <string name="align_top">リストの先頭に飛ぶ</string>
     <string name="past">過去</string>
     <string name="today">今日</string>
     <string name="tomorrow">明日</string>
-    <string name="this_week">今週</string>
-    <string name="future">来週以降</string>
+    <string name="within_a_week">1週間以内</string>
+    <string name="in_a_week_or_later">1週間以降</string>
     <string name="minus5m">-5分</string>
     <string name="plus5m">+5分</string>
     <string name="minus1h">-1時間</string>
@@ -122,8 +125,8 @@
     <string name="play_slide_animation">カードのスライドアニメーション</string>
     <string name="play_slide_animation_summary">スクロール時にカードがスライドしながら表示されるアニメーションのオンオフを設定します</string>
     <string name="default_vibration">バイブレーションパターン</string>
-    <string name="default_vibration_summary">例: 0, 500\nパターンが正しく設定されていない、または空の場合、デフォルトのパターンが適用されます</string>
-    <string name="vibration_hint">0, 500</string>
+    <string name="default_vibration_summary">例: 0, 250, 500, 200\nパターンは非鳴動時間、鳴動時間、非鳴動時間、・・・というようにバイブレーションの鳴らない時間と鳴る時間をミリ秒(1000分の1秒)単位で交互に指定します。\nパターンが正しく設定されていない、または空の場合、デフォルトのパターンが適用されます。</string>
+    <string name="vibration_hint">0, 250, 500, 200</string>
     <string name="default_vibration_hint">デフォルトのバイブレーションパターン</string>
     <string name="custom_vibration_hint">カスタムバイブレーションパターン</string>
     <string name="theme">テーマ</string>
@@ -226,10 +229,10 @@
     <string name="num_of_notification">通知回数</string>
     <string name="description_for_notify_custom">通知回数を-1回に設定すると無限に通知し、0回に設定すると通知は一度しか行われません。また、時間と分を両方0に合わせると、24時間として設定されます。</string>
     <string name="everyday">毎日</string>
-    <string name="everyweekday">毎週平日 (月 - 金)</string>
-    <string name="everyweek">毎週</string>
-    <string name="everymonth">毎月</string>
-    <string name="everyyear">毎年</string>
+    <string name="every_weekday">毎週平日 (月 - 金)</string>
+    <string name="every_week">毎週</string>
+    <string name="every_month">毎月</string>
+    <string name="every_year">毎年</string>
     <string name="custom">カスタム</string>
     <string name="non_repeat">繰り返しなし</string>
     <string name="days_of_month">日付</string>

@@ -17,10 +17,10 @@ import static com.hideaki.kk_reminder.UtilClass.NOTES_COMPARATOR;
 
 public class NotesTodoListAdapter extends BaseAdapter {
 
-  static List<Notes> notesList;
+  static List<NotesAdapter> notesList;
   private MainActivity activity;
   private NotesChecklistModeFragment fragment;
-  DragListener dragListener;
+  MyDragListener myDragListener;
   private int draggingPosition = -1;
   static boolean isSorting;
 
@@ -28,7 +28,7 @@ public class NotesTodoListAdapter extends BaseAdapter {
 
     this.activity = activity;
     this.fragment = fragment;
-    dragListener = new DragListener();
+    myDragListener = new MyDragListener();
     isSorting = false;
   }
 
@@ -44,10 +44,10 @@ public class NotesTodoListAdapter extends BaseAdapter {
     AnimCheckBox.OnCheckedChangeListener {
 
     private int position;
-    private Notes notes;
+    private NotesAdapter notes;
     private ViewHolder viewHolder;
 
-    MyOnClickListener(int position, Notes notes, ViewHolder viewHolder) {
+    MyOnClickListener(int position, NotesAdapter notes, ViewHolder viewHolder) {
 
       this.position = position;
       this.notes = notes;
@@ -77,7 +77,7 @@ public class NotesTodoListAdapter extends BaseAdapter {
 
     private void onChangeProcessor() {
 
-      notes.setChecked(true);
+      notes.setIsChecked(true);
       NotesDoneListAdapter.notesList.add(notes);
       Collections.sort(NotesDoneListAdapter.notesList, NOTES_COMPARATOR);
       notesList.remove(position);
@@ -116,12 +116,14 @@ public class NotesTodoListAdapter extends BaseAdapter {
         activity.updateDB(NotesChecklistModeFragment.item, MyDatabaseHelper.TODO_TABLE);
       }
       else {
-        MainEditFragment.item.setNotesList(new ArrayList<>(NotesChecklistModeFragment.item.getNotesList()));
+        MainEditFragment.item.setNotesList(
+          new ArrayList<>(NotesChecklistModeFragment.item.getNotesList())
+        );
       }
     }
   }
 
-  class DragListener extends SortableListView.SimpleDragListener {
+  class MyDragListener extends SortableListView.SimpleDragListener {
 
     @Override
     public int onStartDrag(int position) {
@@ -139,7 +141,7 @@ public class NotesTodoListAdapter extends BaseAdapter {
         return positionFrom;
       }
 
-      Notes notes = notesList.get(positionFrom);
+      NotesAdapter notes = notesList.get(positionFrom);
       notesList.remove(positionFrom);
       notesList.add(positionTo, notes);
 
@@ -200,7 +202,7 @@ public class NotesTodoListAdapter extends BaseAdapter {
     }
 
     // 現在のビュー位置でのtagの取得とリスナーの初期化
-    Notes notes = (Notes)getItem(position);
+    NotesAdapter notes = (NotesAdapter)getItem(position);
     MyOnClickListener listener = new MyOnClickListener(position, notes, viewHolder);
 
     // リスナーの設定

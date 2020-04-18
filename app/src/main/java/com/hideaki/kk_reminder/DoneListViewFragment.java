@@ -37,8 +37,8 @@ public class DoneListViewFragment extends Fragment {
 
   static final String TAG = DoneListViewFragment.class.getSimpleName();
   private MainActivity activity;
-  private static int expandable_list_position;
-  private static int expandable_list_offset;
+  private static int expandableListPosition;
+  private static int expandableListOffset;
   @SuppressLint("UseSparseArrays")
   private static Map<Long, Integer> listPosition = new HashMap<>();
   @SuppressLint("UseSparseArrays")
@@ -83,10 +83,10 @@ public class DoneListViewFragment extends Fragment {
 
       case 0: {
 
-        expandable_list_position = oldListView.getFirstVisiblePosition();
+        expandableListPosition = oldListView.getFirstVisiblePosition();
         View child = oldListView.getChildAt(0);
         if(child != null) {
-          expandable_list_offset = child.getTop();
+          expandableListOffset = child.getTop();
         }
         break;
       }
@@ -139,11 +139,11 @@ public class DoneListViewFragment extends Fragment {
       }
     });
 
-    List<Item> itemList = activity.getDoneItem();
+    List<ItemAdapter> itemList = activity.getDoneItem();
     int size = itemList.size();
     if(size > 100) {
 
-      List<Item> nonDeleteItemList = new ArrayList<>();
+      List<ItemAdapter> nonDeleteItemList = new ArrayList<>();
       for(int i = 0; i < size / 2; i++) {
         nonDeleteItemList.add(itemList.get(i));
       }
@@ -152,14 +152,14 @@ public class DoneListViewFragment extends Fragment {
 
       for(int i = size / 2; i < size; i++) {
         Intent intent = new Intent(activity, DeleteDoneListService.class);
-        intent.putExtra(ITEM, serialize(itemList.get(i)));
+        intent.putExtra(ITEM, serialize(itemList.get(i).getItem()));
         activity.startService(intent);
       }
     }
     else {
       DoneListAdapter.itemList = itemList;
     }
-    DoneListAdapter.checked_item_num = 0;
+    DoneListAdapter.checkedItemNum = 0;
     DoneListAdapter.order = order;
     activity.listView = view.findViewById(R.id.listView);
     oldListView = activity.listView;
@@ -194,20 +194,20 @@ public class DoneListViewFragment extends Fragment {
 
           case 0: {
 
-            activity.listView.setSelectionFromTop(expandable_list_position, expandable_list_offset);
+            activity.listView.setSelectionFromTop(expandableListPosition, expandableListOffset);
             break;
           }
           case 1: {
 
-            Integer list_position = listPosition.get(id);
-            Integer list_offset = listOffset.get(id);
-            if(list_position == null) {
-              list_position = 0;
+            Integer listPosition = DoneListViewFragment.listPosition.get(id);
+            Integer listOffset = DoneListViewFragment.listOffset.get(id);
+            if(listPosition == null) {
+              listPosition = 0;
             }
-            if(list_offset == null) {
-              list_offset = 0;
+            if(listOffset == null) {
+              listOffset = 0;
             }
-            activity.listView.setSelectionFromTop(list_position, list_offset);
+            activity.listView.setSelectionFromTop(listPosition, listOffset);
             break;
           }
         }
@@ -223,13 +223,13 @@ public class DoneListViewFragment extends Fragment {
 
           case SCROLL_STATE_IDLE: {
 
-            DoneListAdapter.is_scrolling = false;
+            DoneListAdapter.isScrolling = false;
             break;
           }
           case SCROLL_STATE_FLING:
           case SCROLL_STATE_TOUCH_SCROLL: {
 
-            DoneListAdapter.is_scrolling = true;
+            DoneListAdapter.isScrolling = true;
             break;
           }
         }
@@ -247,7 +247,7 @@ public class DoneListViewFragment extends Fragment {
     });
 
     AdView adView = view.findViewById(R.id.adView);
-    if(activity.is_premium) {
+    if(activity.isPremium) {
       adView.setVisibility(View.GONE);
     }
     else {

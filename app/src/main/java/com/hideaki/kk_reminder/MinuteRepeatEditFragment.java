@@ -32,11 +32,11 @@ public class MinuteRepeatEditFragment extends BasePreferenceFragmentCompat
   private PreferenceScreen rootPreferenceScreen;
   PreferenceScreen label;
   PreferenceScreen interval;
-  static String label_str;
+  static String labelStr;
   private CheckBoxPreference never;
   CheckBoxPreference count;
   CheckBoxPreference duration;
-  PreferenceScreen count_picker;
+  PreferenceScreen countPicker;
   PreferenceScreen durationPicker;
   private MainActivity activity;
 
@@ -70,8 +70,8 @@ public class MinuteRepeatEditFragment extends BasePreferenceFragmentCompat
     duration = (CheckBoxPreference)findPreference("duration");
     ((MyCheckBoxPreference)duration).setOnMyCheckBoxPreferenceCheckedChangeListener(this);
     duration.setOnPreferenceClickListener(this);
-    count_picker = (PreferenceScreen)findPreference("count_picker");
-    count_picker.setOnPreferenceClickListener(this);
+    countPicker = (PreferenceScreen)findPreference("count_picker");
+    countPicker.setOnPreferenceClickListener(this);
     durationPicker = (PreferenceScreen)findPreference("duration_picker");
     durationPicker.setOnPreferenceClickListener(this);
   }
@@ -144,52 +144,52 @@ public class MinuteRepeatEditFragment extends BasePreferenceFragmentCompat
     never.setChecked(false);
     count.setChecked(false);
     duration.setChecked(false);
-    switch(MainEditFragment.minuteRepeat.getWhich_setted()) {
+    switch(MainEditFragment.minuteRepeat.getWhichSet()) {
 
       case 0: {
 
         never.setChecked(true);
-        rootPreferenceScreen.removePreference(count_picker);
+        rootPreferenceScreen.removePreference(countPicker);
         rootPreferenceScreen.removePreference(durationPicker);
         break;
       }
       case 1: {
 
         count.setChecked(true);
-        rootPreferenceScreen.addPreference(count_picker);
+        rootPreferenceScreen.addPreference(countPicker);
         rootPreferenceScreen.removePreference(durationPicker);
 
         // 項目のタイトル部に現在の設定値を表示
-        int org_count = MainEditFragment.minuteRepeat.getOrg_count();
-        count_picker.setTitle(getResources().getQuantityString(
+        int orgCount = MainEditFragment.minuteRepeat.getOrgCount();
+        countPicker.setTitle(getResources().getQuantityString(
           R.plurals.times,
-          org_count,
-          org_count
+          orgCount,
+          orgCount
         ));
         break;
       }
       case 1 << 1: {
 
         duration.setChecked(true);
-        rootPreferenceScreen.removePreference(count_picker);
+        rootPreferenceScreen.removePreference(countPicker);
         rootPreferenceScreen.addPreference(durationPicker);
 
         // durationのラベルの初期化
         String durationLabel = "";
-        int duration_hour = MainEditFragment.minuteRepeat.getOrg_duration_hour();
-        if(duration_hour != 0) {
+        int durationHour = MainEditFragment.minuteRepeat.getOrgDurationHour();
+        if(durationHour != 0) {
           durationLabel += activity
             .getResources()
-            .getQuantityString(R.plurals.hour, duration_hour, duration_hour);
+            .getQuantityString(R.plurals.hour, durationHour, durationHour);
           if(!LOCALE.equals(Locale.JAPAN)) {
             durationLabel += " ";
           }
         }
-        int duration_minute = MainEditFragment.minuteRepeat.getOrg_duration_minute();
-        if(duration_minute != 0) {
+        int durationMinute = MainEditFragment.minuteRepeat.getOrgDurationMinute();
+        if(durationMinute != 0) {
           durationLabel += activity
             .getResources()
-            .getQuantityString(R.plurals.minute, duration_minute, duration_minute);
+            .getQuantityString(R.plurals.minute, durationMinute, durationMinute);
           if(!LOCALE.equals(Locale.JAPAN)) {
             durationLabel += " ";
           }
@@ -268,11 +268,11 @@ public class MinuteRepeatEditFragment extends BasePreferenceFragmentCompat
           label.setSummary(R.string.non_repeat);
 
           MainEditFragment.minuteRepeat.setLabel(getResources().getString(R.string.none));
-          MainEditFragment.minuteRepeat.setWhich_setted(0);
+          MainEditFragment.minuteRepeat.setWhichSet(0);
 
           if(count.isChecked()) {
             count.setChecked(false);
-            rootPreferenceScreen.removePreference(count_picker);
+            rootPreferenceScreen.removePreference(countPicker);
           }
           if(duration.isChecked()) {
             duration.setChecked(false);
@@ -304,17 +304,17 @@ public class MinuteRepeatEditFragment extends BasePreferenceFragmentCompat
               interval += " ";
             }
           }
-          int count = MainEditFragment.minuteRepeat.getOrg_count();
-          label_str = res.getQuantityString(R.plurals.repeat_minute_count_format,
+          int count = MainEditFragment.minuteRepeat.getOrgCount();
+          labelStr = res.getQuantityString(R.plurals.repeat_minute_count_format,
             count, interval, count
           );
-          label.setSummary(label_str);
+          label.setSummary(labelStr);
 
           // 項目のタイトル部に現在の設定値を表示
-          count_picker.setTitle(getResources().getQuantityString(R.plurals.times, count, count));
+          countPicker.setTitle(getResources().getQuantityString(R.plurals.times, count, count));
 
-          MainEditFragment.minuteRepeat.setLabel(label_str);
-          MainEditFragment.minuteRepeat.setWhich_setted(1);
+          MainEditFragment.minuteRepeat.setLabel(labelStr);
+          MainEditFragment.minuteRepeat.setWhichSet(1);
 
           if(never.isChecked()) {
             never.setChecked(false);
@@ -323,7 +323,7 @@ public class MinuteRepeatEditFragment extends BasePreferenceFragmentCompat
             duration.setChecked(false);
             rootPreferenceScreen.removePreference(durationPicker);
           }
-          rootPreferenceScreen.addPreference(count_picker);
+          rootPreferenceScreen.addPreference(countPicker);
         }
         else {
           count.setChecked(true);
@@ -351,34 +351,34 @@ public class MinuteRepeatEditFragment extends BasePreferenceFragmentCompat
             }
           }
           String duration = "";
-          int duration_hour = MainEditFragment.minuteRepeat.getOrg_duration_hour();
-          if(duration_hour != 0) {
-            duration += res.getQuantityString(R.plurals.hour, duration_hour, duration_hour);
+          int durationHour = MainEditFragment.minuteRepeat.getOrgDurationHour();
+          if(durationHour != 0) {
+            duration += res.getQuantityString(R.plurals.hour, durationHour, durationHour);
             if(!LOCALE.equals(Locale.JAPAN)) {
               duration += " ";
             }
           }
-          int duration_minute = MainEditFragment.minuteRepeat.getOrg_duration_minute();
-          if(duration_minute != 0) {
-            duration += res.getQuantityString(R.plurals.minute, duration_minute, duration_minute);
+          int durationMinute = MainEditFragment.minuteRepeat.getOrgDurationMinute();
+          if(durationMinute != 0) {
+            duration += res.getQuantityString(R.plurals.minute, durationMinute, durationMinute);
             if(!LOCALE.equals(Locale.JAPAN)) {
               duration += " ";
             }
           }
-          label_str = getString(R.string.repeat_minute_duration_format, interval, duration);
+          labelStr = getString(R.string.repeat_minute_duration_format, interval, duration);
 
-          label.setSummary(label_str);
+          label.setSummary(labelStr);
           durationPicker.setTitle(duration);
 
-          MainEditFragment.minuteRepeat.setLabel(label_str);
-          MainEditFragment.minuteRepeat.setWhich_setted(1 << 1);
+          MainEditFragment.minuteRepeat.setLabel(labelStr);
+          MainEditFragment.minuteRepeat.setWhichSet(1 << 1);
 
           if(never.isChecked()) {
             never.setChecked(false);
           }
           if(count.isChecked()) {
             count.setChecked(false);
-            rootPreferenceScreen.removePreference(count_picker);
+            rootPreferenceScreen.removePreference(countPicker);
           }
           rootPreferenceScreen.addPreference(durationPicker);
         }

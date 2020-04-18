@@ -13,12 +13,14 @@ public class DeleteDoneListService extends IntentService {
 
   DBAccessor accessor;
 
+  @SuppressWarnings("unused")
   public DeleteDoneListService() {
 
     super(DeleteDoneListService.class.getSimpleName());
     accessor = new DBAccessor(this, false);
   }
 
+  @SuppressWarnings("unused")
   public DeleteDoneListService(String name) {
 
     super(name);
@@ -29,12 +31,12 @@ public class DeleteDoneListService extends IntentService {
   protected void onHandleIntent(@Nullable Intent intent) {
 
     requireNonNull(intent);
-    Item item = (Item)deserialize(intent.getByteArrayExtra(ITEM));
+    ItemAdapter item = new ItemAdapter(deserialize(intent.getByteArrayExtra(ITEM)));
     requireNonNull(item);
     deleteDB(item, MyDatabaseHelper.DONE_TABLE);
   }
 
-  public void deleteDB(Item item, String table) {
+  public void deleteDB(ItemAdapter item, String table) {
 
     accessor.executeDelete(item.getId(), table);
   }

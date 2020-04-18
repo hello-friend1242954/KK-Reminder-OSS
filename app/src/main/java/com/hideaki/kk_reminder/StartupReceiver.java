@@ -6,6 +6,7 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Build;
+import android.util.Log;
 
 import java.io.File;
 import java.io.IOException;
@@ -61,18 +62,18 @@ public class StartupReceiver extends BroadcastReceiver {
     List<byte[]> streamList = accessor.executeQueryAll(MyDatabaseHelper.TODO_TABLE);
     for(byte[] stream : streamList) {
 
-      Item item = (Item)deserialize(stream);
+      ItemAdapter item = new ItemAdapter(deserialize(stream));
       requireNonNull(item);
 
       if(
         item.getDate().getTimeInMillis() > System.currentTimeMillis() &&
-          item.getWhich_list_belongs() == 0
+          item.getWhichListBelongs() == 0
       ) {
-        Intent set_alarm = new Intent(context, AlarmReceiver.class);
-        byte[] ob_array = serialize(item);
-        set_alarm.putExtra(ITEM, ob_array);
+        Intent setAlarm = new Intent(context, AlarmReceiver.class);
+        byte[] obArray = serialize(item.getItem());
+        setAlarm.putExtra(ITEM, obArray);
         PendingIntent sender = PendingIntent.getBroadcast(
-          context, (int)item.getId(), set_alarm, PendingIntent.FLAG_UPDATE_CURRENT);
+          context, (int)item.getId(), setAlarm, PendingIntent.FLAG_UPDATE_CURRENT);
 
         AlarmManager alarmManager = (AlarmManager)context.getSystemService(Context.ALARM_SERVICE);
         requireNonNull(alarmManager);
@@ -96,6 +97,7 @@ public class StartupReceiver extends BroadcastReceiver {
     }
   }
 
+  @SuppressWarnings("SameParameterValue")
   @RequiresApi(api = Build.VERSION_CODES.N)
   private static File getSyncFile(Context context, String fileName) {
 
@@ -116,7 +118,7 @@ public class StartupReceiver extends BroadcastReceiver {
         file.createNewFile();
       }
       catch(IOException e) {
-        e.printStackTrace();
+        Log.e("writeOrDeleteFile", Log.getStackTraceString(e));
       }
     }
     else {

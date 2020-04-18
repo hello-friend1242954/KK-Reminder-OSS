@@ -10,16 +10,19 @@ import android.widget.TextView;
 
 public class TwoLineTitlePreference extends Preference {
 
+  @SuppressWarnings("unused")
   public TwoLineTitlePreference(Context context, AttributeSet attrs, int defStyleAttr) {
 
     super(context, attrs, defStyleAttr);
   }
 
+  @SuppressWarnings("unused")
   public TwoLineTitlePreference(Context context, AttributeSet attrs) {
 
     super(context, attrs);
   }
 
+  @SuppressWarnings("unused")
   public TwoLineTitlePreference(Context context) {
 
     super(context);

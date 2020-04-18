@@ -11,11 +11,13 @@ import static com.hideaki.kk_reminder.UtilClass.copySharedPreferencesKernel;
 
 public class CopySharedPreferencesService extends IntentService {
 
+  @SuppressWarnings("unused")
   public CopySharedPreferencesService() {
 
     super(CopySharedPreferencesService.class.getSimpleName());
   }
 
+  @SuppressWarnings("unused")
   public CopySharedPreferencesService(String name) {
 
     super(name);

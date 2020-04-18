@@ -8,6 +8,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Build;
+import android.util.Log;
 
 import java.util.Calendar;
 import java.util.Set;
@@ -22,6 +23,7 @@ import static com.hideaki.kk_reminder.UtilClass.CHANNEL_ID;
 import static com.hideaki.kk_reminder.UtilClass.CHILD_NOTIFICATION_ID;
 import static com.hideaki.kk_reminder.UtilClass.CREATED;
 import static com.hideaki.kk_reminder.UtilClass.DESTROYED;
+import static com.hideaki.kk_reminder.UtilClass.HOUR;
 import static com.hideaki.kk_reminder.UtilClass.INT_GENERAL;
 import static com.hideaki.kk_reminder.UtilClass.INT_GENERAL_COPY;
 import static com.hideaki.kk_reminder.UtilClass.ITEM;
@@ -45,7 +47,7 @@ public class DoneReceiver extends BroadcastReceiver {
   public void onReceive(Context context, Intent intent) {
 
     this.context = context;
-    Item item = (Item)deserialize(intent.getByteArrayExtra(ITEM));
+    ItemAdapter item = new ItemAdapter(deserialize(intent.getByteArrayExtra(ITEM)));
     requireNonNull(item);
 
     accessor = new DBAccessor(getDynamicContext(context), getIsDirectBootContext(context));
@@ -55,26 +57,26 @@ public class DoneReceiver extends BroadcastReceiver {
       getIsDirectBootContext(context) ? STRING_GENERAL_COPY : STRING_GENERAL,
       MODE_PRIVATE
     );
-    Set<String> id_table =
+    Set<String> idTable =
       stringPreferences.getStringSet(NOTIFICATION_ID_TABLE, new TreeSet<String>());
-    requireNonNull(id_table);
-    int parent_id = intent.getIntExtra(PARENT_NOTIFICATION_ID, 0);
-    int child_id = intent.getIntExtra(CHILD_NOTIFICATION_ID, 0);
+    requireNonNull(idTable);
+    int parentId = intent.getIntExtra(PARENT_NOTIFICATION_ID, 0);
+    int childId = intent.getIntExtra(CHILD_NOTIFICATION_ID, 0);
     String channelId = intent.getStringExtra(CHANNEL_ID);
     NotificationManager manager =
       (NotificationManager)context.getSystemService(NOTIFICATION_SERVICE);
     requireNonNull(manager);
 
-    for(int i = 1; i <= child_id; i++) {
-      manager.cancel(parent_id + i);
+    for(int i = 1; i <= childId; i++) {
+      manager.cancel(parentId + i);
     }
     if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
       manager.deleteNotificationChannel(channelId);
     }
-    id_table.remove(Integer.toBinaryString(parent_id));
+    idTable.remove(Integer.toBinaryString(parentId));
     stringPreferences
       .edit()
-      .putStringSet(NOTIFICATION_ID_TABLE, id_table)
+      .putStringSet(NOTIFICATION_ID_TABLE, idTable)
       .apply();
 
     if(!getIsDirectBootContext(context)) {
@@ -82,41 +84,41 @@ public class DoneReceiver extends BroadcastReceiver {
     }
 
     // 繰り返し処理
-    if(item.getTime_altered() == 0) {
-      item.setOrg_date((Calendar)item.getDate().clone());
+    if(item.getAlteredTime() == 0) {
+      item.setOrgDate((Calendar)item.getDate().clone());
     }
     else {
-      item.setDate((Calendar)item.getOrg_date().clone());
+      item.setDate((Calendar)item.getOrgDate().clone());
     }
 
-    if((item.getMinuteRepeat().getWhich_setted() & 1) != 0
+    if((item.getMinuteRepeat().getWhichSet() & 1) != 0
       && item.getMinuteRepeat().getCount() == 0) {
 
-      item.setDate((Calendar)item.getOrg_date2().clone());
+      item.setDate((Calendar)item.getOrgDate2().clone());
     }
-    else if((item.getMinuteRepeat().getWhich_setted() & (1 << 1)) != 0
+    else if((item.getMinuteRepeat().getWhichSet() & (1 << 1)) != 0
       && item.getMinuteRepeat().getInterval() > item.getMinuteRepeat().getDuration()) {
 
-      item.setDate((Calendar)item.getOrg_date2().clone());
+      item.setDate((Calendar)item.getOrgDate2().clone());
     }
 
-    boolean in_minute_repeat = false;
-    if((item.getMinuteRepeat().getWhich_setted() & 1) != 0) {
-      item.getMinuteRepeat().setOrg_count2(item.getMinuteRepeat().getCount());
+    boolean inMinuteRepeat = false;
+    if((item.getMinuteRepeat().getWhichSet() & 1) != 0) {
+      item.getMinuteRepeat().setOrgCount2(item.getMinuteRepeat().getCount());
     }
-    else if((item.getMinuteRepeat().getWhich_setted() & (1 << 1)) != 0) {
-      item.getMinuteRepeat().setOrg_duration2(item.getMinuteRepeat().getDuration());
+    else if((item.getMinuteRepeat().getWhichSet() & (1 << 1)) != 0) {
+      item.getMinuteRepeat().setOrgDuration2(item.getMinuteRepeat().getDuration());
     }
 
     Calendar now;
-    int day_of_week;
+    int dayOfWeek;
     int month;
 
-    if((item.getMinuteRepeat().getWhich_setted() & 1) != 0 &&
+    if((item.getMinuteRepeat().getWhichSet() & 1) != 0 &&
       item.getMinuteRepeat().getCount() != 0) {
 
       // countリピート設定時
-      in_minute_repeat = true;
+      inMinuteRepeat = true;
       now = Calendar.getInstance();
       if(now.get(Calendar.SECOND) >= 30) {
         now.add(Calendar.MINUTE, 1);
@@ -124,8 +126,8 @@ public class DoneReceiver extends BroadcastReceiver {
       now.set(Calendar.SECOND, 0);
       now.set(Calendar.MILLISECOND, 0);
 
-      if(item.getMinuteRepeat().getCount() == item.getMinuteRepeat().getOrg_count()) {
-        item.setOrg_date2((Calendar)item.getOrg_date().clone());
+      if(item.getMinuteRepeat().getCount() == item.getMinuteRepeat().getOrgCount()) {
+        item.setOrgDate2((Calendar)item.getOrgDate().clone());
       }
 
       if(item.getDate().getTimeInMillis() > now.getTimeInMillis()) {
@@ -140,17 +142,17 @@ public class DoneReceiver extends BroadcastReceiver {
       );
       tmp.add(Calendar.MINUTE, item.getMinuteRepeat().getMinute());
 
-      item.setOrg_alarm_stopped(item.isAlarm_stopped());
-      item.setOrg_time_altered(item.getTime_altered());
-      item.setTime_altered(0);
-      item.setAlarm_stopped(false);
+      item.setOrgIsAlarmStopped(item.isAlarmStopped());
+      item.setOrgAlteredTime(item.getAlteredTime());
+      item.setAlteredTime(0);
+      item.setAlarmStopped(false);
       item.getMinuteRepeat().setCount(item.getMinuteRepeat().getCount() - 1);
     }
-    else if((item.getMinuteRepeat().getWhich_setted() & (1 << 1)) != 0
+    else if((item.getMinuteRepeat().getWhichSet() & (1 << 1)) != 0
       && item.getMinuteRepeat().getInterval() <= item.getMinuteRepeat().getDuration()) {
 
       // durationリピート設定時
-      in_minute_repeat = true;
+      inMinuteRepeat = true;
       now = Calendar.getInstance();
       if(now.get(Calendar.SECOND) >= 30) {
         now.add(Calendar.MINUTE, 1);
@@ -159,7 +161,7 @@ public class DoneReceiver extends BroadcastReceiver {
       now.set(Calendar.MILLISECOND, 0);
 
       if(item.getMinuteRepeat().getDuration() == item.getMinuteRepeat().getOrgDuration()) {
-        item.setOrg_date2((Calendar)item.getOrg_date().clone());
+        item.setOrgDate2((Calendar)item.getOrgDate().clone());
       }
 
       if(item.getDate().getTimeInMillis() > now.getTimeInMillis()) {
@@ -173,15 +175,15 @@ public class DoneReceiver extends BroadcastReceiver {
         tmp.get(Calendar.HOUR_OF_DAY) + item.getMinuteRepeat().getHour()
       );
       tmp.add(Calendar.MINUTE, item.getMinuteRepeat().getMinute());
-      item.setOrg_alarm_stopped(item.isAlarm_stopped());
-      item.setOrg_time_altered(item.getTime_altered());
-      item.setTime_altered(0);
-      item.setAlarm_stopped(false);
+      item.setOrgIsAlarmStopped(item.isAlarmStopped());
+      item.setOrgAlteredTime(item.getAlteredTime());
+      item.setAlteredTime(0);
+      item.setAlarmStopped(false);
       item.getMinuteRepeat().setDuration(
         item.getMinuteRepeat().getDuration() - item.getMinuteRepeat().getInterval()
       );
     }
-    else if((item.getDayRepeat().getSetted() & 1) != 0) {
+    else if((item.getDayRepeat().getWhichSet() & 1) != 0) {
 
       // Dayリピート設定時
       now = Calendar.getInstance();
@@ -196,16 +198,30 @@ public class DoneReceiver extends BroadcastReceiver {
         tmp.add(Calendar.DAY_OF_MONTH, item.getDayRepeat().getInterval());
       }
       else {
+        Calendar itemDateTmp = (Calendar)item.getDate().clone();
+        itemDateTmp.set(Calendar.HOUR_OF_DAY, 0);
+        itemDateTmp.set(Calendar.MINUTE, 0);
+        Calendar nowDateTmp = (Calendar)now.clone();
+        nowDateTmp.set(Calendar.HOUR_OF_DAY, 0);
+        nowDateTmp.set(Calendar.MINUTE, 0);
+        long diff = nowDateTmp.getTimeInMillis() - itemDateTmp.getTimeInMillis();
+        int dayDiff = (int)(diff / (24 * HOUR));
+        int interval = item.getDayRepeat().getInterval();
+        int remainder = dayDiff % interval;
         tmp = (Calendar)now.clone();
         tmp.set(Calendar.HOUR_OF_DAY, item.getDate().get(Calendar.HOUR_OF_DAY));
         tmp.set(Calendar.MINUTE, item.getDate().get(Calendar.MINUTE));
-
-        if(tmp.compareTo(now) <= 0) {
-          tmp.add(Calendar.DAY_OF_MONTH, item.getDayRepeat().getInterval());
+        if(remainder == 0) {
+          if(tmp.compareTo(now) <= 0) {
+            tmp.add(Calendar.DAY_OF_MONTH, interval);
+          }
+        }
+        else {
+          tmp.add(Calendar.DAY_OF_MONTH, interval - remainder);
         }
       }
     }
-    else if((item.getDayRepeat().getSetted() & (1 << 1)) != 0) {
+    else if((item.getDayRepeat().getWhichSet() & (1 << 1)) != 0) {
 
       // Weekリピート設定時
       now = Calendar.getInstance();
@@ -214,36 +230,36 @@ public class DoneReceiver extends BroadcastReceiver {
       }
       now.set(Calendar.SECOND, 0);
       now.set(Calendar.MILLISECOND, 0);
-      int day_of_week_last;
+      int dayOfWeekLast;
 
       if(item.getDate().getTimeInMillis() > now.getTimeInMillis()) {
         tmp = (Calendar)item.getDate().clone();
-        day_of_week = item.getDate().get(Calendar.DAY_OF_WEEK) < 2 ?
+        dayOfWeek = item.getDate().get(Calendar.DAY_OF_WEEK) < 2 ?
           item.getDate().get(Calendar.DAY_OF_WEEK) + 5 :
           item.getDate().get(Calendar.DAY_OF_WEEK) - 2;
 
         // intervalの処理
-        day_of_week_last = Integer.toBinaryString(item.getDayRepeat().getWeek()).length() - 1;
-        if(day_of_week >= day_of_week_last) {
+        dayOfWeekLast = Integer.toBinaryString(item.getDayRepeat().getWeek()).length() - 1;
+        if(dayOfWeek >= dayOfWeekLast) {
           tmp.add(Calendar.DAY_OF_MONTH, (item.getDayRepeat().getInterval() - 1) * 7);
         }
 
         int i = 1;
-        while(i < 7 - day_of_week + 1) {
-          if((item.getDayRepeat().getWeek() & (1 << (day_of_week + i))) != 0) {
+        while(i < 7 - dayOfWeek + 1) {
+          if((item.getDayRepeat().getWeek() & (1 << (dayOfWeek + i))) != 0) {
             tmp.add(Calendar.DAY_OF_MONTH, i);
 
             break;
           }
           i++;
 
-          if(i >= 7 - day_of_week + 1) {
+          if(i >= 7 - dayOfWeek + 1) {
             i = 0;
             tmp.set(Calendar.DAY_OF_WEEK, Calendar.MONDAY);
-            if(day_of_week != 6) {
+            if(dayOfWeek != 6) {
               tmp.add(Calendar.DAY_OF_MONTH, 7);
             }
-            day_of_week = 0;
+            dayOfWeek = 0;
           }
         }
       }
@@ -253,33 +269,33 @@ public class DoneReceiver extends BroadcastReceiver {
         tmp.set(Calendar.MINUTE, item.getDate().get(Calendar.MINUTE));
         tmp.set(Calendar.SECOND, 0);
         tmp.set(Calendar.MILLISECOND, 0);
-        day_of_week = now.get(Calendar.DAY_OF_WEEK) < 2 ?
+        dayOfWeek = now.get(Calendar.DAY_OF_WEEK) < 2 ?
           now.get(Calendar.DAY_OF_WEEK) + 5 : now.get(Calendar.DAY_OF_WEEK) - 2;
 
         // intervalの処理
-        day_of_week_last = Integer.toBinaryString(item.getDayRepeat().getWeek()).length() - 1;
-        if(day_of_week > day_of_week_last) {
+        dayOfWeekLast = Integer.toBinaryString(item.getDayRepeat().getWeek()).length() - 1;
+        if(dayOfWeek > dayOfWeekLast) {
           tmp.set(Calendar.DAY_OF_WEEK, Calendar.MONDAY);
           if(tmp.after(now)) {
             tmp.add(Calendar.DAY_OF_MONTH, -7);
           }
           tmp.add(Calendar.DAY_OF_MONTH, (item.getDayRepeat().getInterval()) * 7);
-          day_of_week = 0;
+          dayOfWeek = 0;
         }
-        else if(day_of_week == day_of_week_last) {
+        else if(dayOfWeek == dayOfWeekLast) {
           if(tmp.before(now)) {
             tmp.set(Calendar.DAY_OF_WEEK, Calendar.MONDAY);
             if(tmp.after(now)) {
               tmp.add(Calendar.DAY_OF_MONTH, -7);
             }
             tmp.add(Calendar.DAY_OF_MONTH, (item.getDayRepeat().getInterval()) * 7);
-            day_of_week = 0;
+            dayOfWeek = 0;
           }
         }
 
         int i = 0;
-        while(i < 7 - day_of_week) {
-          if((item.getDayRepeat().getWeek() & (1 << (day_of_week + i))) != 0) {
+        while(i < 7 - dayOfWeek) {
+          if((item.getDayRepeat().getWeek() & (1 << (dayOfWeek + i))) != 0) {
             tmp.add(Calendar.DAY_OF_MONTH, i);
 
             if(tmp.after(now)) {
@@ -288,19 +304,19 @@ public class DoneReceiver extends BroadcastReceiver {
           }
           i++;
 
-          if(i >= 7 - day_of_week) {
+          if(i >= 7 - dayOfWeek) {
             i = 0;
             tmp.set(Calendar.DAY_OF_WEEK, Calendar.MONDAY);
             if(tmp.after(now)) {
               tmp.add(Calendar.DAY_OF_MONTH, -7);
             }
             tmp.add(Calendar.DAY_OF_MONTH, (item.getDayRepeat().getInterval()) * 7);
-            day_of_week = 0;
+            dayOfWeek = 0;
           }
         }
       }
     }
-    else if((item.getDayRepeat().getSetted() & (1 << 2)) != 0) {
+    else if((item.getDayRepeat().getWhichSet() & (1 << 2)) != 0) {
 
       // Monthリピート設定時
       now = Calendar.getInstance();
@@ -310,32 +326,32 @@ public class DoneReceiver extends BroadcastReceiver {
       now.set(Calendar.SECOND, 0);
       now.set(Calendar.MILLISECOND, 0);
 
-      if(item.getDayRepeat().isDays_of_month_setted()) {
+      if(item.getDayRepeat().isDaysOfMonthSet()) {
 
         // DaysOfMonthリピート設定時
-        int day_of_month;
-        int day_of_month_last;
+        int dayOfMonth;
+        int dayOfMonthLast;
 
         if(item.getDate().getTimeInMillis() > now.getTimeInMillis()) {
           tmp = (Calendar)item.getDate().clone();
-          day_of_month = item.getDate().get(Calendar.DAY_OF_MONTH);
+          dayOfMonth = item.getDate().get(Calendar.DAY_OF_MONTH);
 
           // intervalの処理
-          day_of_month_last =
-            Integer.toBinaryString(item.getDayRepeat().getDays_of_month()).length();
-          if(day_of_month_last > tmp.getActualMaximum(Calendar.DAY_OF_MONTH)) {
-            day_of_month_last = tmp.getActualMaximum(Calendar.DAY_OF_MONTH);
+          dayOfMonthLast =
+            Integer.toBinaryString(item.getDayRepeat().getDaysOfMonth()).length();
+          if(dayOfMonthLast > tmp.getActualMaximum(Calendar.DAY_OF_MONTH)) {
+            dayOfMonthLast = tmp.getActualMaximum(Calendar.DAY_OF_MONTH);
           }
-          if(tmp.get(Calendar.DAY_OF_MONTH) >= day_of_month_last) {
+          if(tmp.get(Calendar.DAY_OF_MONTH) >= dayOfMonthLast) {
             tmp.set(Calendar.DAY_OF_MONTH, 1);
             tmp.add(Calendar.MONTH, item.getDayRepeat().getInterval());
-            day_of_month = 1;
+            dayOfMonth = 1;
           }
 
           int i = 0;
-          while(i < 31 - day_of_month + 1) {
-            if((item.getDayRepeat().getDays_of_month() & (1 << (day_of_month - 1 + i))) != 0) {
-              if((day_of_month - 1 + i) >= tmp.getActualMaximum(Calendar.DAY_OF_MONTH)) {
+          while(i < 31 - dayOfMonth + 1) {
+            if((item.getDayRepeat().getDaysOfMonth() & (1 << (dayOfMonth - 1 + i))) != 0) {
+              if((dayOfMonth - 1 + i) >= tmp.getActualMaximum(Calendar.DAY_OF_MONTH)) {
                 tmp.set(Calendar.DAY_OF_MONTH, tmp.getActualMaximum(Calendar.DAY_OF_MONTH));
               }
               else {
@@ -348,11 +364,11 @@ public class DoneReceiver extends BroadcastReceiver {
             }
             i++;
 
-            if(i >= 31 - day_of_month + 1) {
+            if(i >= 31 - dayOfMonth + 1) {
               i = 0;
               tmp.set(Calendar.DAY_OF_MONTH, 1);
               tmp.add(Calendar.MONTH, item.getDayRepeat().getInterval());
-              day_of_month = 1;
+              dayOfMonth = 1;
             }
           }
         }
@@ -362,31 +378,31 @@ public class DoneReceiver extends BroadcastReceiver {
           tmp.set(Calendar.MINUTE, item.getDate().get(Calendar.MINUTE));
           tmp.set(Calendar.SECOND, 0);
           tmp.set(Calendar.MILLISECOND, 0);
-          day_of_month = now.get(Calendar.DAY_OF_MONTH);
+          dayOfMonth = now.get(Calendar.DAY_OF_MONTH);
 
           // intervalの処理
-          day_of_month_last =
-            Integer.toBinaryString(item.getDayRepeat().getDays_of_month()).length();
-          if(day_of_month_last > tmp.getActualMaximum(Calendar.DAY_OF_MONTH)) {
-            day_of_month_last = tmp.getActualMaximum(Calendar.DAY_OF_MONTH);
+          dayOfMonthLast =
+            Integer.toBinaryString(item.getDayRepeat().getDaysOfMonth()).length();
+          if(dayOfMonthLast > tmp.getActualMaximum(Calendar.DAY_OF_MONTH)) {
+            dayOfMonthLast = tmp.getActualMaximum(Calendar.DAY_OF_MONTH);
           }
-          if(tmp.get(Calendar.DAY_OF_MONTH) > day_of_month_last) {
+          if(tmp.get(Calendar.DAY_OF_MONTH) > dayOfMonthLast) {
             tmp.set(Calendar.DAY_OF_MONTH, 1);
             tmp.add(Calendar.MONTH, item.getDayRepeat().getInterval());
-            day_of_month = 1;
+            dayOfMonth = 1;
           }
-          else if(tmp.get(Calendar.DAY_OF_MONTH) == day_of_month_last) {
+          else if(tmp.get(Calendar.DAY_OF_MONTH) == dayOfMonthLast) {
             if(tmp.before(now)) {
               tmp.set(Calendar.DAY_OF_MONTH, 1);
               tmp.add(Calendar.MONTH, item.getDayRepeat().getInterval());
-              day_of_month = 1;
+              dayOfMonth = 1;
             }
           }
 
           int i = 0;
-          while(i < 31 - day_of_month + 1) {
-            if((item.getDayRepeat().getDays_of_month() & (1 << (day_of_month - 1 + i))) != 0) {
-              if((day_of_month - 1 + i) >= tmp.getActualMaximum(Calendar.DAY_OF_MONTH)) {
+          while(i < 31 - dayOfMonth + 1) {
+            if((item.getDayRepeat().getDaysOfMonth() & (1 << (dayOfMonth - 1 + i))) != 0) {
+              if((dayOfMonth - 1 + i) >= tmp.getActualMaximum(Calendar.DAY_OF_MONTH)) {
                 tmp.set(Calendar.DAY_OF_MONTH, tmp.getActualMaximum(Calendar.DAY_OF_MONTH));
               }
               else {
@@ -399,11 +415,11 @@ public class DoneReceiver extends BroadcastReceiver {
             }
             i++;
 
-            if(i >= 31 - day_of_month + 1) {
+            if(i >= 31 - dayOfMonth + 1) {
               i = 0;
               tmp.set(Calendar.DAY_OF_MONTH, 1);
               tmp.add(Calendar.MONTH, item.getDayRepeat().getInterval());
-              day_of_month = 1;
+              dayOfMonth = 1;
             }
           }
         }
@@ -411,7 +427,7 @@ public class DoneReceiver extends BroadcastReceiver {
       else {
 
         // OnTheMonthリピート設定時
-        boolean match_to_ordinal_num;
+        boolean matchToOrdinalNum;
         Calendar tmp2;
         Calendar tmp3;
         now = Calendar.getInstance();
@@ -420,24 +436,24 @@ public class DoneReceiver extends BroadcastReceiver {
         }
         now.set(Calendar.SECOND, 0);
         now.set(Calendar.MILLISECOND, 0);
-        if(item.getDayRepeat().getOn_the_month().ordinal() < 6) {
-          day_of_week = item.getDayRepeat().getOn_the_month().ordinal() + 2;
+        if(item.getDayRepeat().getOnTheMonth().ordinal() < 6) {
+          dayOfWeek = item.getDayRepeat().getOnTheMonth().ordinal() + 2;
         }
-        else if(item.getDayRepeat().getOn_the_month().ordinal() == 6) {
-          day_of_week = 1;
+        else if(item.getDayRepeat().getOnTheMonth().ordinal() == 6) {
+          dayOfWeek = 1;
         }
         else {
-          day_of_week = item.getDayRepeat().getOn_the_month().ordinal() + 1;
+          dayOfWeek = item.getDayRepeat().getOnTheMonth().ordinal() + 1;
         }
 
         if(item.getDate().getTimeInMillis() > now.getTimeInMillis()) {
           // clone()で渡して不具合が出る場合はsetTimeInMillis()を使う
           tmp = (Calendar)item.getDate().clone();
 
-          if(day_of_week < 8) {
+          if(dayOfWeek < 8) {
             month = tmp.get(Calendar.MONTH);
             tmp2 = (Calendar)tmp.clone();
-            tmp2.set(Calendar.DAY_OF_WEEK, day_of_week);
+            tmp2.set(Calendar.DAY_OF_WEEK, dayOfWeek);
             tmp3 = (Calendar)tmp2.clone();
             tmp2.add(Calendar.MONTH, 1);
             tmp3.add(Calendar.MONTH, -1);
@@ -448,23 +464,23 @@ public class DoneReceiver extends BroadcastReceiver {
               tmp.add(Calendar.DAY_OF_MONTH, -7);
             }
 
-            tmp.set(Calendar.DAY_OF_WEEK, day_of_week);
+            tmp.set(Calendar.DAY_OF_WEEK, dayOfWeek);
 
             while(true) {
 
               // intervalの処理
-              if(tmp.get(Calendar.DAY_OF_WEEK_IN_MONTH) > item.getDayRepeat().getOrdinal_number()) {
+              if(tmp.get(Calendar.DAY_OF_WEEK_IN_MONTH) > item.getDayRepeat().getOrdinalNumber()) {
                 tmp.set(Calendar.DAY_OF_MONTH, 1);
                 tmp.add(Calendar.MONTH, item.getDayRepeat().getInterval());
                 tmp2 = (Calendar)tmp.clone();
 
-                tmp.set(Calendar.DAY_OF_WEEK, day_of_week);
+                tmp.set(Calendar.DAY_OF_WEEK, dayOfWeek);
                 if(tmp.before(tmp2)) {
                   tmp.add(Calendar.DAY_OF_MONTH, 7);
                 }
               }
 
-              while(tmp.get(Calendar.DAY_OF_WEEK_IN_MONTH) < item.getDayRepeat().getOrdinal_number()
+              while(tmp.get(Calendar.DAY_OF_WEEK_IN_MONTH) < item.getDayRepeat().getOrdinalNumber()
                 && tmp.get(Calendar.DAY_OF_WEEK_IN_MONTH) <
                 tmp.getActualMaximum(Calendar.DAY_OF_WEEK_IN_MONTH)) {
                 tmp.add(Calendar.DAY_OF_MONTH, 7);
@@ -478,14 +494,14 @@ public class DoneReceiver extends BroadcastReceiver {
                 tmp.add(Calendar.MONTH, item.getDayRepeat().getInterval());
                 tmp2 = (Calendar)tmp.clone();
 
-                tmp.set(Calendar.DAY_OF_WEEK, day_of_week);
+                tmp.set(Calendar.DAY_OF_WEEK, dayOfWeek);
                 if(tmp.before(tmp2)) {
                   tmp.add(Calendar.DAY_OF_MONTH, 7);
                 }
               }
             }
           }
-          else if(day_of_week == 8) {
+          else if(dayOfWeek == 8) {
             month = tmp.get(Calendar.MONTH);
             tmp2 = (Calendar)tmp.clone();
             tmp2.set(Calendar.DAY_OF_WEEK, Calendar.MONDAY);
@@ -503,7 +519,7 @@ public class DoneReceiver extends BroadcastReceiver {
               tmp.set(Calendar.DAY_OF_WEEK, Calendar.MONDAY);
 
               // intervalの処理
-              if(tmp.get(Calendar.DAY_OF_WEEK_IN_MONTH) > item.getDayRepeat().getOrdinal_number()) {
+              if(tmp.get(Calendar.DAY_OF_WEEK_IN_MONTH) > item.getDayRepeat().getOrdinalNumber()) {
                 tmp.set(Calendar.DAY_OF_MONTH, 1);
                 tmp.add(Calendar.MONTH, item.getDayRepeat().getInterval());
                 tmp2 = (Calendar)tmp.clone();
@@ -516,22 +532,22 @@ public class DoneReceiver extends BroadcastReceiver {
                 month = tmp.get(Calendar.MONTH);
               }
 
-              while(tmp.get(Calendar.DAY_OF_WEEK_IN_MONTH) < item.getDayRepeat().getOrdinal_number()
+              while(tmp.get(Calendar.DAY_OF_WEEK_IN_MONTH) < item.getDayRepeat().getOrdinalNumber()
                 && tmp.get(Calendar.DAY_OF_WEEK_IN_MONTH) <
                 tmp.getActualMaximum(Calendar.DAY_OF_WEEK_IN_MONTH)) {
                 tmp.add(Calendar.DAY_OF_MONTH, 7);
               }
 
-              tmp.add(Calendar.DAY_OF_MONTH, item.getDayRepeat().getWeekday_num());
-              item.getDayRepeat().setWeekday_num(item.getDayRepeat().getWeekday_num() + 1);
+              tmp.add(Calendar.DAY_OF_MONTH, item.getDayRepeat().getWeekdayNum());
+              item.getDayRepeat().setWeekdayNum(item.getDayRepeat().getWeekdayNum() + 1);
 
               if(tmp.after(item.getDate()) && month == tmp.get(Calendar.MONTH)) {
-                item.getDayRepeat().setWeekday_num(0);
+                item.getDayRepeat().setWeekdayNum(0);
                 break;
               }
-              else if(item.getDayRepeat().getWeekday_num() > 4 ||
+              else if(item.getDayRepeat().getWeekdayNum() > 4 ||
                 month != tmp.get(Calendar.MONTH)) {
-                tmp.add(Calendar.DAY_OF_MONTH, -item.getDayRepeat().getWeekday_num() + 1);
+                tmp.add(Calendar.DAY_OF_MONTH, -item.getDayRepeat().getWeekdayNum() + 1);
                 tmp.set(Calendar.DAY_OF_MONTH, 1);
                 tmp.add(Calendar.MONTH, item.getDayRepeat().getInterval());
                 tmp2 = (Calendar)tmp.clone();
@@ -542,30 +558,30 @@ public class DoneReceiver extends BroadcastReceiver {
                 }
 
                 month = tmp.get(Calendar.MONTH);
-                item.getDayRepeat().setWeekday_num(0);
+                item.getDayRepeat().setWeekdayNum(0);
               }
             }
           }
-          else if(day_of_week == 9) {
+          else if(dayOfWeek == 9) {
             month = tmp.get(Calendar.MONTH);
             tmp2 = (Calendar)tmp.clone();
             tmp2.add(Calendar.DAY_OF_MONTH, 1);
 
-            match_to_ordinal_num = false;
-            if(item.getDayRepeat().getOrdinal_number() == 5) {
+            matchToOrdinalNum = false;
+            if(item.getDayRepeat().getOrdinalNumber() == 5) {
               if(tmp.get(Calendar.DAY_OF_WEEK_IN_MONTH) ==
                 tmp.getActualMaximum(Calendar.DAY_OF_WEEK_IN_MONTH)) {
-                match_to_ordinal_num = true;
+                matchToOrdinalNum = true;
               }
             }
             else {
               if(tmp.get(Calendar.DAY_OF_WEEK_IN_MONTH) ==
-                item.getDayRepeat().getOrdinal_number()) {
-                match_to_ordinal_num = true;
+                item.getDayRepeat().getOrdinalNumber()) {
+                matchToOrdinalNum = true;
               }
             }
 
-            if(match_to_ordinal_num && tmp.get(Calendar.DAY_OF_WEEK) == Calendar.SATURDAY
+            if(matchToOrdinalNum && tmp.get(Calendar.DAY_OF_WEEK) == Calendar.SATURDAY
               && tmp2.get(Calendar.MONTH) == month) {
               tmp.add(Calendar.DAY_OF_MONTH, 1);
             }
@@ -589,7 +605,7 @@ public class DoneReceiver extends BroadcastReceiver {
 
                 // intervalの処理
                 if(tmp.get(Calendar.DAY_OF_WEEK_IN_MONTH) >
-                  item.getDayRepeat().getOrdinal_number()) {
+                  item.getDayRepeat().getOrdinalNumber()) {
                   tmp.set(Calendar.DAY_OF_MONTH, 1);
                   tmp.add(Calendar.MONTH, item.getDayRepeat().getInterval());
                   tmp2 = (Calendar)tmp.clone();
@@ -601,7 +617,7 @@ public class DoneReceiver extends BroadcastReceiver {
                 }
 
                 while(
-                  tmp.get(Calendar.DAY_OF_WEEK_IN_MONTH) < item.getDayRepeat().getOrdinal_number()
+                  tmp.get(Calendar.DAY_OF_WEEK_IN_MONTH) < item.getDayRepeat().getOrdinalNumber()
                     && tmp.get(Calendar.DAY_OF_WEEK_IN_MONTH) <
                     tmp.getActualMaximum(Calendar.DAY_OF_WEEK_IN_MONTH)) {
                   tmp.add(Calendar.DAY_OF_MONTH, 7);
@@ -631,7 +647,7 @@ public class DoneReceiver extends BroadcastReceiver {
           tmp.set(Calendar.SECOND, 0);
           tmp.set(Calendar.MILLISECOND, 0);
 
-          if(day_of_week < 8) {
+          if(dayOfWeek < 8) {
             month = tmp.get(Calendar.MONTH);
             tmp2 = (Calendar)tmp.clone();
             tmp2.set(Calendar.DAY_OF_WEEK, Calendar.SATURDAY);
@@ -645,23 +661,23 @@ public class DoneReceiver extends BroadcastReceiver {
               tmp.add(Calendar.DAY_OF_MONTH, -7);
             }
 
-            tmp.set(Calendar.DAY_OF_WEEK, day_of_week);
+            tmp.set(Calendar.DAY_OF_WEEK, dayOfWeek);
 
             while(true) {
 
               // intervalの処理
-              if(tmp.get(Calendar.DAY_OF_WEEK_IN_MONTH) > item.getDayRepeat().getOrdinal_number()) {
+              if(tmp.get(Calendar.DAY_OF_WEEK_IN_MONTH) > item.getDayRepeat().getOrdinalNumber()) {
                 tmp.set(Calendar.DAY_OF_MONTH, 1);
                 tmp.add(Calendar.MONTH, item.getDayRepeat().getInterval());
                 tmp2 = (Calendar)tmp.clone();
 
-                tmp.set(Calendar.DAY_OF_WEEK, day_of_week);
+                tmp.set(Calendar.DAY_OF_WEEK, dayOfWeek);
                 if(tmp.before(tmp2)) {
                   tmp.add(Calendar.DAY_OF_MONTH, 7);
                 }
               }
 
-              while(tmp.get(Calendar.DAY_OF_WEEK_IN_MONTH) < item.getDayRepeat().getOrdinal_number()
+              while(tmp.get(Calendar.DAY_OF_WEEK_IN_MONTH) < item.getDayRepeat().getOrdinalNumber()
                 && tmp.get(Calendar.DAY_OF_WEEK_IN_MONTH) <
                 tmp.getActualMaximum(Calendar.DAY_OF_WEEK_IN_MONTH)) {
                 tmp.add(Calendar.DAY_OF_MONTH, 7);
@@ -675,14 +691,14 @@ public class DoneReceiver extends BroadcastReceiver {
                 tmp.add(Calendar.MONTH, item.getDayRepeat().getInterval());
                 tmp2 = (Calendar)tmp.clone();
 
-                tmp.set(Calendar.DAY_OF_WEEK, day_of_week);
+                tmp.set(Calendar.DAY_OF_WEEK, dayOfWeek);
                 if(tmp.before(tmp2)) {
                   tmp.add(Calendar.DAY_OF_MONTH, 7);
                 }
               }
             }
           }
-          else if(day_of_week == 8) {
+          else if(dayOfWeek == 8) {
             month = tmp.get(Calendar.MONTH);
             tmp2 = (Calendar)tmp.clone();
             tmp2.set(Calendar.DAY_OF_WEEK, Calendar.SATURDAY);
@@ -700,7 +716,7 @@ public class DoneReceiver extends BroadcastReceiver {
               tmp.set(Calendar.DAY_OF_WEEK, Calendar.MONDAY);
 
               // intervalの処理
-              if(tmp.get(Calendar.DAY_OF_WEEK_IN_MONTH) > item.getDayRepeat().getOrdinal_number()) {
+              if(tmp.get(Calendar.DAY_OF_WEEK_IN_MONTH) > item.getDayRepeat().getOrdinalNumber()) {
                 tmp.set(Calendar.DAY_OF_MONTH, 1);
                 tmp.add(Calendar.MONTH, item.getDayRepeat().getInterval());
                 tmp2 = (Calendar)tmp.clone();
@@ -713,22 +729,22 @@ public class DoneReceiver extends BroadcastReceiver {
                 month = tmp.get(Calendar.MONTH);
               }
 
-              while(tmp.get(Calendar.DAY_OF_WEEK_IN_MONTH) < item.getDayRepeat().getOrdinal_number()
+              while(tmp.get(Calendar.DAY_OF_WEEK_IN_MONTH) < item.getDayRepeat().getOrdinalNumber()
                 && tmp.get(Calendar.DAY_OF_WEEK_IN_MONTH) <
                 tmp.getActualMaximum(Calendar.DAY_OF_WEEK_IN_MONTH)) {
                 tmp.add(Calendar.DAY_OF_MONTH, 7);
               }
 
-              tmp.add(Calendar.DAY_OF_MONTH, item.getDayRepeat().getWeekday_num());
-              item.getDayRepeat().setWeekday_num(item.getDayRepeat().getWeekday_num() + 1);
+              tmp.add(Calendar.DAY_OF_MONTH, item.getDayRepeat().getWeekdayNum());
+              item.getDayRepeat().setWeekdayNum(item.getDayRepeat().getWeekdayNum() + 1);
 
               if(tmp.after(now) && month == tmp.get(Calendar.MONTH)) {
-                item.getDayRepeat().setWeekday_num(0);
+                item.getDayRepeat().setWeekdayNum(0);
                 break;
               }
-              else if(item.getDayRepeat().getWeekday_num() > 4 ||
+              else if(item.getDayRepeat().getWeekdayNum() > 4 ||
                 month != tmp.get(Calendar.MONTH)) {
-                tmp.add(Calendar.DAY_OF_MONTH, -item.getDayRepeat().getWeekday_num() + 1);
+                tmp.add(Calendar.DAY_OF_MONTH, -item.getDayRepeat().getWeekdayNum() + 1);
                 tmp.set(Calendar.DAY_OF_MONTH, 1);
                 tmp.add(Calendar.MONTH, item.getDayRepeat().getInterval());
                 tmp2 = (Calendar)tmp.clone();
@@ -739,44 +755,44 @@ public class DoneReceiver extends BroadcastReceiver {
                 }
 
                 month = tmp.get(Calendar.MONTH);
-                item.getDayRepeat().setWeekday_num(0);
+                item.getDayRepeat().setWeekdayNum(0);
               }
             }
           }
-          else if(day_of_week == 9) {
-            boolean sunday_match = false;
+          else if(dayOfWeek == 9) {
+            boolean sundayMatch = false;
 
             if(tmp.get(Calendar.DAY_OF_WEEK) == Calendar.SUNDAY && tmp.after(now)) {
               tmp2 = (Calendar)tmp.clone();
               tmp2.add(Calendar.DAY_OF_MONTH, -1);
 
               if(tmp2.get(Calendar.DAY_OF_WEEK_IN_MONTH) ==
-                item.getDayRepeat().getOrdinal_number()) {
-                sunday_match = true;
+                item.getDayRepeat().getOrdinalNumber()) {
+                sundayMatch = true;
               }
             }
 
-            if(!sunday_match) {
+            if(!sundayMatch) {
 
               month = tmp.get(Calendar.MONTH);
               tmp2 = (Calendar)tmp.clone();
               tmp2.add(Calendar.DAY_OF_MONTH, 1);
 
-              match_to_ordinal_num = false;
-              if(item.getDayRepeat().getOrdinal_number() == 5) {
+              matchToOrdinalNum = false;
+              if(item.getDayRepeat().getOrdinalNumber() == 5) {
                 if(tmp.get(Calendar.DAY_OF_WEEK_IN_MONTH) ==
                   tmp.getActualMaximum(Calendar.DAY_OF_WEEK_IN_MONTH)) {
-                  match_to_ordinal_num = true;
+                  matchToOrdinalNum = true;
                 }
               }
               else {
                 if(tmp.get(Calendar.DAY_OF_WEEK_IN_MONTH) ==
-                  item.getDayRepeat().getOrdinal_number()) {
-                  match_to_ordinal_num = true;
+                  item.getDayRepeat().getOrdinalNumber()) {
+                  matchToOrdinalNum = true;
                 }
               }
 
-              if(match_to_ordinal_num && tmp.get(Calendar.DAY_OF_WEEK) == Calendar.SATURDAY
+              if(matchToOrdinalNum && tmp.get(Calendar.DAY_OF_WEEK) == Calendar.SATURDAY
                 && tmp2.get(Calendar.MONTH) == month && tmp.before(now)) {
                 tmp.add(Calendar.DAY_OF_MONTH, 1);
               }
@@ -800,7 +816,7 @@ public class DoneReceiver extends BroadcastReceiver {
 
                   // intervalの処理
                   if(tmp.get(Calendar.DAY_OF_WEEK_IN_MONTH) >
-                    item.getDayRepeat().getOrdinal_number()) {
+                    item.getDayRepeat().getOrdinalNumber()) {
                     tmp.set(Calendar.DAY_OF_MONTH, 1);
                     tmp.add(Calendar.MONTH, item.getDayRepeat().getInterval());
                     tmp2 = (Calendar)tmp.clone();
@@ -812,7 +828,7 @@ public class DoneReceiver extends BroadcastReceiver {
                   }
 
                   while(tmp.get(Calendar.DAY_OF_WEEK_IN_MONTH) <
-                    item.getDayRepeat().getOrdinal_number()
+                    item.getDayRepeat().getOrdinalNumber()
                     && tmp.get(Calendar.DAY_OF_WEEK_IN_MONTH) <
                     tmp.getActualMaximum(Calendar.DAY_OF_WEEK_IN_MONTH)) {
                     tmp.add(Calendar.DAY_OF_MONTH, 7);
@@ -838,7 +854,7 @@ public class DoneReceiver extends BroadcastReceiver {
         }
       }
     }
-    else if((item.getDayRepeat().getSetted() & (1 << 3)) != 0) {
+    else if((item.getDayRepeat().getWhichSet() & (1 << 3)) != 0) {
 
       // Yearリピート設定時
       now = Calendar.getInstance();
@@ -847,15 +863,15 @@ public class DoneReceiver extends BroadcastReceiver {
       }
       now.set(Calendar.SECOND, 0);
       now.set(Calendar.MILLISECOND, 0);
-      int month_last;
+      int monthLast;
 
       if(item.getDate().getTimeInMillis() > now.getTimeInMillis()) {
         tmp = (Calendar)item.getDate().clone();
         month = item.getDate().get(Calendar.MONTH);
 
         // intervalの処理
-        month_last = Integer.toBinaryString(item.getDayRepeat().getYear()).length() - 1;
-        if(month >= month_last) {
+        monthLast = Integer.toBinaryString(item.getDayRepeat().getYear()).length() - 1;
+        if(month >= monthLast) {
           tmp.set(Calendar.MONTH, 0);
           tmp.add(Calendar.YEAR, item.getDayRepeat().getInterval());
           month = 0;
@@ -865,10 +881,10 @@ public class DoneReceiver extends BroadcastReceiver {
         while(i < 12 - month) {
           if((item.getDayRepeat().getYear() & (1 << (month + i))) != 0) {
             tmp.add(Calendar.MONTH, i);
-            if(tmp.get(Calendar.DAY_OF_MONTH) < item.getDayRepeat().getDay_of_month_of_year()
-              && item.getDayRepeat().getDay_of_month_of_year() <=
+            if(tmp.get(Calendar.DAY_OF_MONTH) < item.getDayRepeat().getDayOfMonthOfYear()
+              && item.getDayRepeat().getDayOfMonthOfYear() <=
               tmp.getActualMaximum(Calendar.DAY_OF_MONTH)) {
-              tmp.set(Calendar.DAY_OF_MONTH, item.getDayRepeat().getDay_of_month_of_year());
+              tmp.set(Calendar.DAY_OF_MONTH, item.getDayRepeat().getDayOfMonthOfYear());
             }
 
             if(tmp.after(item.getDate())) {
@@ -902,13 +918,13 @@ public class DoneReceiver extends BroadcastReceiver {
         month = now.get(Calendar.MONTH);
 
         // intervalの処理
-        month_last = Integer.toBinaryString(item.getDayRepeat().getYear()).length() - 1;
-        if(month > month_last) {
+        monthLast = Integer.toBinaryString(item.getDayRepeat().getYear()).length() - 1;
+        if(month > monthLast) {
           tmp.set(Calendar.MONTH, 0);
           tmp.add(Calendar.YEAR, item.getDayRepeat().getInterval());
           month = 0;
         }
-        else if(month == month_last) {
+        else if(month == monthLast) {
           if(tmp.before(now)) {
             tmp.set(Calendar.MONTH, 0);
             tmp.add(Calendar.YEAR, item.getDayRepeat().getInterval());
@@ -920,10 +936,10 @@ public class DoneReceiver extends BroadcastReceiver {
         while(i < 12 - month) {
           if((item.getDayRepeat().getYear() & (1 << (month + i))) != 0) {
             tmp.add(Calendar.MONTH, i);
-            if(tmp.get(Calendar.DAY_OF_MONTH) < item.getDayRepeat().getDay_of_month_of_year()
-              && item.getDayRepeat().getDay_of_month_of_year() <=
+            if(tmp.get(Calendar.DAY_OF_MONTH) < item.getDayRepeat().getDayOfMonthOfYear()
+              && item.getDayRepeat().getDayOfMonthOfYear() <=
               tmp.getActualMaximum(Calendar.DAY_OF_MONTH)) {
-              tmp.set(Calendar.DAY_OF_MONTH, item.getDayRepeat().getDay_of_month_of_year());
+              tmp.set(Calendar.DAY_OF_MONTH, item.getDayRepeat().getDayOfMonthOfYear());
             }
 
             if(tmp.after(now)) {
@@ -942,40 +958,40 @@ public class DoneReceiver extends BroadcastReceiver {
       }
     }
 
-    if(!in_minute_repeat) {
-      if((item.getMinuteRepeat().getWhich_setted() & 1) != 0
+    if(!inMinuteRepeat) {
+      if((item.getMinuteRepeat().getWhichSet() & 1) != 0
         && item.getMinuteRepeat().getCount() == 0) {
 
-        if(item.getDayRepeat().getSetted() != 0) {
-          item.getMinuteRepeat().setCount(item.getMinuteRepeat().getOrg_count());
+        if(item.getDayRepeat().getWhichSet() != 0) {
+          item.getMinuteRepeat().setCount(item.getMinuteRepeat().getOrgCount());
         }
         else {
-          item.getMinuteRepeat().setWhich_setted(0);
+          item.getMinuteRepeat().setWhichSet(0);
         }
       }
-      else if((item.getMinuteRepeat().getWhich_setted() & (1 << 1)) != 0
+      else if((item.getMinuteRepeat().getWhichSet() & (1 << 1)) != 0
         && item.getMinuteRepeat().getInterval() > item.getMinuteRepeat().getDuration()) {
 
-        if(item.getDayRepeat().getSetted() != 0) {
+        if(item.getDayRepeat().getWhichSet() != 0) {
           item.getMinuteRepeat().setDuration(item.getMinuteRepeat().getOrgDuration());
         }
         else {
-          item.getMinuteRepeat().setWhich_setted(0);
+          item.getMinuteRepeat().setWhichSet(0);
         }
       }
     }
 
 
     // tmp設定後の処理
-    if(item.getDayRepeat().getSetted() != 0 || item.getMinuteRepeat().getWhich_setted() != 0) {
-      if(!in_minute_repeat) {
-        item.setOrg_alarm_stopped(item.isAlarm_stopped());
-        item.setOrg_time_altered(item.getTime_altered());
-        if(item.isAlarm_stopped()) {
-          item.setAlarm_stopped(false);
+    if(item.getDayRepeat().getWhichSet() != 0 || item.getMinuteRepeat().getWhichSet() != 0) {
+      if(!inMinuteRepeat) {
+        item.setOrgIsAlarmStopped(item.isAlarmStopped());
+        item.setOrgAlteredTime(item.getAlteredTime());
+        if(item.isAlarmStopped()) {
+          item.setAlarmStopped(false);
         }
-        if(item.getTime_altered() != 0) {
-          item.setTime_altered(0);
+        if(item.getAlteredTime() != 0) {
+          item.setAlteredTime(0);
         }
       }
       item.setDate((Calendar)tmp.clone());
@@ -1008,14 +1024,14 @@ public class DoneReceiver extends BroadcastReceiver {
     }
   }
 
-  public void setAlarm(Item item) {
+  public void setAlarm(ItemAdapter item) {
 
     if(item.getDate().getTimeInMillis() > System.currentTimeMillis() &&
-      item.getWhich_list_belongs() == 0) {
-      item.getNotify_interval().setTime(item.getNotify_interval().getOrg_time());
+      item.getWhichListBelongs() == 0) {
+      item.getNotifyInterval().setTime(item.getNotifyInterval().getOrgTime());
       Intent intent = new Intent(context, AlarmReceiver.class);
-      byte[] ob_array = serialize(item);
-      intent.putExtra(ITEM, ob_array);
+      byte[] obArray = serialize(item.getItem());
+      intent.putExtra(ITEM, obArray);
       PendingIntent sender = PendingIntent.getBroadcast(
         context, (int)item.getId(), intent, PendingIntent.FLAG_UPDATE_CURRENT);
 
@@ -1027,9 +1043,9 @@ public class DoneReceiver extends BroadcastReceiver {
     }
   }
 
-  public void deleteAlarm(Item item) {
+  public void deleteAlarm(ItemAdapter item) {
 
-    if(isAlarmSetted(item)) {
+    if(isAlarmSet(item)) {
       Intent intent = new Intent(context, AlarmReceiver.class);
       PendingIntent sender = PendingIntent.getBroadcast(
         context, (int)item.getId(), intent, PendingIntent.FLAG_UPDATE_CURRENT);
@@ -1042,7 +1058,7 @@ public class DoneReceiver extends BroadcastReceiver {
     }
   }
 
-  public boolean isAlarmSetted(Item item) {
+  public boolean isAlarmSet(ItemAdapter item) {
 
     Intent intent = new Intent(context, AlarmReceiver.class);
     PendingIntent sender = PendingIntent.getBroadcast(
@@ -1051,17 +1067,17 @@ public class DoneReceiver extends BroadcastReceiver {
     return sender != null;
   }
 
-  public void insertDB(Item item, String table) {
+  public void insertDB(ItemAdapter item, String table) {
 
-    accessor.executeInsert(item.getId(), serialize(item), table);
+    accessor.executeInsert(item.getId(), serialize(item.getItem()), table);
   }
 
-  public void updateDB(Item item, String table) {
+  public void updateDB(ItemAdapter item, String table) {
 
-    accessor.executeUpdate(item.getId(), serialize(item), table);
+    accessor.executeUpdate(item.getId(), serialize(item.getItem()), table);
   }
 
-  public void deleteDB(Item item, String table) {
+  public void deleteDB(ItemAdapter item, String table) {
 
     accessor.executeDelete(item.getId(), table);
   }

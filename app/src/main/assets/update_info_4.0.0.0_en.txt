@@ -1,0 +1,6 @@
+・Enabled setting vibration per task
+・Enabled backup of general settings as well as tasks
+・Fixed some day repeat functions
+・Fixed sometimes abnormal termination when searching tasks
+・Fixed entering sort mode automatically when scrolling in some pages
+・Other major fixes

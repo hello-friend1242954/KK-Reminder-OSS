@@ -38,7 +38,7 @@ public class NotifyIntervalEditFragment extends BasePreferenceFragmentCompat
   private CheckBoxPreference everyHour;
   private CheckBoxPreference everyDay;
   private CheckBoxPreference custom;
-  private PreferenceScreen custom_description;
+  private PreferenceScreen customDescription;
   PreferenceScreen duration;
   PreferenceScreen time;
   PreferenceScreen label;
@@ -71,7 +71,7 @@ public class NotifyIntervalEditFragment extends BasePreferenceFragmentCompat
     everyHour = (CheckBoxPreference)findPreference("every_hour");
     everyDay = (CheckBoxPreference)findPreference("every_day");
     custom = (CheckBoxPreference)findPreference("custom");
-    custom_description = (PreferenceScreen)findPreference("custom_description");
+    customDescription = (PreferenceScreen)findPreference("custom_description");
     duration = (PreferenceScreen)findPreference("duration");
     time = (PreferenceScreen)findPreference("time");
     label = (PreferenceScreen)findPreference("label");
@@ -128,9 +128,9 @@ public class NotifyIntervalEditFragment extends BasePreferenceFragmentCompat
     custom.setChecked(false);
     rootPreferenceScreen.removePreference(duration);
     rootPreferenceScreen.removePreference(time);
-    rootPreferenceScreen.removePreference(custom_description);
+    rootPreferenceScreen.removePreference(customDescription);
 
-    switch(MainEditFragment.notifyInterval.getWhich_setted()) {
+    switch(MainEditFragment.notifyInterval.getWhichSet()) {
 
       case 0: {
 
@@ -176,7 +176,7 @@ public class NotifyIntervalEditFragment extends BasePreferenceFragmentCompat
 
         custom.setChecked(true);
         rootPreferenceScreen.addPreference(duration);
-        NotifyInterval interval = MainEditFragment.notifyInterval;
+        NotifyIntervalAdapter interval = MainEditFragment.notifyInterval;
         Resources res = activity.getResources();
         String summary = "";
         if(interval.getHour() != 0) {
@@ -193,22 +193,22 @@ public class NotifyIntervalEditFragment extends BasePreferenceFragmentCompat
           }
         }
         duration.setTitle(summary);
-        int org_time = interval.getOrg_time();
-        time.setTitle(res.getQuantityString(R.plurals.times, org_time, org_time));
+        int orgTime = interval.getOrgTime();
+        time.setTitle(res.getQuantityString(R.plurals.times, orgTime, orgTime));
         rootPreferenceScreen.addPreference(time);
-        rootPreferenceScreen.addPreference(custom_description);
+        rootPreferenceScreen.addPreference(customDescription);
 
         break;
       }
     }
 
     // ラベルの初期化
-    String label_str = MainEditFragment.notifyInterval.getLabel();
-    if(label_str == null || label_str.equals(getString(R.string.none))) {
+    String labelStr = MainEditFragment.notifyInterval.getLabel();
+    if(labelStr == null || labelStr.equals(getString(R.string.none))) {
       label.setSummary(R.string.non_notify);
     }
     else {
-      label.setSummary(label_str);
+      label.setSummary(labelStr);
     }
 
     return view;
@@ -251,7 +251,7 @@ public class NotifyIntervalEditFragment extends BasePreferenceFragmentCompat
   @Override
   public void onCheckedChange(String key, boolean checked) {
 
-    int which_set = MainEditFragment.notifyInterval.getWhich_setted();
+    int whichSet = MainEditFragment.notifyInterval.getWhichSet();
 
     none.setChecked(false);
     defaultNotify.setChecked(false);
@@ -262,10 +262,10 @@ public class NotifyIntervalEditFragment extends BasePreferenceFragmentCompat
     everyHour.setChecked(false);
     everyDay.setChecked(false);
     custom.setChecked(false);
-    if(which_set == (1 << 7)) {
+    if(whichSet == (1 << 7)) {
       rootPreferenceScreen.removePreference(duration);
       rootPreferenceScreen.removePreference(time);
-      rootPreferenceScreen.removePreference(custom_description);
+      rootPreferenceScreen.removePreference(customDescription);
     }
 
     switch(key) {
@@ -274,14 +274,14 @@ public class NotifyIntervalEditFragment extends BasePreferenceFragmentCompat
 
         none.setChecked(true);
 
-        if(which_set != 0) {
+        if(whichSet != 0) {
           label.setSummary(R.string.non_notify);
 
           MainEditFragment.notifyInterval.setLabel(getString(R.string.none));
-          MainEditFragment.notifyInterval.setWhich_setted(0);
+          MainEditFragment.notifyInterval.setWhichSet(0);
           MainEditFragment.notifyInterval.setHour(0);
           MainEditFragment.notifyInterval.setMinute(0);
-          MainEditFragment.notifyInterval.setOrg_time(0);
+          MainEditFragment.notifyInterval.setOrgTime(0);
         }
 
         break;
@@ -290,14 +290,15 @@ public class NotifyIntervalEditFragment extends BasePreferenceFragmentCompat
 
         defaultNotify.setChecked(true);
 
-        if(which_set != 1) {
-          NotifyInterval notifyInterval = activity.generalSettings.getItem().getNotify_interval();
-          String label_str = notifyInterval.getLabel();
-          if(label_str == null || label_str.equals(getString(R.string.none))) {
+        if(whichSet != 1) {
+          NotifyIntervalAdapter notifyInterval
+            = activity.generalSettings.getItem().getNotifyInterval();
+          String labelStr = notifyInterval.getLabel();
+          if(labelStr == null || labelStr.equals(getString(R.string.none))) {
             label.setSummary(R.string.non_notify);
           }
           else {
-            label.setSummary(label_str);
+            label.setSummary(labelStr);
           }
 
           MainEditFragment.notifyInterval = notifyInterval.clone();
@@ -309,14 +310,14 @@ public class NotifyIntervalEditFragment extends BasePreferenceFragmentCompat
 
         everyMinute.setChecked(true);
 
-        if(which_set != 1 << 1) {
+        if(whichSet != 1 << 1) {
           label.setSummary(R.string.every_minute_summary);
 
           MainEditFragment.notifyInterval.setLabel(getString(R.string.every_minute_summary));
-          MainEditFragment.notifyInterval.setWhich_setted(1 << 1);
+          MainEditFragment.notifyInterval.setWhichSet(1 << 1);
           MainEditFragment.notifyInterval.setHour(0);
           MainEditFragment.notifyInterval.setMinute(1);
-          MainEditFragment.notifyInterval.setOrg_time(-1);
+          MainEditFragment.notifyInterval.setOrgTime(-1);
         }
 
         break;
@@ -325,14 +326,14 @@ public class NotifyIntervalEditFragment extends BasePreferenceFragmentCompat
 
         everyFiveMinutes.setChecked(true);
 
-        if(which_set != 1 << 2) {
+        if(whichSet != 1 << 2) {
           label.setSummary(R.string.every_five_minutes_summary);
 
           MainEditFragment.notifyInterval.setLabel(getString(R.string.every_five_minutes_summary));
-          MainEditFragment.notifyInterval.setWhich_setted(1 << 2);
+          MainEditFragment.notifyInterval.setWhichSet(1 << 2);
           MainEditFragment.notifyInterval.setHour(0);
           MainEditFragment.notifyInterval.setMinute(5);
-          MainEditFragment.notifyInterval.setOrg_time(6);
+          MainEditFragment.notifyInterval.setOrgTime(6);
         }
 
         break;
@@ -341,14 +342,14 @@ public class NotifyIntervalEditFragment extends BasePreferenceFragmentCompat
 
         everyFifteenMinutes.setChecked(true);
 
-        if(which_set != 1 << 3) {
+        if(whichSet != 1 << 3) {
           label.setSummary(R.string.every_fifteen_minutes_summary);
 
           MainEditFragment.notifyInterval.setLabel(getString(R.string.every_fifteen_minutes_summary));
-          MainEditFragment.notifyInterval.setWhich_setted(1 << 3);
+          MainEditFragment.notifyInterval.setWhichSet(1 << 3);
           MainEditFragment.notifyInterval.setHour(0);
           MainEditFragment.notifyInterval.setMinute(15);
-          MainEditFragment.notifyInterval.setOrg_time(6);
+          MainEditFragment.notifyInterval.setOrgTime(6);
         }
 
         break;
@@ -357,14 +358,14 @@ public class NotifyIntervalEditFragment extends BasePreferenceFragmentCompat
 
         everyThirtyMinutes.setChecked(true);
 
-        if(which_set != 1 << 4) {
+        if(whichSet != 1 << 4) {
           label.setSummary(R.string.every_thirty_minutes_summary);
 
           MainEditFragment.notifyInterval.setLabel(getString(R.string.every_thirty_minutes_summary));
-          MainEditFragment.notifyInterval.setWhich_setted(1 << 4);
+          MainEditFragment.notifyInterval.setWhichSet(1 << 4);
           MainEditFragment.notifyInterval.setHour(0);
           MainEditFragment.notifyInterval.setMinute(30);
-          MainEditFragment.notifyInterval.setOrg_time(6);
+          MainEditFragment.notifyInterval.setOrgTime(6);
         }
 
         break;
@@ -373,14 +374,14 @@ public class NotifyIntervalEditFragment extends BasePreferenceFragmentCompat
 
         everyHour.setChecked(true);
 
-        if(which_set != 1 << 5) {
+        if(whichSet != 1 << 5) {
           label.setSummary(R.string.every_hour_summary);
 
           MainEditFragment.notifyInterval.setLabel(getString(R.string.every_hour_summary));
-          MainEditFragment.notifyInterval.setWhich_setted(1 << 5);
+          MainEditFragment.notifyInterval.setWhichSet(1 << 5);
           MainEditFragment.notifyInterval.setHour(1);
           MainEditFragment.notifyInterval.setMinute(0);
-          MainEditFragment.notifyInterval.setOrg_time(6);
+          MainEditFragment.notifyInterval.setOrgTime(6);
         }
 
         break;
@@ -389,14 +390,14 @@ public class NotifyIntervalEditFragment extends BasePreferenceFragmentCompat
 
         everyDay.setChecked(true);
 
-        if(which_set != 1 << 6) {
+        if(whichSet != 1 << 6) {
           label.setSummary(R.string.every_day_summary);
 
           MainEditFragment.notifyInterval.setLabel(getString(R.string.every_day_summary));
-          MainEditFragment.notifyInterval.setWhich_setted(1 << 6);
+          MainEditFragment.notifyInterval.setWhichSet(1 << 6);
           MainEditFragment.notifyInterval.setHour(24);
           MainEditFragment.notifyInterval.setMinute(0);
-          MainEditFragment.notifyInterval.setOrg_time(-1);
+          MainEditFragment.notifyInterval.setOrgTime(-1);
         }
 
         break;
@@ -405,21 +406,21 @@ public class NotifyIntervalEditFragment extends BasePreferenceFragmentCompat
 
         custom.setChecked(true);
 
-        MainEditFragment.notifyInterval.setWhich_setted(1 << 7);
+        MainEditFragment.notifyInterval.setWhichSet(1 << 7);
         rootPreferenceScreen.addPreference(duration);
-        NotifyInterval interval = MainEditFragment.notifyInterval;
+        NotifyIntervalAdapter interval = MainEditFragment.notifyInterval;
         Resources res = activity.getResources();
         String summary = "";
-        boolean is_empty = true;
+        boolean isEmpty = true;
         if(interval.getHour() != 0) {
-          is_empty = false;
+          isEmpty = false;
           summary += res.getQuantityString(R.plurals.hour, interval.getHour(), interval.getHour());
           if(!LOCALE.equals(Locale.JAPAN)) {
             summary += " ";
           }
         }
         if(interval.getMinute() != 0) {
-          is_empty = false;
+          isEmpty = false;
           summary +=
             res.getQuantityString(R.plurals.minute, interval.getMinute(), interval.getMinute());
           if(!LOCALE.equals(Locale.JAPAN)) {
@@ -427,7 +428,7 @@ public class NotifyIntervalEditFragment extends BasePreferenceFragmentCompat
           }
         }
 
-        if(is_empty) {
+        if(isEmpty) {
           interval.setMinute(5);
           summary +=
             res.getQuantityString(R.plurals.minute, interval.getMinute(), interval.getMinute());
@@ -437,10 +438,10 @@ public class NotifyIntervalEditFragment extends BasePreferenceFragmentCompat
         }
 
         duration.setTitle(summary);
-        int org_time = interval.getOrg_time();
-        time.setTitle(res.getQuantityString(R.plurals.times, org_time, org_time));
+        int orgTime = interval.getOrgTime();
+        time.setTitle(res.getQuantityString(R.plurals.times, orgTime, orgTime));
         rootPreferenceScreen.addPreference(time);
-        rootPreferenceScreen.addPreference(custom_description);
+        rootPreferenceScreen.addPreference(customDescription);
 
         break;
       }

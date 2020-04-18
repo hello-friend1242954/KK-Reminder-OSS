@@ -5,6 +5,7 @@ import android.database.Cursor;
 import android.database.SQLException;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteStatement;
+import android.util.Log;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -13,7 +14,7 @@ class DBAccessor {
 
   private SQLiteDatabase sdb;
   private MyDatabaseHelper helper;
-  private String state_str;
+  private String stateStr;
   private SQLiteStatement statement;
 
   DBAccessor(Context context, boolean isDirectBootContext) {
@@ -32,11 +33,11 @@ class DBAccessor {
   void executeInsert(long id, byte[] stream, String table) {
 
     sdb = helper.getWritableDatabase();
-    state_str = "INSERT INTO " + table + "(item_id, serial) VALUES(?, ?)";
+    stateStr = "INSERT INTO " + table + "(item_id, serial) VALUES(?, ?)";
 
     sdb.beginTransaction();
     try {
-      statement = sdb.compileStatement(state_str);
+      statement = sdb.compileStatement(stateStr);
       statement.bindLong(1, id);
       statement.bindBlob(2, stream);
 
@@ -45,7 +46,7 @@ class DBAccessor {
       sdb.setTransactionSuccessful();
     }
     catch(SQLException e) {
-      e.printStackTrace();
+      Log.e("executeInsert", Log.getStackTraceString(e));
     }
     finally {
       sdb.endTransaction();
@@ -56,11 +57,11 @@ class DBAccessor {
   void executeUpdate(long id, byte[] stream, String table) {
 
     sdb = helper.getWritableDatabase();
-    state_str = "UPDATE " + table + " SET serial = ? WHERE item_id = ?";
+    stateStr = "UPDATE " + table + " SET serial = ? WHERE item_id = ?";
 
     sdb.beginTransaction();
     try {
-      statement = sdb.compileStatement(state_str);
+      statement = sdb.compileStatement(stateStr);
       statement.bindBlob(1, stream);
       statement.bindLong(2, id);
 
@@ -69,7 +70,7 @@ class DBAccessor {
       sdb.setTransactionSuccessful();
     }
     catch(SQLException e) {
-      e.printStackTrace();
+      Log.e("executeUpdate", Log.getStackTraceString(e));
     }
     finally {
       sdb.endTransaction();
@@ -80,11 +81,11 @@ class DBAccessor {
   void executeDelete(long id, String table) {
 
     sdb = helper.getWritableDatabase();
-    state_str = "DELETE FROM " + table + " WHERE item_id = ?";
+    stateStr = "DELETE FROM " + table + " WHERE item_id = ?";
 
     sdb.beginTransaction();
     try {
-      statement = sdb.compileStatement(state_str);
+      statement = sdb.compileStatement(stateStr);
       statement.bindLong(1, id);
 
       statement.executeUpdateDelete();
@@ -92,7 +93,7 @@ class DBAccessor {
       sdb.setTransactionSuccessful();
     }
     catch(SQLException e) {
-      e.printStackTrace();
+      Log.e("executeDelete", Log.getStackTraceString(e));
     }
     finally {
       sdb.endTransaction();
@@ -104,8 +105,8 @@ class DBAccessor {
 
     sdb = helper.getReadableDatabase();
 
-    state_str = "SELECT * FROM " + table;
-    try(Cursor cursor = sdb.rawQuery(state_str, null)) {
+    stateStr = "SELECT * FROM " + table;
+    try(Cursor cursor = sdb.rawQuery(stateStr, null)) {
       return readCursorBySerial(cursor);
     }
     finally {
@@ -117,8 +118,8 @@ class DBAccessor {
 
     sdb = helper.getReadableDatabase();
 
-    state_str = "SELECT * FROM " + table + " WHERE item_id = ?";
-    try(Cursor cursor = sdb.rawQuery(state_str, new String[]{Long.toString(id)})) {
+    stateStr = "SELECT * FROM " + table + " WHERE item_id = ?";
+    try(Cursor cursor = sdb.rawQuery(stateStr, new String[]{Long.toString(id)})) {
       return readCursorById(cursor);
     }
     finally {
