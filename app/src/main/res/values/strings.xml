@@ -1,6 +1,6 @@
 <resources xmlns:tools="http://schemas.android.com/tools">
 
-    <string name="version_value">4.0.0.0</string>
+    <string name="version_value">4.0.1.0</string>
     <string name="app_id">******************</string>
     <string name="ad_unit_id">******************</string>
     <string name="app_name">KK Reminder</string>
@@ -8,6 +8,8 @@
     <string name="app_url">https://play.google.com/store/apps/details?id=com.hideaki.kk_reminder</string>
     <string name="backup_progress_bar_title">Backup Data</string>
     <string name="restore_progress_bar_title">Restore Data</string>
+    <string name="set_all_notify_sound_progress_bar_title">Set notification sound to all tasks</string>
+    <string name="set_all_vibration_progress_bar_title">Set vibration to all tasks</string>
     <string name="copy_from_old_version_progress_bar_title">Database Update</string>
     <string name="update_info">Update Info</string>
     <string name="align_top">Go to top of the list</string>
@@ -121,6 +123,8 @@
     <string name="default_text_size_model_summary">Display example</string>
     <string name="default_new_task">New task</string>
     <string name="default_new_task_summary">You can set default settings of new task previously</string>
+    <string name="set_all">Set to all tasks</string>
+    <string name="set_all_summary">Set a vibration or a notification sound to all tasks</string>
     <string name="default_manually_snooze">Manual snooze time</string>
     <string name="default_control_time">Time step</string>
     <string name="default_control_time_summary">This step will be applied to time control section in control panel of card</string>

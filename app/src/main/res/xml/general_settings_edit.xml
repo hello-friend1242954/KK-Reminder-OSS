@@ -20,6 +20,11 @@
             android:summary="@string/default_new_task_summary"/>
 
         <PreferenceScreen
+            android:title="@string/set_all"
+            android:key="set_all"
+            android:summary="@string/set_all_summary"/>
+
+        <PreferenceScreen
             android:title="@string/default_manually_snooze"
             android:key="manually_snooze"/>
 

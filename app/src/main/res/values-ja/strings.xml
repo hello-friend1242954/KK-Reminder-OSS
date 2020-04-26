@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 
-    <string name="version_value">4.0.0.0</string>
+    <string name="version_value">4.0.1.0</string>
     <string name="app_id">******************</string>
     <string name="ad_unit_id">******************</string>
     <string name="app_name">KK リマインダー</string>
@@ -9,6 +9,8 @@
     <string name="app_url">https://play.google.com/store/apps/details?id=com.hideaki.kk_reminder</string>
     <string name="backup_progress_bar_title">データのバックアップ</string>
     <string name="restore_progress_bar_title">データの復元</string>
+    <string name="set_all_notify_sound_progress_bar_title">通知音の一括設定</string>
+    <string name="set_all_vibration_progress_bar_title">バイブレーションの一括設定</string>
     <string name="copy_from_old_version_progress_bar_title">データベースの更新処理</string>
     <string name="update_info">更新情報</string>
     <string name="align_top">リストの先頭に飛ぶ</string>
@@ -117,6 +119,8 @@
     <string name="default_text_size_model_summary">表示例</string>
     <string name="default_new_task">新しく追加するタスク</string>
     <string name="default_new_task_summary">新しく追加するタスクの初期状態を決めておくことができます。</string>
+    <string name="set_all">タスクの一括設定</string>
+    <string name="set_all_summary">全タスクのバイブレーションまたは通知音を一括設定します。</string>
     <string name="default_manually_snooze">手動スヌーズの延長時間</string>
     <string name="default_control_time">時間調節幅</string>
     <string name="default_control_time_summary">この時間幅はカードのコントロールパネルにある時間調節部分の調節幅に適用されます</string>

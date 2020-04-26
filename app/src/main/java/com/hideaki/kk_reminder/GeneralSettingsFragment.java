@@ -73,6 +73,7 @@ public class GeneralSettingsFragment extends BasePreferenceFragmentCompat
     PreferenceScreen defaultControlTime = (PreferenceScreen)findPreference("control_time");
     PreferenceScreen defaultTextSize = (PreferenceScreen)findPreference("text_size");
     PreferenceScreen defaultNewTask = (PreferenceScreen)findPreference("new_task");
+    PreferenceScreen setAll = (PreferenceScreen)findPreference("set_all");
     PreferenceScreen manuallySnooze = (PreferenceScreen)findPreference("manually_snooze");
     animation = (CheckBoxPreference)findPreference("animation");
     PreferenceCategory adsCategory = (PreferenceCategory)findPreference("ads_category");
@@ -87,6 +88,7 @@ public class GeneralSettingsFragment extends BasePreferenceFragmentCompat
     defaultControlTime.setOnPreferenceClickListener(this);
     defaultTextSize.setOnPreferenceClickListener(this);
     defaultNewTask.setOnPreferenceClickListener(this);
+    setAll.setOnPreferenceClickListener(this);
     manuallySnooze.setOnPreferenceClickListener(this);
     ((MyCheckBoxPreference)animation).setOnMyCheckBoxPreferenceCheckedChangeListener(this);
     disableAds.setOnPreferenceClickListener(this);
@@ -178,6 +180,10 @@ public class GeneralSettingsFragment extends BasePreferenceFragmentCompat
       }
       case "new_task": {
         activity.showMainEditFragment(activity.generalSettings.getItem());
+        return true;
+      }
+      case "set_all": {
+        transitionFragment(SetAllFragment.newInstance());
         return true;
       }
       case "manually_snooze": {

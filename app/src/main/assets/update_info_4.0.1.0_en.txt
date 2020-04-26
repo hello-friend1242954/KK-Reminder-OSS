@@ -1,0 +1,1 @@
+・Enabled setting vibration/notification sound to all tasks at a time
