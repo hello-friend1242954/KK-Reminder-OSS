@@ -7,7 +7,6 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.res.Configuration;
-import android.os.Build;
 import android.os.Bundle;
 import android.view.View;
 import android.view.Window;
@@ -32,7 +31,6 @@ import static com.hideaki.kk_reminder.UtilClass.ACTION_IN_NOTIFICATION;
 import static com.hideaki.kk_reminder.UtilClass.BOOLEAN_GENERAL;
 import static com.hideaki.kk_reminder.UtilClass.BOOLEAN_GENERAL_COPY;
 import static com.hideaki.kk_reminder.UtilClass.BOOT_FROM_NOTIFICATION;
-import static com.hideaki.kk_reminder.UtilClass.CHANNEL_ID;
 import static com.hideaki.kk_reminder.UtilClass.CHILD_NOTIFICATION_ID;
 import static com.hideaki.kk_reminder.UtilClass.CREATED;
 import static com.hideaki.kk_reminder.UtilClass.DESTROYED;
@@ -113,15 +111,11 @@ public class ManuallySnoozeActivity extends AppCompatActivity implements View.On
       stringPreferences.getStringSet(NOTIFICATION_ID_TABLE, new TreeSet<String>());
     int parentId = intent.getIntExtra(PARENT_NOTIFICATION_ID, 0);
     int childId = intent.getIntExtra(CHILD_NOTIFICATION_ID, 0);
-    String channelId = intent.getStringExtra(CHANNEL_ID);
     NotificationManager manager = (NotificationManager)getSystemService(NOTIFICATION_SERVICE);
     requireNonNull(manager);
 
     for(int i = 1; i <= childId; i++) {
       manager.cancel(parentId + i);
-    }
-    if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-      manager.deleteNotificationChannel(channelId);
     }
     requireNonNull(idTable);
     idTable.remove(Integer.toBinaryString(parentId));

@@ -7,7 +7,6 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.os.Build;
 
 import java.util.Calendar;
 import java.util.Set;
@@ -18,7 +17,6 @@ import static android.content.Context.NOTIFICATION_SERVICE;
 import static com.hideaki.kk_reminder.StartupReceiver.getDynamicContext;
 import static com.hideaki.kk_reminder.StartupReceiver.getIsDirectBootContext;
 import static com.hideaki.kk_reminder.UtilClass.ACTION_IN_NOTIFICATION;
-import static com.hideaki.kk_reminder.UtilClass.CHANNEL_ID;
 import static com.hideaki.kk_reminder.UtilClass.CHILD_NOTIFICATION_ID;
 import static com.hideaki.kk_reminder.UtilClass.CREATED;
 import static com.hideaki.kk_reminder.UtilClass.DESTROYED;
@@ -64,16 +62,12 @@ public class DefaultManuallySnoozeReceiver extends BroadcastReceiver {
     requireNonNull(idTable);
     int parentId = intent.getIntExtra(PARENT_NOTIFICATION_ID, 0);
     int childId = intent.getIntExtra(CHILD_NOTIFICATION_ID, 0);
-    String channelId = intent.getStringExtra(CHANNEL_ID);
     NotificationManager manager =
       (NotificationManager)context.getSystemService(NOTIFICATION_SERVICE);
     requireNonNull(manager);
 
     for(int i = 1; i <= childId; i++) {
       manager.cancel(parentId + i);
-    }
-    if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-      manager.deleteNotificationChannel(channelId);
     }
     idTable.remove(Integer.toBinaryString(parentId));
     stringPreferences

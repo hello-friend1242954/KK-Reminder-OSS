@@ -243,7 +243,6 @@ public class AlarmReceiver extends BroadcastReceiver {
     doneIntent.putExtra(ITEM, serialize(item.getItem()));
     doneIntent.putExtra(PARENT_NOTIFICATION_ID, parentId);
     doneIntent.putExtra(CHILD_NOTIFICATION_ID, childId);
-    doneIntent.putExtra(CHANNEL_ID, channelId);
     PendingIntent doneSender = PendingIntent.getBroadcast(
       context, (int)item.getId(), doneIntent, PendingIntent.FLAG_UPDATE_CURRENT
     );
@@ -275,7 +274,6 @@ public class AlarmReceiver extends BroadcastReceiver {
     defaultSnoozeIntent.putExtra(ITEM, serialize(item.getItem()));
     defaultSnoozeIntent.putExtra(PARENT_NOTIFICATION_ID, parentId);
     defaultSnoozeIntent.putExtra(CHILD_NOTIFICATION_ID, childId);
-    defaultSnoozeIntent.putExtra(CHANNEL_ID, channelId);
     PendingIntent defaultSnoozeSender = PendingIntent.getBroadcast(
       context, (int)item.getId(), defaultSnoozeIntent, PendingIntent.FLAG_UPDATE_CURRENT
     );
@@ -286,7 +284,6 @@ public class AlarmReceiver extends BroadcastReceiver {
     advancedSnoozeIntent.putExtra(ITEM, serialize(item.getItem()));
     advancedSnoozeIntent.putExtra(PARENT_NOTIFICATION_ID, parentId);
     advancedSnoozeIntent.putExtra(CHILD_NOTIFICATION_ID, childId);
-    advancedSnoozeIntent.putExtra(CHANNEL_ID, channelId);
     PendingIntent snoozeSender = PendingIntent.getActivity(
       context, (int)item.getId(), advancedSnoozeIntent, PendingIntent.FLAG_UPDATE_CURRENT
     );
